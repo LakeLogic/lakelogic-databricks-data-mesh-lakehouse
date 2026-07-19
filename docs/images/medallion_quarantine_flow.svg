@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="510" viewBox="0 0 1200 510" role="img" aria-labelledby="title desc">
+  <title id="title">Medallion pipeline with a quarantine layer</title>
+  <desc id="desc">Landing data flows through Bronze, Silver, and Gold to consumers. Contract failures from each governed layer are retained in quarantine, and the layers write structured run logs.</desc>
+  <defs>
+    <marker id="tealArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#14b8a6"/></marker>
+    <marker id="redArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/></marker>
+    <style>.t{font-family:Arial,sans-serif;font-weight:700;fill:#0f172a}.b{font-family:Arial,sans-serif;fill:#334155}.s{font-family:Arial,sans-serif;fill:#475569}</style>
+  </defs>
+  <rect width="1200" height="510" rx="22" fill="#f8fafc"/>
+  <text x="52" y="58" class="t" font-size="28">Medallion pipeline with a quarantine layer</text>
+  <text x="52" y="87" class="s" font-size="16">Valid records progress through the pipeline; contract-failing records are retained with diagnostic context.</text>
+  <g>
+    <rect x="48" y="158" width="150" height="94" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="123" y="196" text-anchor="middle" class="t" font-size="19">Landing</text><text x="123" y="221" text-anchor="middle" class="b" font-size="13">Volumes / source data</text>
+    <rect x="260" y="158" width="150" height="94" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+    <text x="335" y="196" text-anchor="middle" class="t" font-size="19" fill="#c2410c">Bronze</text><text x="335" y="221" text-anchor="middle" class="b" font-size="13">raw + governed</text>
+    <rect x="462" y="158" width="170" height="100" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+    <text x="547" y="194" text-anchor="middle" class="t" font-size="19">Silver</text>
+    <text x="547" y="224" text-anchor="middle" class="b" font-size="13">filtered + cleaned</text>
+    <text x="547" y="243" text-anchor="middle" class="b" font-size="13">+ validated</text>
+    <rect x="684" y="158" width="150" height="94" rx="12" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+    <text x="759" y="196" text-anchor="middle" class="t" font-size="19" fill="#a16207">Gold</text><text x="759" y="221" text-anchor="middle" class="b" font-size="13">published product</text>
+    <rect x="958" y="158" width="190" height="94" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+    <text x="1053" y="190" text-anchor="middle" class="t" font-size="19" fill="#1d4ed8">Consumers</text><text x="1053" y="216" text-anchor="middle" class="b" font-size="13">cross-domain marts</text><text x="1053" y="237" text-anchor="middle" class="b" font-size="13">dashboards · ML</text>
+  </g>
+  <g stroke="#14b8a6" stroke-width="3" marker-end="url(#tealArrow)"><path d="M198 205 L260 205"/><path d="M410 205 L462 205"/><path d="M632 205 L684 205"/><path d="M834 205 L958 205"/></g>
+  <text x="438" y="141" class="s" font-size="13">contract gate</text><text x="651" y="141" class="s" font-size="13">contract gate</text>
+  <rect x="400" y="350" width="400" height="103" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="3"/>
+  <text x="600" y="389" text-anchor="middle" class="t" font-size="21" fill="#b91c1c">Quarantine</text>
+  <text x="600" y="417" text-anchor="middle" class="b" font-size="14">failed records retained with rule and diagnostic context</text>
+  <g fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#redArrow)"><path d="M335 252 L460 350"/><path d="M547 258 L570 350"/><path d="M759 252 L710 350"/></g>
+  <text x="352" y="297" class="s" font-size="13" fill="#b91c1c">contract failure</text><text x="738" y="297" class="s" font-size="13" fill="#b91c1c">contract failure</text>
+  <rect x="852" y="350" width="290" height="102" rx="12" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2"/>
+  <text x="997" y="380" text-anchor="middle" class="t" font-size="17" fill="#0f766e">Structured run logs</text><text x="997" y="404" text-anchor="middle" class="b" font-size="13">Bronze · Silver · Gold</text><text x="997" y="428" text-anchor="middle" class="b" font-size="13">quality results · counts · lineage evidence</text>
+  <g fill="none" stroke="#14b8a6" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#tealArrow)"><path d="M410 230 L852 370"/><path d="M622 230 L852 395"/><path d="M834 230 L852 420"/></g>
+</svg>

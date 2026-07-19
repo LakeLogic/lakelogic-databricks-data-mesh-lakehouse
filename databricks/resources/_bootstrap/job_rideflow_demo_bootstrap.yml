@@ -1,0 +1,54 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# RideFlow Demo — 🚀 One-Click Bootstrap
+# ══════════════════════════════════════════════════════════════════════════════
+# The single job a tester runs after `databricks bundle deploy`.
+#   1. 00_setup  — creates the catalog, schemas, landing Volumes, stages contracts
+#   2. runs the marketplace medallion end-to-end (test data → bronze → silver → gold)
+#
+# Everything runs on serverless compute against Unity Catalog — no cluster to
+# configure, no Azure ADLS. Run the other domain orchestrators the same way to
+# populate the full mesh.
+resources:
+  jobs:
+    rideflow_demo_bootstrap:
+      name: "[${bundle.target}] RideFlow Demo — 🚀 One-Click Bootstrap"
+      description: "Provision Unity Catalog (schemas, landing Volumes, contracts) then generate and process the marketplace medallion end-to-end."
+
+      tags:
+        managed_by: lakelogic
+        layer: bootstrap
+
+      tasks:
+        # ── Step 1: Provision catalog / schemas / volumes / contracts ─────────
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../../notebooks/_ops/00_setup.py
+            base_parameters:
+              catalog: "${var.catalog}"
+              # Exact synced location of the contract registry (DAB syncs
+              # ../domains_rideflow to <file_path>/domains_rideflow).
+              contracts_src: "${workspace.file_path}/domains_rideflow"
+
+        # ── Step 2: Generate + process the marketplace medallion ──────────────
+        # Reuses the existing per-domain orchestrator, forcing every layer ON.
+        - task_key: run_marketplace_medallion
+          depends_on:
+            - task_key: setup
+          run_job_task:
+            job_id: ${resources.jobs.marketplace_orchestrator_rideflow.id}
+            job_parameters:
+              enable_test_data: "true"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "true"
+
+        # ── Step 3: Prove the advertised outputs exist ───────────────────────
+        - task_key: verify_marketplace_outputs
+          depends_on:
+            - task_key: run_marketplace_medallion
+          notebook_task:
+            notebook_path: ../../notebooks/_ops/release_smoke_test.py
+            base_parameters:
+              catalog: "${var.catalog}"
+
+      email_notifications: {}

@@ -1,0 +1,66 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# RideFlow Marketplace — Test Data Generation Job
+# ══════════════════════════════════════════════════════════════════════════════
+# Generates realistic 24-hour streaming data into the ADLS landing zone.
+# Also injects surgical edge cases to validate quarantine logic.
+
+resources:
+  jobs:
+    marketplace_test_data_rideflow:
+      name: "[${bundle.target}] ${var.domain} / ${var.system} — 0 Test Data Generation"
+      description: "Generates realistic streaming data and deterministic edge cases into the landing zone."
+
+      tags:
+        domain: ${var.domain}
+        system: ${var.system}
+        layer: test
+        managed_by: lakelogic
+
+      schedule:
+        quartz_cron_expression: "0 0 5 * * ?"  # 05:00 UTC, just before the orchestrator
+        timezone_id: "UTC"
+        pause_status: PAUSED
+
+#       job_clusters:
+#         - job_cluster_key: rideflow_compute
+#           new_cluster:
+#             spark_version: 16.4.x-scala2.12
+#             node_type_id: Standard_DS3_v2
+#             autoscale:
+#               min_workers: 1
+#               max_workers: 4
+#             spark_env_vars:
+#               RIDEFLOW_DEV_CATALOG: "{{secrets/rideflow/rideflow-dev-catalog}}"
+#               RIDEFLOW_DEV_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-dev-storage-account}}"
+#               RIDEFLOW_STG_CATALOG: "{{secrets/rideflow/rideflow-stg-catalog}}"
+#               RIDEFLOW_STG_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-stg-storage-account}}"
+#               RIDEFLOW_PROD_CATALOG: "{{secrets/rideflow/rideflow-prod-catalog}}"
+#               RIDEFLOW_PROD_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-prod-storage-account}}"
+#               DOMAIN_CONTACT_MARKETPLACE: "{{secrets/rideflow/domain-contact-marketplace}}"
+#               LAKELOGIC_OBSERVATORY_ENDPOINT: "{{secrets/rideflow/lakelogic-observatory-endpoint}}"
+#               LAKELOGIC_API_KEY: "{{secrets/rideflow/lakelogic-api-key}}"
+
+      # Pre-provision libraries on serverless so the notebook doesn't pip-install
+      # per run. If `bundle deploy` rejects the version, change serverless_env_version
+      # in databrick_variables.yml to the value shown in a notebook's Environment panel.
+      environments:
+        - environment_key: default
+          spec:
+            client: "${var.serverless_env_version}"
+            dependencies:
+              - lakelogic
+              - polars
+              - deltalake
+              - pyyaml
+
+      tasks:
+        - task_key: generate_test_data
+          environment_key: default
+          notebook_task:
+            notebook_path: ../../notebooks/test_data_driver.py
+            base_parameters:
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/${var.domain}/${var.system}/_system.yaml"
+              environment: "${bundle.target}"
+              num_windows: "24"
+              inject_edge_cases: "true"
+

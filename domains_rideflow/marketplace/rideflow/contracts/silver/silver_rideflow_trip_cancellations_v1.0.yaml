@@ -1,0 +1,73 @@
+version: 1.0.0
+info:
+  title: "Silver — Rideflow Trip Cancellations"
+  table_name: '{silver_layer}_rideflow_trip_cancellations'
+  description: >
+    Cleaned, typed, deduplicated cancellation events. Joins to
+    `silver_rideflow_trips` (when post-assignment) and
+    `silver_rideflow_trip_requests` (for pre-match cancellations)
+    via trip_id / rider_id.
+  target_layer: silver
+  domain: marketplace
+  system: rideflow
+upstream_contracts:
+  - contract: bronze_rideflow_trip_cancellations
+    layer: bronze
+    domain: marketplace
+    system: rideflow
+primary_key: [cancellation_id]
+model:
+  fields:
+    - name: cancellation_id
+      type: string
+      required: true
+    - name: trip_id
+      type: string
+      description: "FK to trips — null for pre-match cancellations."
+    - name: rider_id
+      type: string
+      required: true
+      pii: true
+      masking: hash
+      foreign_key:
+        contract: "{silver_layer}_rideflow_rider_profiles"
+        column: rider_id
+    - name: driver_id
+      type: string
+      pii: true
+      masking: hash
+      foreign_key:
+        contract: "{silver_layer}_rideflow_driver_profiles"
+        column: driver_id
+    - name: cancelled_by
+      type: string
+      description: "rider | driver"
+    - name: cancel_reason_code
+      type: string
+    - name: city_code
+      type: string
+    - name: requested_at
+      type: timestamp
+    - name: cancelled_at
+      type: timestamp
+      required: true
+    - name: cancellation_fee
+      type: float
+quality:
+  row_rules:
+    - name: cancellation_id_not_null
+      sql: "cancellation_id IS NOT NULL"
+    - name: valid_cancelled_by
+      sql: "cancelled_by IS NULL OR cancelled_by IN ('rider','driver')"
+    - name: cancelled_after_requested
+      sql: "requested_at IS NULL OR cancelled_at IS NULL OR cancelled_at >= requested_at"
+  dataset_rules:
+    - unique: cancellation_id
+transformations:
+  - deduplicate:
+      by:
+        - cancellation_id
+source:
+  type: table
+  path: 'table:{domain_catalog}.{bronze_layer}_{system}_trip_cancellations'
+  load_mode: full

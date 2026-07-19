@@ -1,0 +1,71 @@
+version: 1.0.0
+
+info:
+  title: "Gold — Fact Trip Daily KPIs"
+  table_name: "{gold_layer}_rideflow_fact_trip_daily_kpis"
+  description: "Daily revenue, volume, and distance KPIs aggregated from completed trips."
+  target_layer: gold
+  domain: marketplace
+  system: rideflow
+
+source:
+  type: table
+  path: "table:{domain_catalog}.silver_rideflow_trips"
+  load_mode: full
+
+primary_key: [kpi_date, city_code]
+
+links:
+  - name: silver_trips_full
+    path: "table:{domain_catalog}.silver_rideflow_trips"
+    type: table
+
+model:
+  fields:
+    - name: kpi_date
+      type: date
+      required: true
+    - name: city_code
+      type: string
+    - name: total_trips
+      type: integer
+    - name: total_revenue
+      type: float
+    - name: total_distance_km
+      type: float
+    - name: avg_fare
+      type: float
+    - name: avg_surge
+      type: float
+
+transformations:
+  # phase: pre — this SQL PRODUCES the model's required columns (kpi_date, …).
+  # Schema enforcement runs before post-phase transforms, so a post-phase
+  # aggregation would see the raw source (no kpi_date) and quarantine every row,
+  # yielding 0 output. Running pre-phase materialises the aggregate first, then
+  # schema-validates the shaped output.
+  - phase: pre
+    sql: |
+      SELECT
+          CAST(requested_at AS DATE) AS kpi_date,
+          city_code,
+          COUNT(*)                   AS total_trips,
+          SUM(fare_amount)           AS total_revenue,
+          SUM(distance_km)           AS total_distance_km,
+          AVG(fare_amount)           AS avg_fare,
+          AVG(surge_multiplier)      AS avg_surge
+      -- Read the FULL Silver table (via link) so aggregates
+      -- (COUNT, SUM, AVG) include ALL rows for each date —
+      -- not just the incremental slice.
+      FROM silver_trips_full
+      WHERE requested_at IS NOT NULL
+      -- Only re-aggregate dates that received new trips.
+      -- On a full load, `source` contains everything, so this safely selects all dates.
+      AND CAST(requested_at AS DATE) IN (SELECT DISTINCT CAST(requested_at AS DATE) FROM source)
+      GROUP BY CAST(requested_at AS DATE), city_code
+
+downstream:
+  - name: "Executive Daily KPI Dashboard"
+    type: "dashboard"
+    platform: "PowerBI"
+    owner: "finance@rideflow.com"

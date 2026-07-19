@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc">
+  <title id="title">RideFlow one-click bootstrap sequence</title>
+  <desc id="desc">The user deploys the bundle and runs the bootstrap. Databricks creates jobs, provisions Unity Catalog, stages contracts, runs the Marketplace medallion, quarantines failed rows, and writes logs.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0f766e"/></marker>
+    <style>.title{font:700 28px Arial;fill:#0f172a}.step{font:700 16px Arial;fill:#0f172a}.body{font:14px Arial;fill:#475569}.box{fill:#fff;stroke:#cbd5e1;stroke-width:2}.accent{fill:#ecfeff;stroke:#14b8a6;stroke-width:2}.line{stroke:#0f766e;stroke-width:3;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1200" height="430" rx="24" fill="#f8fafc"/>
+  <text x="54" y="58" class="title">One-click bootstrap: from deploy to trusted data</text>
+  <g transform="translate(54 105)">
+    <rect class="accent" width="220" height="105" rx="16"/><text x="22" y="34" class="step">1. You</text><text x="22" y="63" class="body">Deploy the bundle</text><text x="22" y="84" class="body">Run the bootstrap job</text>
+  </g>
+  <path class="line" d="M274 157 H325"/>
+  <g transform="translate(326 105)">
+    <rect class="box" width="220" height="105" rx="16"/><text x="22" y="34" class="step">2. Databricks CLI</text><text x="22" y="63" class="body">Sync contracts + notebooks</text><text x="22" y="84" class="body">Create workflow jobs</text>
+  </g>
+  <path class="line" d="M546 157 H597"/>
+  <g transform="translate(598 105)">
+    <rect class="box" width="250" height="105" rx="16"/><text x="22" y="34" class="step">3. Workspace setup</text><text x="22" y="63" class="body">Create catalog, schemas, Volumes</text><text x="22" y="84" class="body">Stage contracts in _contracts</text>
+  </g>
+  <path class="line" d="M848 157 H899"/>
+  <g transform="translate(900 105)">
+    <rect class="accent" width="246" height="105" rx="16"/><text x="22" y="34" class="step">4. Marketplace pipeline</text><text x="22" y="63" class="body">Generate test data</text><text x="22" y="84" class="body">Run Bronze - Silver - Gold</text>
+  </g>
+  <path class="line" d="M1023 210 V272"/>
+  <g transform="translate(710 273)">
+    <rect class="box" width="436" height="105" rx="16"/><text x="22" y="34" class="step">5. Unity Catalog results</text><text x="22" y="63" class="body">Passing rows reach governed tables; failed rows reach quarantine</text><text x="22" y="84" class="body">Every run writes evidence to the _logs Volume</text>
+  </g>
+</svg>

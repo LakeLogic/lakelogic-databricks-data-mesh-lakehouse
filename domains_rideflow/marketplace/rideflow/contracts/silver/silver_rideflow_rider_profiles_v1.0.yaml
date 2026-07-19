@@ -1,0 +1,61 @@
+version: 1.0.0
+info:
+  title: "Silver — Rideflow Rider Profiles"
+  table_name: '{silver_layer}_rideflow_rider_profiles'
+  description: Cleaned, typed, and deduplicated data.
+  target_layer: silver
+  domain: marketplace
+  system: rideflow
+
+primary_key: [rider_id]
+model:
+  fields:
+  - name: rider_id
+    type: string
+    required: true
+  - name: name
+    type: string
+    pii: true
+    masking: redact
+  - name: email
+    type: string
+    pii: true
+    masking: hash
+  - name: phone
+    type: string
+    pii: true
+    masking: hash
+  - name: date_of_birth
+    type: string
+    pii: true
+    masking: hash
+  - name: home_address
+    type: string
+    pii: true
+    masking: redact
+  - name: city_code
+    type: string
+  - name: signup_date
+    type: date
+  - name: status
+    type: string
+  - name: preferred_payment_method
+    type: string
+  - name: updated_at
+    type: timestamp
+quality:
+  row_rules:
+    - name: valid_email
+      sql: "email like '%@%'"
+    - name: rider_id_not_null
+      sql: "rider_id IS NOT NULL"
+  dataset_rules:
+  - unique: rider_id
+transformations:
+- deduplicate:
+    by:
+    - rider_id
+source:
+  type: table
+  path: 'table:{domain_catalog}.{bronze_layer}_{system}_rider_profiles'
+  load_mode: full

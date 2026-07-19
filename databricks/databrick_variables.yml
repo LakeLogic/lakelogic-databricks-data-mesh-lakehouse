@@ -1,0 +1,19 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# LakeLogic — RideFlow Marketplace DAB Bundle Variables
+# ══════════════════════════════════════════════════════════════════════════════
+variables:
+  domain:
+    description: "Data Mesh domain"
+    default: "marketplace"
+  system:
+    description: "Source system"
+    default: "rideflow"
+  catalog:
+    description: "Unity Catalog name (created by _ops/00_setup)"
+    default: "rideflow_dev_demo"
+  deployment_folder:
+    description: "Deployment folder"
+    default: "_data_platform_rideflow_demo"
+  serverless_env_version:
+    description: "Serverless environment (client) version for pre-provisioned job deps. Bump if `bundle deploy` rejects it (see the value in a serverless notebook's Environment panel)."
+    default: "3"

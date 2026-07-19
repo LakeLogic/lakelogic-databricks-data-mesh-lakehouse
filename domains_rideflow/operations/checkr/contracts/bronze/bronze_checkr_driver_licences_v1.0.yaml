@@ -1,0 +1,68 @@
+version: 1.0.0
+info:
+  title: "Bronze — Checkr Driver Licences Unstructured"
+  table_name: "{bronze_layer}_{system}_driver_licences"
+  description: "Extracting driver details from simulated raw PDF documents using pdfplumber regex."
+  target_layer: bronze
+  domain: operations
+  system: checkr
+
+dataset: "driver_licences"
+
+source:
+  type: landing
+  # Use the registry's landing_root convention so dev/prod paths resolve too.
+  # Glob into all date-partitioned hour folders for PDFs.
+  path: "{landing_root}/driver_licences/**/*.pdf"
+  format: pdf
+  # Process only PDFs newer than the last successful run's high-watermark
+  # (file mtime). First run reads everything; subsequent runs read only
+  # newly-arrived licences. Re-extracting every PDF every run scales badly
+  # as the corpus grows — incremental is the right default for landing PDFs.
+  load_mode: incremental
+
+extraction:
+  provider: pdfplumber
+  # Extraction hints live on model.fields below (extraction_task / extraction_examples).
+  # As of lakelogic 1.36.0 the engine mirrors model.fields → extraction.output_schema on
+  # ALL read paths (incl. spark/UC), so no explicit output_schema is needed here.
+
+model:
+  fields:
+    - name: file_path
+      type: string
+      # implicitly populated by the pipeline
+
+    - name: full_name
+      type: string
+      required: true
+      extraction_task: metadata
+      extraction_examples: ['Name:\s+(.+)']
+      
+    - name: licence_number
+      type: string
+      required: true
+      extraction_task: metadata
+      extraction_examples: ['Licence No:\s+(\S+)']
+      
+    - name: date_of_birth
+      type: date
+      extraction_task: metadata
+      extraction_examples: ['DOB:\s+(\d{4}-\d{2}-\d{2})']
+      
+    - name: expiry_date
+      type: date
+      extraction_task: metadata
+      extraction_examples: ['EXP:\s+(\d{4}-\d{2}-\d{2})']
+      
+    - name: vehicle_classes
+      type: string
+      extraction_task: metadata
+      extraction_examples: ['Classes:\s+(.+)']
+
+quality:
+  row_rules:
+    - not_null: licence_number
+
+lineage:
+  enabled: true

@@ -1,0 +1,56 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Marketing / google_ads — Table Maintenance (OPTIMIZE + VACUUM)
+# ══════════════════════════════════════════════════════════════════════════════
+# Weekly housekeeping. Walks the registry, runs OPTIMIZE then VACUUM against
+# every Delta table this domain/system manages across Bronze/Silver/Gold.
+# Idempotent and safe to re-run. Drives storage costs down + read perf up.
+
+resources:
+  jobs:
+    marketing_maintenance_google_ads:
+      name: "[${bundle.target}] marketing / google_ads — Maintenance (OPTIMIZE + VACUUM)"
+      description: "Weekly Delta OPTIMIZE + VACUUM across all medallion layers."
+
+      tags:
+        domain: marketing
+        system: google_ads
+        layer: maintenance
+        managed_by: lakelogic
+
+      schedule:
+        # Sun 04:00 UTC — outside business hours, after weekly batch loads.
+        quartz_cron_expression: "0 0 4 ? * SUN"
+        timezone_id: "UTC"
+        pause_status: PAUSED
+
+#       job_clusters:
+#         - job_cluster_key: rideflow_compute
+#           new_cluster:
+#             spark_version: 16.4.x-scala2.12
+#             node_type_id: Standard_DS3_v2
+#             autoscale:
+#               min_workers: 1
+#               max_workers: 4
+#             spark_env_vars:
+#               RIDEFLOW_DEV_CATALOG: "{{secrets/rideflow/rideflow-dev-catalog}}"
+#               RIDEFLOW_DEV_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-dev-storage-account}}"
+#               RIDEFLOW_STG_CATALOG: "{{secrets/rideflow/rideflow-stg-catalog}}"
+#               RIDEFLOW_STG_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-stg-storage-account}}"
+#               RIDEFLOW_PROD_CATALOG: "{{secrets/rideflow/rideflow-prod-catalog}}"
+#               RIDEFLOW_PROD_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-prod-storage-account}}"
+#               DOMAIN_CONTACT_MARKETING: "{{secrets/rideflow/domain-contact-marketing}}"
+#               LAKELOGIC_OBSERVATORY_ENDPOINT: "{{secrets/rideflow/lakelogic-observatory-endpoint}}"
+#               LAKELOGIC_API_KEY: "{{secrets/rideflow/lakelogic-api-key}}"
+
+      tasks:
+        - task_key: maintain_all_layers
+          notebook_task:
+            notebook_path: ../../notebooks/maintenance_driver.py
+            base_parameters:
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_ads/_system.yaml"
+              environment: "${bundle.target}"
+              target_layers: "bronze,silver,gold"
+              vacuum_retain_hrs: "168"
+              dry_run: "false"
+              zorder_columns: "{}"
+

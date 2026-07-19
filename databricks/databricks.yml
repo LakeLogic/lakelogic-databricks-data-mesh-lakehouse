@@ -1,0 +1,39 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# LakeLogic — RideFlow Marketplace DAB Bundle
+# ══════════════════════════════════════════════════════════════════════════════
+bundle:
+  name: lakelogic-rideflow
+
+include:
+  - resources/**/*.yml
+  - databrick_variables.yml
+
+sync:
+  paths:
+    - .
+    - ../domains_rideflow
+
+workspace:
+  root_path: /Workspace/Shared/data_platform/domains/${var.domain}/${var.system}
+
+targets:
+  dev:
+    mode: production #development
+    default: true
+    workspace:
+      # root_path: ~/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Shared/${var.deployment_folder}
+    variables:
+      catalog: "rideflow_dev_demo"
+
+  stage:
+    variables:
+      catalog: "rideflow_demo_staging"
+
+  prod:
+    mode: production
+    variables:
+      catalog: "rideflow_demo_prod"
+    permissions:
+      - group_name: "data-team"
+        level: CAN_VIEW

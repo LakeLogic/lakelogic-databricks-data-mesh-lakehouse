@@ -1,0 +1,46 @@
+version: 1.0.0
+
+info:
+  title: "Gold — Dim Country"
+  table_name: "{gold_layer}__internal_dim_country"
+  description: >
+    ISO 3166-1 country dimension. Loaded once from a static CSV seed; can be
+    refreshed when ISO publishes a new revision.
+  target_layer: gold
+  domain: _reference
+  system: _internal
+
+model:
+  fields:
+    - name: country_alpha3
+      type: string
+      required: true
+      description: "ISO 3166-1 alpha-3 (e.g. GBR, USA, IND)"
+    - name: country_alpha2
+      type: string
+      description: "ISO 3166-1 alpha-2 (e.g. GB, US, IN)"
+    - name: country_name
+      type: string
+    - name: country_numeric
+      type: int
+    - name: region
+      type: string
+      description: "UN M.49 region (Europe, Americas, Asia, ...)"
+    - name: sub_region
+      type: string
+
+quality:
+  row_rules: []
+  dataset_rules:
+    - unique: country_alpha3
+
+primary_key: [country_alpha3]
+
+source:
+  type: landing
+  path: "{landing_root}/dim_country_seed"
+  format: csv
+  options:
+    header: "true"
+  load_mode: full
+  watermark_strategy: none

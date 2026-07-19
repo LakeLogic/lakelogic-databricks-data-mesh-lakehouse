@@ -1,0 +1,64 @@
+version: 1.0.0
+info:
+  title: "Silver — Checkr Driver Licences Validated"
+  table_name: "{silver_layer}_{system}_driver_licences"
+  description: "Validated and securely masked driver licence information."
+  target_layer: silver
+  domain: operations
+  system: checkr
+
+dataset: "driver_licences"
+
+source:
+  type: table
+  # Use bronze_path so we resolve to {data_root}/{bronze_layer}/...
+  path: "table:{domain_catalog}.{bronze_layer}_{system}_driver_licences"
+  load_mode: full
+
+model:
+  fields:
+    - name: full_name
+      type: string
+      required: true
+      pii: true
+      masking: redact
+      
+    - name: licence_number
+      type: string
+      required: true
+      pii: true
+      masking: hash
+      
+    - name: date_of_birth
+      type: string
+      pii: true
+      masking: hash
+      
+    - name: expiry_date
+      type: date
+      
+    - name: vehicle_classes
+      type: string
+
+# Required: silver defaults to the `merge` strategy (from _system.yaml), which
+# needs a primary_key to upsert on. Without it the contract fails with
+# "primary_key is required for merge strategy."
+primary_key: [licence_number]
+
+quality:
+  dataset_rules:
+    - unique: licence_number
+
+transformations:
+  # Drop only columns we know exist in bronze. The _lakelogic_llm_* lineage
+  # columns added by pdfplumber are not retained by bronze (evolution=append
+  # drops unknown cols on first write), so we don't need to drop them here.
+  - drop:
+      columns:
+        - file_path
+  - deduplicate:
+      by:
+        - licence_number
+
+lineage:
+  enabled: true

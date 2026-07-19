@@ -1,0 +1,131 @@
+version: 1.0.0
+
+info:
+  title: "Gold — Dim Driver (SCD2)"
+  table_name: "{gold_layer}_rideflow_dim_driver"
+  description: >
+    Slowly Changing Dimension (Type 2) for marketplace drivers. Tracks
+    history when an attribute that affects analytics changes — status,
+    vehicle, licence, city, rating. Every fact that references driver_id
+    keys via (driver_sk) or via (driver_id, effective_from .. effective_to)
+    for point-in-time joins.
+  target_layer: gold
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+    # ── Surrogate + business keys ────────────────────────────────────────
+    - name: driver_sk
+      type: string
+      # string, not long: surrogate_key_strategy=hash emits a sha2 hex string.
+      # NOT required: injected by the SCD2 materializer, so it is absent from the
+      # source. Marking it required would quarantine every source row at schema
+      # validation (which runs before materialization) → 0 versions written.
+      description: "Surrogate key (sha2 hash); new for each SCD2 version"
+    - name: driver_id
+      type: string
+      required: true
+      description: "Business key — stable across versions"
+    # ── Tracked / informational attributes ───────────────────────────────
+    - name: name
+      type: string
+      pii: true
+    - name: email
+      type: string
+      pii: true
+    - name: phone
+      type: string
+      pii: true
+    - name: licence_number
+      type: string
+      pii: true
+    - name: licence_plate
+      type: string
+      description: "Vehicle plate (SCD2-tracked — changes when driver switches vehicle)"
+    - name: vehicle_type
+      type: string
+      description: "SCD2-tracked"
+    - name: city_code
+      type: string
+      description: "SCD2-tracked — driver may move between cities"
+    - name: status
+      type: string
+      description: "SCD2-tracked: active | inactive | suspended | pending_verification"
+    - name: rating
+      type: float
+      description: "Snapshot at version creation (rating drifts continuously; not SCD2-tracked)"
+    - name: signup_date
+      type: date
+    - name: updated_at
+      type: timestamp
+      description: "silver_rideflow_driver_profiles.updated_at — drives version cuts"
+    # ── SCD2 mechanics ───────────────────────────────────────────────────
+    - name: effective_from
+      type: timestamp
+      # NOT required: injected by the SCD2 materializer (see driver_sk note).
+      description: "When this version became current"
+    - name: effective_to
+      type: timestamp
+      description: "Closed when superseded; NULL for current version"
+    - name: is_current
+      type: boolean
+      # NOT required: injected by the SCD2 materializer (see driver_sk note).
+      description: "TRUE for the active version, FALSE for historical versions"
+    - name: version_number
+      type: long
+      description: "1, 2, 3... per driver_id (SCD2 materializer emits bigint)"
+
+# SCD2 matches existing↔incoming on the BUSINESS key, so primary_key must be
+# driver_id (stable across versions) — NOT the surrogate driver_sk (generated
+# per version by the materializer). Composite (driver_id, effective_from)
+# uniqueness is documented via natural_key.
+primary_key: [driver_id]
+natural_key: [driver_id, effective_from]
+
+source:
+  type: table
+  path: "table:{domain_catalog}.silver_rideflow_driver_profiles"
+  load_mode: full
+
+# NOTE: gold uses `evolution: append` (set at the registry level in _system.yaml).
+# The SCD2 materializer injects driver_sk + effective_from/to + is_current +
+# version_number AFTER schema validation, so they are absent from the source;
+# `strict` would quarantine every row as "Missing fields" → 0 versions written.
+
+# SCD2 reads silver_rideflow_driver_profiles directly and cuts new versions on
+# `updated_at`. The SCD2 mechanics columns (driver_sk, effective_from/to,
+# is_current, version_number) are injected by the materializer below — they are
+# NOT expected to exist in the source. (An earlier pre-phase SELECT that renamed
+# updated_at -> source_updated_at was removed: the engine pruned the source read
+# to the projected columns *before* the pre-SQL ran, so `updated_at` resolved
+# against a narrowed relation and failed. Reading it directly avoids that.)
+
+# Native LakeLogic SCD2. NOTE: the old top-level `scd:` block was NOT read by
+# the engine (it logged "Unknown key 'scd'") — SCD2 config MUST live here under
+# materialization.scd2.
+materialization:
+  strategy: scd2
+  format: delta
+  scd2:
+    surrogate_key: driver_sk
+    surrogate_key_strategy: hash
+    timestamp_field: updated_at
+    effective_from_field: effective_from
+    effective_to_field: effective_to
+    current_flag_field: is_current
+    version_column: version_number
+    track_columns:
+      - licence_plate
+      - vehicle_type
+      - city_code
+      - status
+      - licence_number
+    unknown_member:
+      enabled: true
+      surrogate_key_value: "-1"
+
+quality:
+  row_rules: []
+  dataset_rules:
+    - unique: driver_sk

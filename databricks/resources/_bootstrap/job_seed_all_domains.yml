@@ -1,0 +1,43 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# RideFlow Demo — Seed ALL domains (FK-consistent)
+# ══════════════════════════════════════════════════════════════════════════════
+# Runs test_data_driver in `seed_mode=all`: discovers every domain, topo-sorts by
+# cross-domain foreign-key edges, then per wave generates landing data AND runs
+# bronze+silver — so downstream domains read REAL upstream ids (payments→rider_id,
+# zendesk→charge_id, hubspot→rider_id). Run once after 00_setup; afterwards the
+# per-domain orchestrators can build gold (enable_test_data=false).
+resources:
+  jobs:
+    seed_all_domains:
+      name: "[${bundle.target}] RideFlow Demo — 🌱 Seed ALL domains (FK-consistent)"
+      description: "Generate landing data + bronze+silver for every domain in FK dependency order."
+
+      tags:
+        managed_by: lakelogic
+        layer: seed
+
+      environments:
+        - environment_key: default
+          spec:
+            client: "${var.serverless_env_version}"
+            dependencies:
+              - lakelogic
+              - polars
+              - deltalake
+              - pyyaml
+              - reportlab    # operations/checkr synthesises driver-licence PDFs
+              - pdfplumber   # operations/checkr bronze extracts those PDFs (extraction.provider)
+
+      tasks:
+        - task_key: seed_all_domains
+          environment_key: default
+          notebook_task:
+            notebook_path: ../../notebooks/test_data_driver.py
+            base_parameters:
+              # registry_path only used to derive the catalog; seed_mode=all walks the whole registry
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketplace/rideflow/_system.yaml"
+              environment: "${bundle.target}"
+              num_windows: "24"
+              inject_edge_cases: "true"
+              seed_mode: "all"
+

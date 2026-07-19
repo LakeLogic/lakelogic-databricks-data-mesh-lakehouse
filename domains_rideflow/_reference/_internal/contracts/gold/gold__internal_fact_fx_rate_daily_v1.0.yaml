@@ -1,0 +1,45 @@
+version: 1.0.0
+
+info:
+  title: "Gold — Fact FX Rate Daily"
+  table_name: "{gold_layer}__internal_fact_fx_rate_daily"
+  description: >
+    Daily exchange rate fact: one row per (rate_date × base × quote).
+    Surface for currency normalization in fact_revenue_daily and any
+    multi-currency aggregate.
+  target_layer: gold
+  domain: _reference
+  system: _internal
+
+model:
+  fields:
+    - name: rate_date
+      type: date
+      required: true
+    - name: date_key
+      type: int
+      description: "FK to dim_date"
+    - name: base_currency
+      type: string
+      required: true
+    - name: quote_currency
+      type: string
+      required: true
+    - name: rate
+      type: float
+      required: true
+    - name: source_feed
+      type: string
+    - name: ingested_at
+      type: timestamp
+
+quality:
+  row_rules: []
+  dataset_rules: []   # primary_key (below) enforces composite uniqueness
+
+primary_key: [rate_date, base_currency, quote_currency]
+
+source:
+  type: table
+  path: "table:{domain_catalog}.silver__internal_fx_rates_daily"
+  load_mode: full

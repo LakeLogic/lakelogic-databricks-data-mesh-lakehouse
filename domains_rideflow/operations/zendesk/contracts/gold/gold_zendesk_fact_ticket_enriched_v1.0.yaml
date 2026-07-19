@@ -1,0 +1,133 @@
+version: 1.0.0
+
+info:
+  title: "Gold — Fact Ticket Enriched (NLP)"
+  table_name: "{gold_layer}_zendesk_fact_ticket_enriched"
+  description: >
+    Per-ticket NLP enrichment over silver_zendesk_support_tickets:
+      * NER — extracts PERSON / ORG / GPE entities mentioned in body
+      * Classification — assigns one of a controlled category vocabulary
+      * Sentiment — positive / neutral / negative
+      * Urgency — predicted urgency score (independent of human-set priority)
+    Runs locally on spaCy (`en_core_web_md`) at production speed, $0 cost.
+    Powers the support-quality dashboard and Zeus incident triage.
+  target_layer: gold
+  domain: operations
+  system: zendesk
+
+model:
+  fields:
+    # ── Identifier (FK back to silver) ─────────────────────────────────
+    - name: ticket_id
+      type: string
+      required: true
+      foreign_key:
+        contract: "{silver_layer}_{system}_support_tickets"
+        column: ticket_id
+    # ── Cross-domain FKs propagated from silver ─────────────────────────
+    # Surfaced at gold so dashboards / Zeus can join trips×tickets,
+    # drivers×tickets, payments×tickets without re-traversing silver.
+    - name: entry_point
+      type: string
+      description: "in_app_trip | in_app_help | email | phone — drives FK nullability"
+    - name: rider_id
+      type: string
+      foreign_key:
+        contract: "{gold_layer}_rideflow_dim_rider"
+        column: rider_id
+    - name: trip_id
+      type: string
+      description: "Nullable — present on ~75% of tickets"
+      foreign_key:
+        contract: "{silver_layer}_rideflow_trips"
+        column: trip_id
+    - name: driver_id
+      type: string
+      description: "Nullable — present on ~55%"
+      foreign_key:
+        contract: "{gold_layer}_rideflow_dim_driver"
+        column: driver_id
+    - name: charge_id
+      type: string
+      description: "Nullable — present on ~25% (payment/refund tickets)"
+      foreign_key:
+        contract: "{silver_layer}_stripe_charges"
+        column: charge_id
+    # ── NER outputs ────────────────────────────────────────────────────
+    - name: persons
+      type: string
+      description: "Comma-separated PERSON entities from ticket body"
+      extraction_task: ner
+      extraction_examples: [PERSON]
+    - name: organizations
+      type: string
+      description: "ORG entities (e.g. 'Visa', 'Stripe')"
+      extraction_task: ner
+      extraction_examples: [ORG]
+    - name: locations
+      type: string
+      description: "GPE / LOC entities (cities, neighbourhoods mentioned)"
+      extraction_task: ner
+      extraction_examples: [GPE, LOC]
+    # ── Classification (constrained vocabulary) ─────────────────────────
+    - name: category
+      type: string
+      description: "Auto-classified ticket category"
+      extraction_task: classification
+      accepted_values:
+        - billing_dispute
+        - refund_request
+        - driver_complaint
+        - rider_complaint
+        - app_issue
+        - lost_item
+        - safety_incident
+        - account
+        - promo_question
+        - other
+    - name: intent
+      type: string
+      description: "Primary intent (independent of category)"
+      extraction_task: classification
+      accepted_values:
+        - refund
+        - cancel
+        - complain
+        - inquire
+        - report_bug
+        - praise
+    # ── Sentiment + urgency scores ──────────────────────────────────────
+    - name: sentiment
+      type: string
+      description: "Overall sentiment label"
+      extraction_task: sentiment
+      accepted_values: [positive, neutral, negative]
+    - name: sentiment_score
+      type: float
+      description: "Continuous sentiment in [-1, 1]"
+      extraction_task: sentiment
+    - name: urgency_score
+      type: float
+      description: "Predicted urgency in [0, 1] — higher = more urgent"
+      extraction_task: classification
+
+primary_key: [ticket_id]
+
+source:
+  type: table
+  path: "table:{domain_catalog}.silver_zendesk_support_tickets"
+  load_mode: full
+
+extraction:
+  provider: spacy
+  model: en_core_web_md         # medium model — better NER than _sm
+  text_column: ticket_description
+  # Cache scored results across runs so we only re-score new tickets.
+  cache_strategy: by_ticket_id
+  batch_size: 64
+
+quality:
+  row_rules:
+    - not_null: sentiment
+    - not_null: category
+  dataset_rules: []

@@ -1,0 +1,69 @@
+version: 1.0.0
+info:
+  title: "Silver — Twilio SMS Logs"
+  table_name: '{silver_layer}_twilio_sms_logs'
+  description: >
+    Cleaned, typed, and deduplicated SMS notification log records.
+    PII fields (phone numbers, message body) are masked at Silver — raw
+    values remain at Bronze for audit / re-process.
+  target_layer: silver
+  domain: operations
+  system: twilio
+upstream_contracts:
+  - contract: bronze_twilio_sms_logs
+    layer: bronze
+    domain: operations
+    system: twilio
+primary_key: [message_sid]
+model:
+  fields:
+    - name: message_sid
+      type: string
+      required: true
+    - name: recipient_phone
+      type: string
+      pii: true
+      masking: hash
+    - name: sender_phone
+      type: string
+      pii: true
+      masking: hash
+    - name: message_body
+      type: string
+      pii: true
+      masking: redact
+    - name: status
+      type: string
+      description: "delivered | failed | undelivered | sent | queued"
+    - name: direction
+      type: string
+      description: "outbound-api | inbound"
+    - name: num_segments
+      type: integer
+    - name: price
+      type: float
+    - name: price_unit
+      type: string
+    - name: sent_at
+      type: timestamp
+    - name: delivered_at
+      type: timestamp
+    - name: error_code
+      type: string
+      description: "Twilio error code (null if delivered)"
+quality:
+  row_rules:
+    - name: message_sid_not_null
+      sql: "message_sid IS NOT NULL"
+    - name: valid_status
+      sql: "status IN ('delivered','failed','undelivered','sent','queued')"
+  dataset_rules:
+    - unique: message_sid
+transformations:
+  - deduplicate:
+      by:
+        - message_sid
+source:
+  type: table
+  path: 'table:{domain_catalog}.{bronze_layer}_{system}_sms_logs'
+  load_mode: full

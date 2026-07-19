@@ -1,0 +1,82 @@
+version: 1.0.0
+
+info:
+  title: "Gold — Fact Stripe Payment Reconciliation"
+  table_name: '{gold_layer}_stripe_fact_payment_reconciliation'
+  description: >
+    Daily charge volume + status mix per currency. Primary source is
+    silver_stripe_charges; per-charge refund / payout linkage is added
+    via downstream joins. Powers the finance close dashboard and Zeus
+    refund-SLA alerts.
+  target_layer: gold
+  domain: payments
+  system: stripe
+
+model:
+  fields:
+    - name: created_date
+      type: string
+      required: true
+      description: "Aggregation grain (CAST(created_at AS DATE) as ISO string)"
+    - name: currency
+      type: string
+      required: true
+    - name: total_charges
+      type: long
+    - name: succeeded_count
+      type: long
+    - name: failed_count
+      type: long
+    - name: pending_count
+      type: long
+    - name: total_amount
+      type: float
+      description: "Sum of all charge amounts"
+    - name: success_amount
+      type: float
+      description: "Sum of amounts where status = succeeded"
+    - name: success_rate
+      type: float
+      description: "succeeded_count / total_charges"
+
+primary_key: [created_date, currency]
+
+source:
+  type: table
+  path: "table:{domain_catalog}.silver_stripe_charges"
+  load_mode: full
+
+transformations:
+  # Single self-contained SQL: aggregates silver_stripe_charges by
+  # (created_date, currency). Runs pre-schema so the raw silver columns
+  # (created_at, status, amount) are available.
+  - phase: pre
+    sql: |
+      SELECT
+        CAST(CAST(created_at AS DATE) AS STRING)              AS created_date,
+        currency                                               AS currency,
+        COUNT(*)                                               AS total_charges,
+        SUM(CASE WHEN status = 'succeeded' THEN 1 ELSE 0 END)  AS succeeded_count,
+        SUM(CASE WHEN status = 'failed'    THEN 1 ELSE 0 END)  AS failed_count,
+        SUM(CASE WHEN status = 'pending'   THEN 1 ELSE 0 END)  AS pending_count,
+        SUM(CAST(amount AS DOUBLE))                            AS total_amount,
+        SUM(CASE WHEN status = 'succeeded'
+                 THEN CAST(amount AS DOUBLE) ELSE 0 END)       AS success_amount,
+        CASE WHEN COUNT(*) > 0
+             THEN CAST(SUM(CASE WHEN status = 'succeeded' THEN 1 ELSE 0 END) AS DOUBLE)
+                  / COUNT(*)
+             ELSE NULL END                                     AS success_rate
+      FROM pay_charges
+      GROUP BY 1, 2
+
+quality:
+  row_rules: []
+  dataset_rules: []
+
+# Read the physical silver table via a link — the pre-SQL `source` view is
+# projected to this contract's model fields (created_date, currency, …), which
+# would hide the raw columns (created_at, status, amount) the SQL needs.
+links:
+  - name: pay_charges
+    type: table
+    path: "table:{domain_catalog}.silver_stripe_charges"

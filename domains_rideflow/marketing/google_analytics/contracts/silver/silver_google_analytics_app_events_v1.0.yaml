@@ -1,0 +1,82 @@
+version: 1.0.0
+info:
+  title: "Silver — Google Analytics App Events"
+  table_name: '{silver_layer}_google_analytics_app_events'
+  description: >
+    Cleaned, typed, deduplicated GA4 app event stream. Each row is a
+    user interaction. user_id / device_id / ip_address are masked at
+    Silver; user_pseudo_id (GA4 anonymous client ID) is preserved
+    un-masked so downstream funnel marts can stitch session journeys.
+  target_layer: silver
+  domain: marketing
+  system: google_analytics
+upstream_contracts:
+  - contract: bronze_google_analytics_app_events
+    layer: bronze
+    domain: marketing
+    system: google_analytics
+# Composite key — GA4 fires multiple events per pseudo-id per timestamp
+# (button taps, screen views, etc.), so the natural unique tuple is
+# (event_timestamp, event_name, user_pseudo_id).
+primary_key: [event_timestamp, event_name, user_pseudo_id]
+model:
+  fields:
+    - name: event_name
+      type: string
+      required: true
+    - name: event_timestamp
+      type: timestamp
+      required: true
+    - name: event_date
+      type: date
+      description: "Derived from event_timestamp at Silver."
+    - name: user_pseudo_id
+      type: string
+      required: true
+      description: "GA4 anonymous client ID. NOT masked — needed for funnel stitching."
+    - name: user_id
+      type: string
+      pii: true
+      masking: hash
+    - name: device_id
+      type: string
+      pii: true
+      masking: hash
+    - name: ip_address
+      type: string
+      pii: true
+      masking: redact
+    - name: device_category
+      type: string
+      description: "mobile | tablet | desktop"
+    - name: device_os
+      type: string
+    - name: geo_country
+      type: string
+    - name: geo_city
+      type: string
+    - name: app_version
+      type: string
+    - name: event_params_json
+      type: string
+      description: "Raw event parameters as JSON string for downstream extraction."
+quality:
+  row_rules:
+    - name: event_name_not_null
+      sql: "event_name IS NOT NULL"
+    - name: pseudo_id_not_null
+      sql: "user_pseudo_id IS NOT NULL"
+    - name: valid_device_category
+      sql: "device_category IS NULL OR device_category IN ('mobile','tablet','desktop')"
+  dataset_rules:
+    - unique: [event_timestamp, event_name, user_pseudo_id]
+transformations:
+  - deduplicate:
+      by:
+        - event_timestamp
+        - event_name
+        - user_pseudo_id
+source:
+  type: table
+  path: 'table:{domain_catalog}.{bronze_layer}_{system}_app_events'
+  load_mode: full

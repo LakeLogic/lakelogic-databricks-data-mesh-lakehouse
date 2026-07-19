@@ -1,0 +1,86 @@
+version: 1.0.0
+info:
+  title: "Silver — Zendesk Support Tickets"
+  table_name: '{silver_layer}_zendesk_support_tickets'
+  description: Cleaned, typed, and deduplicated data.
+  target_layer: silver
+  domain: operations
+  system: zendesk
+model:
+  fields:
+  - name: ticket_id
+    type: string
+    required: true
+  # ── FK fields preserved from bronze (see bronze contract for distribution) ─
+  - name: entry_point
+    type: string
+  - name: rider_id
+    type: string
+    foreign_key:
+      contract: "{silver_layer}_rideflow_rider_profiles"
+      column: rider_id
+  - name: trip_id
+    type: string
+    foreign_key:
+      contract: "{silver_layer}_rideflow_trips"
+      column: trip_id
+  - name: driver_id
+    type: string
+    foreign_key:
+      contract: "{silver_layer}_rideflow_driver_profiles"
+      column: driver_id
+  - name: charge_id
+    type: string
+    foreign_key:
+      contract: "{silver_layer}_stripe_charges"
+      column: charge_id
+  - name: requester_email
+    type: string
+    required: true
+    pii: true
+    masking: hash
+  - name: requester_name
+    type: string
+    pii: true
+    masking: redact
+  - name: requester_phone
+    type: string
+    pii: true
+    masking: redact
+  - name: subject
+    type: string
+  - name: ticket_description
+    type: string
+    pii: true
+    masking: hash
+  - name: status
+    type: string
+  - name: priority
+    type: string
+  - name: channel
+    type: string
+  - name: assignee
+    type: string
+  - name: tags_json
+    type: string
+  - name: created_at
+    type: timestamp
+  - name: updated_at
+    type: timestamp
+  - name: solved_at
+    type: timestamp
+  - name: satisfaction_rating
+    type: float
+primary_key: [ticket_id]
+quality:
+  row_rules: []
+  dataset_rules:
+  - unique: ticket_id
+transformations:
+- deduplicate:
+    by:
+    - ticket_id
+source:
+  type: table
+  path: 'table:{domain_catalog}.{bronze_layer}_{system}_support_tickets'
+  load_mode: full

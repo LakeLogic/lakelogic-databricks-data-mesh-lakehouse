@@ -1,0 +1,51 @@
+version: 1.0.0
+info:
+  title: "Silver — Google Ads Campaigns"
+  table_name: '{silver_layer}_google_ads_campaigns'
+  description: Cleaned, typed, and deduplicated data.
+  target_layer: silver
+  domain: marketing
+  system: google_ads
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    required: true
+  - name: campaign_name
+    type: string
+    required: true
+  - name: ad_group_id
+    type: string
+  - name: ad_group_name
+    type: string
+  - name: date
+    type: string
+  - name: impressions
+    type: integer
+  - name: clicks
+    type: integer
+  - name: cost
+    type: float
+  - name: conversions
+    type: integer
+  - name: conversion_value
+    type: string
+  - name: currency
+    type: string
+# Daily grain (campaign × ad_group × date) — NOT campaign-current-state. The gold
+# contract rolls these up to daily ROI (GROUP BY date), so silver must preserve the
+# per-day rows; deduping to one row per campaign collapsed it to a single date.
+primary_key: [campaign_id, ad_group_id, date]
+quality:
+  row_rules: []
+  dataset_rules: []
+transformations:
+- deduplicate:
+    by:
+    - campaign_id
+    - ad_group_id
+    - date
+source:
+  type: table
+  path: 'table:{domain_catalog}.{bronze_layer}_{system}_campaigns'
+  load_mode: full

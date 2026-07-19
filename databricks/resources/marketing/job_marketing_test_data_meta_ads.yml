@@ -1,0 +1,54 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Marketing / meta_ads — Test Data Generation
+# ══════════════════════════════════════════════════════════════════════════════
+# Generates realistic 24-hour streaming data into the ADLS landing zone for
+# this (domain, system). Also injects surgical edge cases to validate
+# quarantine logic. Schedule fires just before the orchestrator window.
+
+resources:
+  jobs:
+    marketing_test_data_meta_ads:
+      name: "[${bundle.target}] marketing / meta_ads — 0 Test Data Generation"
+      description: "Generate realistic streaming data + deterministic edge cases into the landing zone."
+
+      tags:
+        domain: marketing
+        system: meta_ads
+        layer: test
+        managed_by: lakelogic
+
+      schedule:
+        # 05:00 UTC — just before the orchestrator's hourly window kicks in.
+        quartz_cron_expression: "0 0 5 * * ?"
+        timezone_id: "UTC"
+        pause_status: PAUSED
+
+#       job_clusters:
+#         - job_cluster_key: rideflow_compute
+#           new_cluster:
+#             spark_version: 16.4.x-scala2.12
+#             node_type_id: Standard_DS3_v2
+#             autoscale:
+#               min_workers: 1
+#               max_workers: 4
+#             spark_env_vars:
+#               RIDEFLOW_DEV_CATALOG: "{{secrets/rideflow/rideflow-dev-catalog}}"
+#               RIDEFLOW_DEV_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-dev-storage-account}}"
+#               RIDEFLOW_STG_CATALOG: "{{secrets/rideflow/rideflow-stg-catalog}}"
+#               RIDEFLOW_STG_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-stg-storage-account}}"
+#               RIDEFLOW_PROD_CATALOG: "{{secrets/rideflow/rideflow-prod-catalog}}"
+#               RIDEFLOW_PROD_STORAGE_ACCOUNT: "{{secrets/rideflow/rideflow-prod-storage-account}}"
+#               DOMAIN_CONTACT_MARKETING: "{{secrets/rideflow/domain-contact-marketing}}"
+#               LAKELOGIC_OBSERVATORY_ENDPOINT: "{{secrets/rideflow/lakelogic-observatory-endpoint}}"
+#               LAKELOGIC_API_KEY: "{{secrets/rideflow/lakelogic-api-key}}"
+
+      tasks:
+        - task_key: generate_test_data
+          notebook_task:
+            notebook_path: ../../notebooks/test_data_driver.py
+            base_parameters:
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/meta_ads/_system.yaml"
+              environment: "${bundle.target}"
+              num_windows: "24"
+              inject_edge_cases: "true"
+
