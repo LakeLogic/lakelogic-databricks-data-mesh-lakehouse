@@ -130,7 +130,8 @@ contracts:
   - layer: gold
     entity: gold_rideflow_fact_rider_daily_metrics
     path: "contracts/{gold_layer}/gold_rideflow_fact_rider_daily_metrics_v1.0.yaml"
-    depends_on: ['silver_rideflow_trips', 'silver_rideflow_rider_profiles']
+    # dim_rider must build first — the fact resolves rider_sk against it (as-of join).
+    depends_on: ['silver_rideflow_trips', 'silver_rideflow_rider_profiles', 'gold_rideflow_dim_rider']
     enabled: true
   - layer: gold
     entity: gold_rideflow_fact_surge_pricing_inference
