@@ -12,7 +12,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install lakelogic==1.40.0 pyyaml polars deltalake reportlab
+# MAGIC %pip install lakelogic pyyaml polars deltalake reportlab
 
 # COMMAND ----------
 
@@ -707,7 +707,7 @@ def gen_reference_internal(registry, landing_uri):
 
 GENERATORS = {
     ("marketplace", "rideflow"):        gen_marketplace_rideflow,
-    ("_reference",  "_internal"):        gen_reference_internal,
+    ("reference",   "internal"):         gen_reference_internal,
     ("payments",    "stripe"):          gen_payments_stripe,
     ("operations",  "checkr"):          gen_operations_checkr,
     ("operations",  "twilio"):          gen_operations_twilio,
@@ -756,7 +756,7 @@ else:
 
     # 1) Discover every system from the staged contract registry
     _contracts_root = f"/Volumes/{CATALOG}/nondelta/_contracts" if mode == "uc" else str(Path(SYSTEM_YAML).parents[3])
-    SKIP = {"_shared"}
+    SKIP = {"shared"}
     _sysyamls = sorted(_glob.glob(f"{_contracts_root}/*/*/_system.yaml"))
     systems = []
     for p in _sysyamls:

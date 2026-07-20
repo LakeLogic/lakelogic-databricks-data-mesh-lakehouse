@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# _Shared / _shared — Table Maintenance (OPTIMIZE + VACUUM)
+# Shared / shared — Table Maintenance (OPTIMIZE + VACUUM)
 # ══════════════════════════════════════════════════════════════════════════════
 # Weekly housekeeping. Walks the registry, runs OPTIMIZE then VACUUM against
 # every Delta table this domain/system manages across Bronze/Silver/Gold.
@@ -8,12 +8,12 @@
 resources:
   jobs:
     shared_maintenance_shared:
-      name: "[${bundle.target}] _shared / _shared — Maintenance (OPTIMIZE + VACUUM)"
+      name: "[${bundle.target}] shared / shared — Maintenance (OPTIMIZE + VACUUM)"
       description: "Weekly Delta OPTIMIZE + VACUUM across all medallion layers."
 
       tags:
-        domain: _shared
-        system: _shared
+        domain: shared
+        system: shared
         layer: maintenance
         managed_by: lakelogic
 
@@ -47,7 +47,7 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/maintenance_driver.py
             base_parameters:
-              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/_shared/_shared/_system.yaml"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/shared/shared/_system.yaml"
               environment: "${bundle.target}"
               target_layers: "bronze,silver,gold"
               vacuum_retain_hrs: "168"

@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# _Reference / _internal — Test Data Generation
+# Reference / internal — Test Data Generation
 # ══════════════════════════════════════════════════════════════════════════════
 # Generates realistic 24-hour streaming data into the ADLS landing zone for
 # this (domain, system). Also injects surgical edge cases to validate
@@ -8,12 +8,12 @@
 resources:
   jobs:
     reference_test_data_internal:
-      name: "[${bundle.target}] _reference / _internal — 0 Test Data Generation"
+      name: "[${bundle.target}] reference / internal — 0 Test Data Generation"
       description: "Generate realistic streaming data + deterministic edge cases into the landing zone."
 
       tags:
-        domain: _reference
-        system: _internal
+        domain: reference
+        system: internal
         layer: test
         managed_by: lakelogic
 
@@ -47,7 +47,7 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/test_data_driver.py
             base_parameters:
-              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/_reference/_internal/_system.yaml"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/reference/internal/_system.yaml"
               environment: "${bundle.target}"
               num_windows: "24"
               inject_edge_cases: "true"
