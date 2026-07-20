@@ -12,8 +12,9 @@ Serverless. Unity Catalog Volumes only — no ADLS or external storage required.
 
 > **Pre-release:** Do not use this repository as a public quickstart until every
 > blocking item in [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) is complete.
-> The notebooks install the latest public [`lakelogic`](https://pypi.org/project/lakelogic/)
-> release; the demo was developed and last verified against `lakelogic` 1.40.0.
+> The notebooks pin [`lakelogic`](https://pypi.org/project/lakelogic/)`==1.40.0`,
+> the release the demo was developed and last verified against, so the run is
+> reproducible.
 
 ## The problem
 

@@ -12,7 +12,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install lakelogic pyyaml polars deltalake reportlab
+# MAGIC %pip install lakelogic==1.40.0 pyyaml polars deltalake reportlab
 
 # COMMAND ----------
 
