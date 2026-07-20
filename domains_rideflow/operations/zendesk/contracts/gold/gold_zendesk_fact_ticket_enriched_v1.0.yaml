@@ -1,16 +1,18 @@
 version: 1.0.0
 
 info:
-  title: "Gold — Fact Ticket Enriched (NLP)"
+  title: "Gold — Fact Ticket Enriched"
   table_name: "{gold_layer}_zendesk_fact_ticket_enriched"
   description: >
-    Per-ticket NLP enrichment over silver_zendesk_support_tickets:
-      * NER — extracts PERSON / ORG / GPE entities mentioned in body
-      * Classification — assigns one of a controlled category vocabulary
-      * Sentiment — positive / neutral / negative
-      * Urgency — predicted urgency score (independent of human-set priority)
-    Runs locally on spaCy (`en_core_web_md`) at production speed, $0 cost.
-    Powers the support-quality dashboard and Zeus incident triage.
+    Per-ticket enrichment over silver_zendesk_support_tickets:
+      * Classification — assigns a controlled category + intent from the ticket
+        subject / body using deterministic keyword rules (portable SQL, $0 cost,
+        no external model or network dependency).
+      * Sentiment — positive / neutral / negative + a continuous score.
+      * Urgency — a normalized score derived from the human-set priority.
+    Also resolves the Kimball surrogate keys rider_sk / driver_sk against the
+    marketplace SCD2 dimensions (as-of created_at). Powers the support-quality
+    dashboard and Zeus incident triage.
   target_layer: gold
   domain: operations
   system: zendesk
@@ -35,6 +37,14 @@ model:
       foreign_key:
         contract: "{gold_layer}_rideflow_dim_rider"
         column: rider_id
+    # SCD2 surrogate FK to marketplace.dim_rider — resolved as-of created_at in the
+    # phase:post transform below. Unmatched riders → '-1' unknown member.
+    - name: rider_sk
+      type: string
+      description: "FK to gold_rideflow_dim_rider (SCD2 as-of created_at); '-1' = unknown"
+      foreign_key:
+        contract: "{gold_layer}_rideflow_dim_rider"
+        column: rider_sk
     - name: trip_id
       type: string
       description: "Nullable — present on ~75% of tickets"
@@ -47,33 +57,39 @@ model:
       foreign_key:
         contract: "{gold_layer}_rideflow_dim_driver"
         column: driver_id
+    # SCD2 surrogate FK to marketplace.dim_driver — resolved as-of created_at.
+    - name: driver_sk
+      type: string
+      description: "FK to gold_rideflow_dim_driver (SCD2 as-of created_at); '-1' = unknown"
+      foreign_key:
+        contract: "{gold_layer}_rideflow_dim_driver"
+        column: driver_sk
     - name: charge_id
       type: string
       description: "Nullable — present on ~25% (payment/refund tickets)"
       foreign_key:
         contract: "{silver_layer}_stripe_charges"
         column: charge_id
-    # ── NER outputs ────────────────────────────────────────────────────
+    # As-of timestamp for the SCD2 dimension lookups (carried through from silver).
+    - name: created_at
+      type: timestamp
+      description: "Ticket creation time — the as-of date for rider_sk / driver_sk"
+    # ── Entity columns (reserved) ──────────────────────────────────────
+    # Reserved for a future NER pass; not populated by the deterministic
+    # enrichment (kept so the table schema is stable when NER is wired in).
     - name: persons
       type: string
-      description: "Comma-separated PERSON entities from ticket body"
-      extraction_task: ner
-      extraction_examples: [PERSON]
+      description: "Reserved — PERSON entities (NER); null in the deterministic variant"
     - name: organizations
       type: string
-      description: "ORG entities (e.g. 'Visa', 'Stripe')"
-      extraction_task: ner
-      extraction_examples: [ORG]
+      description: "Reserved — ORG entities (NER); null in the deterministic variant"
     - name: locations
       type: string
-      description: "GPE / LOC entities (cities, neighbourhoods mentioned)"
-      extraction_task: ner
-      extraction_examples: [GPE, LOC]
+      description: "Reserved — GPE / LOC entities (NER); null in the deterministic variant"
     # ── Classification (constrained vocabulary) ─────────────────────────
     - name: category
       type: string
-      description: "Auto-classified ticket category"
-      extraction_task: classification
+      description: "Ticket category, keyword-derived from subject / body"
       accepted_values:
         - billing_dispute
         - refund_request
@@ -88,7 +104,6 @@ model:
     - name: intent
       type: string
       description: "Primary intent (independent of category)"
-      extraction_task: classification
       accepted_values:
         - refund
         - cancel
@@ -100,16 +115,13 @@ model:
     - name: sentiment
       type: string
       description: "Overall sentiment label"
-      extraction_task: sentiment
       accepted_values: [positive, neutral, negative]
     - name: sentiment_score
       type: float
       description: "Continuous sentiment in [-1, 1]"
-      extraction_task: sentiment
     - name: urgency_score
       type: float
-      description: "Predicted urgency in [0, 1] — higher = more urgent"
-      extraction_task: classification
+      description: "Normalized urgency in [0, 1] derived from priority — higher = more urgent"
 
 primary_key: [ticket_id]
 
@@ -118,13 +130,118 @@ source:
   path: "table:{domain_catalog}.silver_zendesk_support_tickets"
   load_mode: full
 
-extraction:
-  provider: spacy
-  model: en_core_web_md         # medium model — better NER than _sm
-  text_column: ticket_description
-  # Cache scored results across runs so we only re-score new tickets.
-  cache_strategy: by_ticket_id
-  batch_size: 64
+# ── Cross-domain conformed dimensions (marketplace schema) ────────────────────
+# These SCD2 dims live in the marketplace domain, not operations, so the paths
+# are fully-qualified across schemas. NOTE: lakelogic `depends_on` is same-domain
+# only, so build ORDER across domains is an orchestration concern — the
+# marketplace pipeline (which builds these dims) must run before this operations
+# job.
+links:
+  - name: dim_rider
+    type: table
+    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_rider"
+  - name: dim_driver
+    type: table
+    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_driver"
+
+transformations:
+  # phase: post — derives the enrichment columns with deterministic keyword rules
+  # and resolves the Kimball surrogate keys with an SCD2-accurate as-of join on
+  # created_at (half-open [effective_from, effective_to) interval). Riders/drivers
+  # absent from the dim (profile quarantined, or a NULL id on non-trip tickets)
+  # fall back to the '-1' unknown member — never a dangling FK.
+  - phase: post
+    sql: |
+      -- Explicit column lists + CONCAT_WS/LOWER/CASE/CAST(... AS FLOAT) so this
+      -- runs identically on Spark (the Databricks demo) and DuckDB (local
+      -- duckdb/polars engines). No `s.*` and no `SELECT * EXCEPT` (Spark-only).
+      WITH base AS (
+        SELECT
+            s.ticket_id,
+            s.entry_point,
+            s.rider_id,
+            s.trip_id,
+            s.driver_id,
+            s.charge_id,
+            s.created_at,
+            s.priority                                           AS _priority,
+            LOWER(CONCAT_WS(' ', s.subject, s.ticket_description)) AS _t
+        FROM source s
+      ),
+      derived AS (
+        SELECT
+            b.ticket_id, b.entry_point, b.rider_id, b.trip_id, b.driver_id,
+            b.charge_id, b.created_at, b._priority,
+            CAST(NULL AS STRING) AS persons,
+            CAST(NULL AS STRING) AS organizations,
+            CAST(NULL AS STRING) AS locations,
+            CASE
+                WHEN b._t LIKE '%refund%'                                   THEN 'refund_request'
+                WHEN b._t LIKE '%lost item%'                                THEN 'lost_item'
+                WHEN b._t LIKE '%safety%' OR b._t LIKE '%unsafe%'
+                     OR b._t LIKE '%inappropriate%'                         THEN 'safety_incident'
+                WHEN b._t LIKE '%promo%'                                     THEN 'promo_question'
+                WHEN b._t LIKE '%double charge%' OR b._t LIKE '%surge pricing%' THEN 'billing_dispute'
+                WHEN b._t LIKE '%never arrived%' OR b._t LIKE '%longer route%'
+                     OR (b._t LIKE '%driver%' AND b._t LIKE '%cancelled%')  THEN 'driver_complaint'
+                WHEN b._t LIKE '%log in%' OR b._t LIKE '%crash%'            THEN 'app_issue'
+                WHEN b._t LIKE '%phone number%'
+                     OR b._t LIKE '%update payment method%'                 THEN 'account'
+                ELSE 'other'
+            END AS category,
+            CASE
+                WHEN b._t LIKE '%refund%'                                   THEN 'refund'
+                WHEN b._t LIKE '%cancel%'                                    THEN 'cancel'
+                WHEN b._t LIKE '%crash%' OR b._t LIKE '%log in%'            THEN 'report_bug'
+                WHEN b._t LIKE '%wrong%' OR b._t LIKE '%unsafe%'
+                     OR b._t LIKE '%inappropriate%' OR b._t LIKE '%never arrived%'
+                     OR b._t LIKE '%longer route%' OR b._t LIKE '%safety%'
+                     OR b._t LIKE '%double charge%'                         THEN 'complain'
+                ELSE 'inquire'
+            END AS intent,
+            CASE
+                WHEN b._t LIKE '%wrong%' OR b._t LIKE '%unsafe%'
+                     OR b._t LIKE '%inappropriate%' OR b._t LIKE '%never arrived%'
+                     OR b._t LIKE '%longer route%' OR b._t LIKE '%double charge%'
+                     OR b._t LIKE '%cancelled%' OR b._t LIKE '%safety%'
+                     OR b._t LIKE '%crash%' OR b._t LIKE '%lost item%'      THEN 'negative'
+                ELSE 'neutral'
+            END AS sentiment
+        FROM base b
+      )
+      SELECT
+          d.ticket_id,
+          d.entry_point,
+          d.rider_id,
+          d.trip_id,
+          d.driver_id,
+          d.charge_id,
+          d.created_at,
+          d.persons,
+          d.organizations,
+          d.locations,
+          d.category,
+          d.intent,
+          d.sentiment,
+          CAST(CASE d.sentiment WHEN 'negative' THEN -0.6
+                                WHEN 'positive' THEN  0.6
+                                ELSE 0.0 END AS FLOAT)          AS sentiment_score,
+          CAST(CASE d._priority WHEN 'urgent' THEN 0.95
+                                WHEN 'high'   THEN 0.75
+                                WHEN 'normal' THEN 0.40
+                                WHEN 'low'    THEN 0.15
+                                ELSE 0.40 END AS FLOAT)         AS urgency_score,
+          COALESCE(dr.rider_sk,  '-1') AS rider_sk,
+          COALESCE(dd.driver_sk, '-1') AS driver_sk
+      FROM derived d
+      LEFT JOIN dim_rider dr
+        ON  d.rider_id   =  dr.rider_id
+        AND d.created_at >= dr.effective_from
+        AND d.created_at <  dr.effective_to
+      LEFT JOIN dim_driver dd
+        ON  d.driver_id  =  dd.driver_id
+        AND d.created_at >= dd.effective_from
+        AND d.created_at <  dd.effective_to
 
 quality:
   row_rules:

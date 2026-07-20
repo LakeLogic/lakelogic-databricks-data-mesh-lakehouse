@@ -51,8 +51,10 @@ model:
     type: string
   - name: ticket_description
     type: string
-    pii: true
-    masking: hash
+    # Free-text ticket body — kept as RAW text so the gold contract
+    # (gold_zendesk_fact_ticket_enriched) can derive category/intent/sentiment
+    # from it. Hashing/redacting here would destroy the text before enrichment.
+    # Direct identifiers (email/name/phone above) are masked instead.
   - name: status
     type: string
   - name: priority
