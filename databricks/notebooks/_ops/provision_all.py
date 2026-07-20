@@ -25,7 +25,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install lakelogic==1.40.0 pyyaml
+# MAGIC %pip install lakelogic pyyaml polars deltalake
 # COMMAND ----------
 dbutils.library.restartPython()
 
@@ -116,10 +116,16 @@ def _catalog_exists(name: str) -> bool:
     except Exception:
         return False
 
-try:
-    sql(f"CREATE CATALOG IF NOT EXISTS `{CATALOG}`")
-except Exception as e:
-    print(f"  ⚠ CREATE CATALOG `{CATALOG}` failed: {e}")
+# Check existence FIRST — on Default-Storage workspaces `CREATE CATALOG IF NOT
+# EXISTS` errors with INVALID_STATE for an EXISTING catalog (it resolves managed
+# storage before the existence short-circuit). Only create when genuinely absent.
+if _catalog_exists(CATALOG):
+    print(f"  ✓ Catalog `{CATALOG}` already exists — skipping creation")
+else:
+    try:
+        sql(f"CREATE CATALOG IF NOT EXISTS `{CATALOG}`")
+    except Exception as e:
+        print(f"  ⚠ CREATE CATALOG `{CATALOG}` failed: {e}")
 
 if not _catalog_exists(CATALOG):
     raise PermissionError(
