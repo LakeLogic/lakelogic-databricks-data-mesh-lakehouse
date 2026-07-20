@@ -105,10 +105,17 @@ def _catalog_exists(name: str) -> bool:
     except Exception:
         return False
 
-try:
-    sql(f"CREATE CATALOG IF NOT EXISTS `{CATALOG}`")
-except Exception as e:
-    print(f"  ⚠ CREATE CATALOG `{CATALOG}` failed: {e}")
+# Check existence FIRST. On Default-Storage workspaces, `CREATE CATALOG IF NOT
+# EXISTS` is NOT a clean no-op for an existing catalog — it resolves the managed
+# storage root before the existence check and errors with INVALID_STATE. So only
+# attempt creation when the catalog is genuinely absent; a re-run stays quiet.
+if _catalog_exists(CATALOG):
+    print(f"  ✓ Catalog `{CATALOG}` already exists — skipping creation")
+else:
+    try:
+        sql(f"CREATE CATALOG IF NOT EXISTS `{CATALOG}`")
+    except Exception as e:
+        print(f"  ⚠ CREATE CATALOG `{CATALOG}` failed: {e}")
 
 if not _catalog_exists(CATALOG):
     raise PermissionError(

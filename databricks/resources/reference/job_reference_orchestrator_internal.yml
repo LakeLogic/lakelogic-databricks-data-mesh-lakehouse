@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# _Reference / _internal — Full Pipeline Orchestrator
+# Reference / internal — Full Pipeline Orchestrator
 # ══════════════════════════════════════════════════════════════════════════════
 # Test Data → Bronze → Silver → Gold cascade with per-step toggles.
 # Mirrors the marketplace/rideflow orchestrator pattern.
@@ -12,12 +12,12 @@
 resources:
   jobs:
     reference_orchestrator_internal:
-      name: "[${bundle.target}] _reference / _internal — Full Pipeline Orchestrator"
-      description: "End-to-end medallion pipeline for _reference/_internal: Test Data → Bronze → Silver → Gold."
+      name: "[${bundle.target}] reference / internal — Full Pipeline Orchestrator"
+      description: "End-to-end medallion pipeline for reference/internal: Test Data → Bronze → Silver → Gold."
 
       tags:
-        domain: _reference
-        system: _internal
+        domain: reference
+        system: internal
         layer: orchestrator
         managed_by: lakelogic
 

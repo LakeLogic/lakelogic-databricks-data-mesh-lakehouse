@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# _Reference / _internal — Silver Job
+# Reference / internal — Silver Job
 # ══════════════════════════════════════════════════════════════════════════════
 # Auto-generated from the marketplace/rideflow template. Bound to the
 # (domain, system) combo declared in the filename.
@@ -7,12 +7,12 @@
 resources:
   jobs:
     reference_silver_internal:
-      name: "[${bundle.target}] _reference / _internal — 2 Silver Processing"
-      description: "Silver-layer processing for the _reference/_internal pipeline."
+      name: "[${bundle.target}] reference / internal — 2 Silver Processing"
+      description: "Silver-layer processing for the reference/internal pipeline."
 
       tags:
-        domain: _reference
-        system: _internal
+        domain: reference
+        system: internal
         layer: silver
         managed_by: lakelogic
 
@@ -45,7 +45,7 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/pipeline_driver.py
             base_parameters:
-              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/_reference/_internal/_system.yaml"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/reference/internal/_system.yaml"
               environment: "${bundle.target}"
               engine: "spark"
               storage_mode: "uc"

@@ -12,12 +12,12 @@ quarantine:
   enabled: true
   fail_on_quarantine: false
   include_error_reason: true
-  target: "{quarantine_path}"
   format: "delta"
   mode: "append"
 
 storage:
   domain_catalog: "`{catalog}`.{domain}"
+  quarantine_root: "`{catalog}`.quarantine"
   contract_root: "/Workspace/Shared/data_platform/domains/{domain}/{system}"
   landing_root: "/Volumes/{catalog}/nondelta/landing_{domain}/{system}"
   log_root: "/Volumes/{catalog}/nondelta/_logs"

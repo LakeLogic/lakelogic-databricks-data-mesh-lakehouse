@@ -80,7 +80,7 @@ cost:
 
 # ── Observatory Telemetry ────────────────────────────────────────────────────
 observatory:
-  enabled: true
+  enabled: false
   environments: [dev, prod, staging, local, local_polars]
   # Resolved at runtime from LAKELOGIC_OBSERVATORY_ENDPOINT — set by the
   # notebooks (pipeline_driver, test_data_driver_all). Hardcoding a port

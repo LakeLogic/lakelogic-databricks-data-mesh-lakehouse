@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# _Shared / _shared — Full Pipeline Orchestrator
+# Shared / shared — Full Pipeline Orchestrator
 # ══════════════════════════════════════════════════════════════════════════════
 # Test Data → Bronze → Silver → Gold cascade with per-step toggles.
 # Mirrors the marketplace/rideflow orchestrator pattern.
@@ -12,12 +12,12 @@
 resources:
   jobs:
     shared_orchestrator_shared:
-      name: "[${bundle.target}] _shared / _shared — Full Pipeline Orchestrator"
-      description: "End-to-end medallion pipeline for _shared/_shared: Test Data → Bronze → Silver → Gold."
+      name: "[${bundle.target}] shared / shared — Full Pipeline Orchestrator"
+      description: "End-to-end medallion pipeline for shared/shared: Test Data → Bronze → Silver → Gold."
 
       tags:
-        domain: _shared
-        system: _shared
+        domain: shared
+        system: shared
         layer: orchestrator
         managed_by: lakelogic
 

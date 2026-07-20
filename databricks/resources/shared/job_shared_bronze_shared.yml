@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# _Shared / _shared — Bronze Job
+# Shared / shared — Bronze Job
 # ══════════════════════════════════════════════════════════════════════════════
 # Auto-generated from the marketplace/rideflow template. Bound to the
 # (domain, system) combo declared in the filename.
@@ -7,12 +7,12 @@
 resources:
   jobs:
     shared_bronze_shared:
-      name: "[${bundle.target}] _shared / _shared — 1 Bronze Ingestion"
-      description: "Bronze-layer processing for the _shared/_shared pipeline."
+      name: "[${bundle.target}] shared / shared — 1 Bronze Ingestion"
+      description: "Bronze-layer processing for the shared/shared pipeline."
 
       tags:
-        domain: _shared
-        system: _shared
+        domain: shared
+        system: shared
         layer: bronze
         managed_by: lakelogic
 
@@ -45,7 +45,7 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/pipeline_driver.py
             base_parameters:
-              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/_shared/_shared/_system.yaml"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/shared/shared/_system.yaml"
               environment: "${bundle.target}"
               engine: "spark"
               storage_mode: "uc"

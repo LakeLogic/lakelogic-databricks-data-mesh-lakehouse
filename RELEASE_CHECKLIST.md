@@ -4,8 +4,8 @@ This repository must pass every blocking item below before the public article li
 
 ## Blocking release gates
 
-- [ ] Publish the repository at its final public GitHub URL and replace every placeholder clone command.
-- [x] Pin the demo to the public `lakelogic==1.40.0` release across every notebook.
+- [x] Publish the repository at its final public GitHub URL and replace every placeholder clone command.
+- [x] Install the public `lakelogic` release (unpinned) across every notebook; developed and last verified against 1.40.0.
 - [ ] Run `databricks bundle validate -t dev` with a clean authenticated profile.
 - [ ] Deploy to a clean Databricks workspace and catalog using only the README.
 - [ ] Run `rideflow_demo_bootstrap` successfully.

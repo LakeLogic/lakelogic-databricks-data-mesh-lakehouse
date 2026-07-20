@@ -94,7 +94,7 @@ notifications:
 
 # ── Observatory Telemetry ────────────────────────────────────────────────────
 observatory:
-  enabled: true
+  enabled: false
   environments: [dev, prod, staging, local, local_polars]
   endpoint: "${LAKELOGIC_OBSERVATORY_ENDPOINT}"
   api_key: "${LAKELOGIC_API_KEY}"

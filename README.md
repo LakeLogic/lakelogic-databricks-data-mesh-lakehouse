@@ -1,8 +1,20 @@
-# Governed Data Mesh on Databricks — the RideFlow Demo
+# Governed Data Mesh on Databricks — Data Contracts, Quarantine, and Quality Gates
+
+A working reference implementation on **Databricks Unity Catalog**, built with
+[LakeLogic](https://pypi.org/project/lakelogic/). Six domains from **RideFlow**, a
+fictional ride-hailing and food-delivery company, each owning contract-governed
+Bronze, Silver, and Gold data products — with failing rows quarantined and the
+reason recorded.
+
+Serverless. Unity Catalog Volumes only — no ADLS or external storage required.
+
+> A community project from the LakeLogic team. Not an official Databricks product.
 
 > **Pre-release:** Do not use this repository as a public quickstart until every
 > blocking item in [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) is complete.
-> The demo is tested against the public `lakelogic==1.40.0` release.
+> The notebooks pin [`lakelogic`](https://pypi.org/project/lakelogic/)`==1.40.0`,
+> the release the demo was developed and last verified against, so the run is
+> reproducible.
 
 ## The problem
 
@@ -115,29 +127,50 @@ open-source quickstart.
 
 ## Quickstart
 
-> **All `bundle` commands run from the `databricks/` folder** — that's where
-> `databricks.yml` lives. From anywhere else you'll get
-> `unable to locate bundle root: databricks.yml not found`.
+> **Every `databricks bundle` command must run from the `databricks/` folder** —
+> that's where `databricks.yml` lives. Run one from the repo root (or a fresh
+> terminal that reopened there) and you'll get:
+> `Error: unable to locate bundle root: databricks.yml not found`.
+> If you hit that, you're one level too high — `cd databricks` and retry.
 
 ```bash
-# Replace <PUBLIC_REPOSITORY_URL> with the final URL recorded in RELEASE_CHECKLIST.md.
-# This command is intentionally blocked until the repository has been published.
-git clone <PUBLIC_REPOSITORY_URL>
-cd SaaS_lakelogic-demo-databricks-ridehailing/databricks   # ← into databricks/
+git clone https://github.com/LakeLogic/lakelogic-databricks-data-mesh.git
+cd lakelogic-databricks-data-mesh/databricks   # ← into databricks/, NOT the repo root
+
+# Sanity check: this must find databricks.yml before any bundle command works.
+ls databricks.yml            # Windows cmd/PowerShell: dir databricks.yml
+                             # not found? you're one level too high — cd databricks
 
 # 1. Sign in to YOUR workspace (opens a browser — finish the login, don't Ctrl-C)
 databricks auth login --host https://<your-workspace>.azuredatabricks.net -p rideflow_dev
 databricks -p rideflow_dev current-user me                 # verify auth works
 
 # 2. Deploy the workflows (syncs contracts + notebooks, creates the jobs)
+#    Still inside databricks/? If a new terminal reopened at the repo root, cd databricks first.
 databricks bundle deploy -t dev -p rideflow_dev
 
 # 3. Run the one-click bootstrap job
 databricks bundle run rideflow_demo_bootstrap -t dev -p rideflow_dev
 
-# 4. Clean up when you're done (removes everything this demo created)
+# 4. Clean up when you're done — BOTH commands are needed.
+#    `catalogs delete` only removes the Unity Catalog (data); it does NOT remove
+#    the deployed jobs or the synced workspace files — `bundle destroy` does.
 databricks bundle destroy -t dev -p rideflow_dev                   # jobs + workspace files
 databricks catalogs delete rideflow_dev_demo --force -p rideflow_dev   # catalog, schemas, volumes, data
+```
+
+**If `bundle destroy` leaves jobs or files behind** — e.g. you provisioned via the
+no-CLI notebook, or the bundle state was reset — remove them directly (they live
+outside the catalog, so `catalogs delete` never touches them):
+
+```bash
+# Workspace files
+databricks workspace delete /Workspace/Shared/_data_platform_rideflow_demo --recursive -p rideflow_dev
+
+# Jobs — list the demo's jobs (tagged `lakelogic`), then delete each by ID
+databricks jobs list --output json -p rideflow_dev \
+  | jq -r '.[] | select(.settings.tags.lakelogic != null) | .job_id' \
+  | xargs -I{} databricks jobs delete {} -p rideflow_dev
 ```
 
 Prefer a token over the browser flow? Create a PAT (workspace **Settings ▸
@@ -411,6 +444,21 @@ databricks catalogs delete rideflow_dev_demo --force -p rideflow_dev   # catalog
 
 `--force` cascades. Equivalent to `DROP CATALOG rideflow_dev_demo CASCADE;` in a SQL
 editor. Check first with `databricks bundle summary -t dev -p rideflow_dev`.
+
+---
+
+## Take it further
+
+Run the same contracts against your own data:
+
+```bash
+pip install lakelogic
+```
+
+- **Docs:** <https://lakelogic.github.io/LakeLogic/>
+- **Package:** <https://pypi.org/project/lakelogic/>
+
+If this saved you time, a ⭐ helps other data engineers find it.
 
 ---
 
