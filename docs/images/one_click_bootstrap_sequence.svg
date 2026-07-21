@@ -1,29 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="650" viewBox="0 0 1400 650" role="img" aria-labelledby="title desc">
   <title id="title">RideFlow one-click bootstrap sequence</title>
-  <desc id="desc">The user deploys the bundle and runs the bootstrap. Databricks creates jobs, provisions Unity Catalog, stages contracts, runs the Marketplace medallion, quarantines failed rows, and writes logs.</desc>
+  <desc id="desc">Five action-based stages deploy the bundle, provision Unity Catalog, stage contracts, run the Marketplace medallion, and verify governed tables, quarantine records, and run evidence.</desc>
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0f766e"/></marker>
-    <style>.title{font:700 28px Arial;fill:#0f172a}.step{font:700 16px Arial;fill:#0f172a}.body{font:14px Arial;fill:#475569}.box{fill:#fff;stroke:#cbd5e1;stroke-width:2}.accent{fill:#ecfeff;stroke:#14b8a6;stroke-width:2}.line{stroke:#0f766e;stroke-width:3;marker-end:url(#arrow)}</style>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#071014"/><stop offset="0.56" stop-color="#0a171b"/><stop offset="1" stop-color="#071215"/></linearGradient>
+    <linearGradient id="result" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0e6670"/><stop offset="1" stop-color="#0a444b"/></linearGradient>
+    <radialGradient id="glow" cx="55%" cy="55%" r="55%"><stop offset="0" stop-color="#18b8bd" stop-opacity="0.18"/><stop offset="1" stop-color="#18b8bd" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#4ad7d1" stroke-opacity="0.032"/></pattern>
+    <filter id="shadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="15" flood-color="#000" flood-opacity="0.3"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#45d2ce"/></marker>
+    <style>.display{font-family:'Aptos Display','Trebuchet MS',sans-serif;font-weight:700;letter-spacing:-0.025em}.label{font-family:'Aptos','Trebuchet MS',sans-serif;font-weight:700;letter-spacing:0.12em}.body{font-family:'Aptos','Trebuchet MS',sans-serif;font-weight:400}.mono{font-family:'Cascadia Code','Courier New',monospace;font-weight:600}</style>
   </defs>
-  <rect width="1200" height="430" rx="24" fill="#f8fafc"/>
-  <text x="54" y="58" class="title">One-click bootstrap: from deploy to trusted data</text>
-  <g transform="translate(54 105)">
-    <rect class="accent" width="220" height="105" rx="16"/><text x="22" y="34" class="step">1. You</text><text x="22" y="63" class="body">Deploy the bundle</text><text x="22" y="84" class="body">Run the bootstrap job</text>
+  <rect width="1400" height="650" rx="34" fill="url(#canvas)"/><rect width="1400" height="650" rx="34" fill="url(#grid)"/><ellipse cx="760" cy="410" rx="600" ry="300" fill="url(#glow)"/>
+
+  <g transform="translate(66 48)"><rect x="0" y="0" width="8" height="38" rx="2" fill="#f6f8f8"/><rect x="0" y="30" width="28" height="8" rx="2" fill="#f6f8f8"/><rect x="42" y="0" width="8" height="38" rx="2" fill="#18a0a8"/><rect x="22" y="0" width="28" height="8" rx="2" fill="#18a0a8"/><text x="70" y="29" class="display" font-size="25" fill="#f6f8f8">LakeLogic</text></g>
+  <text x="66" y="132" class="label" font-size="14" fill="#51d8d4">DATABRICKS / ONE-CLICK BOOTSTRAP</text>
+  <text x="66" y="180" class="display" font-size="42" fill="#f7f8f8">From deployment to trusted data—in one job.</text>
+  <text x="66" y="215" class="body" font-size="18" fill="#9badb2">Five explicit actions turn the repository into a running Unity Catalog reference implementation.</text>
+
+  <path d="M120 351H1282" fill="none" stroke="#28484e" stroke-width="3"/>
+  <g fill="none" stroke="#45d2ce" stroke-width="2.5" marker-end="url(#arrow)">
+    <path d="M282 351H312"/><path d="M540 351H570"/><path d="M798 351H828"/><path d="M1056 351H1086"/>
   </g>
-  <path class="line" d="M274 157 H325"/>
-  <g transform="translate(326 105)">
-    <rect class="box" width="220" height="105" rx="16"/><text x="22" y="34" class="step">2. Databricks CLI</text><text x="22" y="63" class="body">Sync contracts + notebooks</text><text x="22" y="84" class="body">Create workflow jobs</text>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(60 274)">
+      <rect width="222" height="208" rx="22" fill="#0a1418" stroke="#2e5057"/><rect x="7" y="7" width="208" height="194" rx="16" fill="#102126" stroke="#fff" stroke-opacity="0.045"/>
+      <circle cx="38" cy="77" r="25" fill="#123b41" stroke="#45d2ce"/><text x="38" y="84" text-anchor="middle" class="display" font-size="22" fill="#9ff5f1">1</text>
+      <text x="22" y="28" class="label" font-size="9" fill="#6c9096">LOCAL CLI</text><text x="22" y="126" class="display" font-size="24" fill="#fff">Deploy</text>
+      <text x="22" y="153" class="body" font-size="13" fill="#9cb0b4">Authenticate workspace</text><text x="22" y="174" class="body" font-size="13" fill="#9cb0b4">Deploy bundle resources</text>
+    </g>
+    <g transform="translate(318 274)">
+      <rect width="222" height="208" rx="22" fill="#0a1418" stroke="#2e5057"/><rect x="7" y="7" width="208" height="194" rx="16" fill="#102126" stroke="#fff" stroke-opacity="0.045"/>
+      <circle cx="38" cy="77" r="25" fill="#123b41" stroke="#45d2ce"/><text x="38" y="84" text-anchor="middle" class="display" font-size="22" fill="#9ff5f1">2</text>
+      <text x="22" y="28" class="label" font-size="9" fill="#6c9096">UNITY CATALOG</text><text x="22" y="126" class="display" font-size="24" fill="#fff">Provision</text>
+      <text x="22" y="153" class="body" font-size="13" fill="#9cb0b4">Create catalog + schemas</text><text x="22" y="174" class="body" font-size="13" fill="#9cb0b4">Create Volumes + tables</text>
+    </g>
+    <g transform="translate(576 274)">
+      <rect width="222" height="208" rx="22" fill="#0a1418" stroke="#2e5057"/><rect x="7" y="7" width="208" height="194" rx="16" fill="#102126" stroke="#fff" stroke-opacity="0.045"/>
+      <circle cx="38" cy="77" r="25" fill="#123b41" stroke="#45d2ce"/><text x="38" y="84" text-anchor="middle" class="display" font-size="22" fill="#9ff5f1">3</text>
+      <text x="22" y="28" class="label" font-size="9" fill="#6c9096">_CONTRACTS VOLUME</text><text x="22" y="126" class="display" font-size="24" fill="#fff">Stage contracts</text>
+      <text x="22" y="153" class="body" font-size="13" fill="#9cb0b4">Sync the contract registry</text><text x="22" y="174" class="body" font-size="13" fill="#9cb0b4">Resolve domain systems</text>
+    </g>
+    <g transform="translate(834 274)">
+      <rect width="222" height="208" rx="22" fill="#0a1418" stroke="#2e5057"/><rect x="7" y="7" width="208" height="194" rx="16" fill="#102126" stroke="#fff" stroke-opacity="0.045"/>
+      <circle cx="38" cy="77" r="25" fill="#123b41" stroke="#45d2ce"/><text x="38" y="84" text-anchor="middle" class="display" font-size="22" fill="#9ff5f1">4</text>
+      <text x="22" y="28" class="label" font-size="9" fill="#6c9096">MARKETPLACE JOB</text><text x="22" y="126" class="display" font-size="24" fill="#fff">Run pipeline</text>
+      <text x="22" y="153" class="body" font-size="13" fill="#9cb0b4">Generate test data</text><text x="22" y="174" class="body" font-size="13" fill="#9cb0b4">Bronze → Silver → Gold</text>
+    </g>
+    <g transform="translate(1092 258)">
+      <rect width="248" height="240" rx="24" fill="#071014" stroke="#45d2ce" stroke-width="2"/><rect x="8" y="8" width="232" height="224" rx="18" fill="url(#result)"/>
+      <circle cx="40" cy="93" r="28" fill="#fff" fill-opacity="0.1" stroke="#b6fffc"/><text x="40" y="101" text-anchor="middle" class="display" font-size="24" fill="#fff">5</text>
+      <text x="24" y="32" class="label" font-size="9" fill="#a3efec">UNITY CATALOG RESULTS</text><text x="24" y="145" class="display" font-size="25" fill="#fff">Verify outputs</text>
+      <text x="24" y="174" class="body" font-size="13" fill="#d2efee">Governed Gold tables</text><text x="24" y="195" class="body" font-size="13" fill="#d2efee">Quarantine + run evidence</text>
+    </g>
   </g>
-  <path class="line" d="M546 157 H597"/>
-  <g transform="translate(598 105)">
-    <rect class="box" width="250" height="105" rx="16"/><text x="22" y="34" class="step">3. Workspace setup</text><text x="22" y="63" class="body">Create catalog, schemas, Volumes</text><text x="22" y="84" class="body">Stage contracts in _contracts</text>
-  </g>
-  <path class="line" d="M848 157 H899"/>
-  <g transform="translate(900 105)">
-    <rect class="accent" width="246" height="105" rx="16"/><text x="22" y="34" class="step">4. Marketplace pipeline</text><text x="22" y="63" class="body">Generate test data</text><text x="22" y="84" class="body">Run Bronze - Silver - Gold</text>
-  </g>
-  <path class="line" d="M1023 210 V272"/>
-  <g transform="translate(710 273)">
-    <rect class="box" width="436" height="105" rx="16"/><text x="22" y="34" class="step">5. Unity Catalog results</text><text x="22" y="63" class="body">Passing rows reach governed tables; failed rows reach quarantine</text><text x="22" y="84" class="body">Every run writes evidence to the _logs Volume</text>
-  </g>
+
+  <g transform="translate(226 528)"><rect width="948" height="60" rx="18" fill="#0d1c20" stroke="#263f45"/><text x="28" y="25" class="label" font-size="9" fill="#56d7d3">BOOTSTRAP OUTPUT</text><text x="28" y="46" class="body" font-size="14" fill="#b5c7ca">catalog · domain schemas · UC Volumes · staged contracts · medallion tables · quarantine · structured logs</text></g>
+  <text x="66" y="622" class="mono" font-size="11" fill="#547078">DEPLOY ONCE / INSPECT EVERY STAGE</text><text x="1335" y="622" text-anchor="end" class="mono" font-size="11" fill="#547078">SERVERLESS / UNITY CATALOG</text>
 </svg>

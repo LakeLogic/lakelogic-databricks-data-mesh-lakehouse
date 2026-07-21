@@ -1,36 +1,172 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="510" viewBox="0 0 1200 510" role="img" aria-labelledby="title desc">
-  <title id="title">Medallion pipeline with a quarantine layer</title>
-  <desc id="desc">Landing data flows through Bronze, Silver, and Gold to consumers. Contract failures from each governed layer are retained in quarantine, and the layers write structured run logs.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Medallion pipeline with quarantine</title>
+  <desc id="desc">Landing data moves through contract-governed Bronze, Silver, and Gold stages to consumers. Failed records from each governed layer are retained in quarantine, while structured run evidence records quality results, counts, and lineage.</desc>
   <defs>
-    <marker id="tealArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#14b8a6"/></marker>
-    <marker id="redArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/></marker>
-    <style>.t{font-family:Arial,sans-serif;font-weight:700;fill:#0f172a}.b{font-family:Arial,sans-serif;fill:#334155}.s{font-family:Arial,sans-serif;fill:#475569}</style>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071014"/>
+      <stop offset="0.55" stop-color="#0a171b"/>
+      <stop offset="1" stop-color="#071215"/>
+    </linearGradient>
+    <linearGradient id="trusted" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#17353b"/>
+      <stop offset="0.5" stop-color="#0f4d53"/>
+      <stop offset="1" stop-color="#17353b"/>
+    </linearGradient>
+    <linearGradient id="quarantine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#32181d"/>
+      <stop offset="1" stop-color="#241317"/>
+    </linearGradient>
+    <linearGradient id="evidence" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102a2f"/>
+      <stop offset="1" stop-color="#0c1d21"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="48%" r="58%">
+      <stop offset="0" stop-color="#18b8bd" stop-opacity="0.17"/>
+      <stop offset="1" stop-color="#18b8bd" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-25%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <filter id="softShadow" x="-20%" y="-25%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.22"/>
+    </filter>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#4ad7d1" stroke-opacity="0.032"/>
+    </pattern>
+    <marker id="tealArrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#45d2ce"/>
+    </marker>
+    <marker id="redArrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#ff6168"/>
+    </marker>
+    <style>
+      .display{font-family:'Aptos Display','Trebuchet MS',sans-serif;font-weight:700;letter-spacing:-0.025em}
+      .label{font-family:'Aptos','Trebuchet MS',sans-serif;font-weight:700;letter-spacing:0.12em}
+      .body{font-family:'Aptos','Trebuchet MS',sans-serif;font-weight:400}
+      .mono{font-family:'Cascadia Code','Courier New',monospace;font-weight:600}
+    </style>
   </defs>
-  <rect width="1200" height="510" rx="22" fill="#f8fafc"/>
-  <text x="52" y="58" class="t" font-size="28">Medallion pipeline with a quarantine layer</text>
-  <text x="52" y="87" class="s" font-size="16">Valid records progress through the pipeline; contract-failing records are retained with diagnostic context.</text>
-  <g>
-    <rect x="48" y="158" width="150" height="94" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
-    <text x="123" y="196" text-anchor="middle" class="t" font-size="19">Landing</text><text x="123" y="221" text-anchor="middle" class="b" font-size="13">Volumes / source data</text>
-    <rect x="260" y="158" width="150" height="94" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
-    <text x="335" y="196" text-anchor="middle" class="t" font-size="19" fill="#c2410c">Bronze</text><text x="335" y="221" text-anchor="middle" class="b" font-size="13">raw + governed</text>
-    <rect x="462" y="158" width="170" height="100" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
-    <text x="547" y="194" text-anchor="middle" class="t" font-size="19">Silver</text>
-    <text x="547" y="224" text-anchor="middle" class="b" font-size="13">filtered + cleaned</text>
-    <text x="547" y="243" text-anchor="middle" class="b" font-size="13">+ validated</text>
-    <rect x="684" y="158" width="150" height="94" rx="12" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
-    <text x="759" y="196" text-anchor="middle" class="t" font-size="19" fill="#a16207">Gold</text><text x="759" y="221" text-anchor="middle" class="b" font-size="13">published product</text>
-    <rect x="958" y="158" width="190" height="94" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-    <text x="1053" y="190" text-anchor="middle" class="t" font-size="19" fill="#1d4ed8">Consumers</text><text x="1053" y="216" text-anchor="middle" class="b" font-size="13">cross-domain marts</text><text x="1053" y="237" text-anchor="middle" class="b" font-size="13">dashboards · ML</text>
+
+  <rect width="1400" height="760" rx="34" fill="url(#canvas)"/>
+  <rect width="1400" height="760" rx="34" fill="url(#grid)"/>
+  <ellipse cx="705" cy="430" rx="600" ry="330" fill="url(#glow)"/>
+
+  <g transform="translate(66 48)">
+    <g aria-label="LakeLogic mark">
+      <rect x="0" y="0" width="8" height="38" rx="2" fill="#f6f8f8"/>
+      <rect x="0" y="30" width="28" height="8" rx="2" fill="#f6f8f8"/>
+      <rect x="42" y="0" width="8" height="38" rx="2" fill="#18a0a8"/>
+      <rect x="22" y="0" width="28" height="8" rx="2" fill="#18a0a8"/>
+    </g>
+    <text x="70" y="29" class="display" font-size="25" fill="#f6f8f8">LakeLogic</text>
   </g>
-  <g stroke="#14b8a6" stroke-width="3" marker-end="url(#tealArrow)"><path d="M198 205 L260 205"/><path d="M410 205 L462 205"/><path d="M632 205 L684 205"/><path d="M834 205 L958 205"/></g>
-  <text x="438" y="141" class="s" font-size="13">contract gate</text><text x="651" y="141" class="s" font-size="13">contract gate</text>
-  <rect x="400" y="350" width="400" height="103" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="3"/>
-  <text x="600" y="389" text-anchor="middle" class="t" font-size="21" fill="#b91c1c">Quarantine</text>
-  <text x="600" y="417" text-anchor="middle" class="b" font-size="14">failed records retained with rule and diagnostic context</text>
-  <g fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#redArrow)"><path d="M335 252 L460 350"/><path d="M547 258 L570 350"/><path d="M759 252 L710 350"/></g>
-  <text x="352" y="297" class="s" font-size="13" fill="#b91c1c">contract failure</text><text x="738" y="297" class="s" font-size="13" fill="#b91c1c">contract failure</text>
-  <rect x="852" y="350" width="290" height="102" rx="12" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2"/>
-  <text x="997" y="380" text-anchor="middle" class="t" font-size="17" fill="#0f766e">Structured run logs</text><text x="997" y="404" text-anchor="middle" class="b" font-size="13">Bronze · Silver · Gold</text><text x="997" y="428" text-anchor="middle" class="b" font-size="13">quality results · counts · lineage evidence</text>
-  <g fill="none" stroke="#14b8a6" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#tealArrow)"><path d="M410 230 L852 370"/><path d="M622 230 L852 395"/><path d="M834 230 L852 420"/></g>
+
+  <text x="66" y="133" class="label" font-size="14" fill="#51d8d4">REFERENCE ARCHITECTURE / QUALITY ROUTING</text>
+  <text x="66" y="181" class="display" font-size="42" fill="#f7f8f8">The medallion has two outcomes.</text>
+  <text x="66" y="216" class="body" font-size="18" fill="#9badb2">Trusted records progress. Contract failures stay visible, explainable, and recoverable.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="54" y="254" width="1292" height="246" rx="27" fill="#0a1418" stroke="#2b454b" stroke-width="2"/>
+    <rect x="62" y="262" width="1276" height="230" rx="21" fill="#0d1a1e" stroke="#fff" stroke-opacity="0.045"/>
+  </g>
+  <text x="86" y="294" class="label" font-size="12" fill="#718a90">TRUSTED DATA PATH</text>
+
+  <g fill="none" stroke="#45d2ce" stroke-width="3" marker-end="url(#tealArrow)">
+    <path d="M254 382H312"/>
+    <path d="M504 382H562"/>
+    <path d="M754 382H812"/>
+    <path d="M1004 382H1062"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <g transform="translate(82 326)">
+      <rect width="172" height="112" rx="18" fill="#102126" stroke="#39545b"/>
+      <rect x="7" y="7" width="158" height="98" rx="13" fill="none" stroke="#fff" stroke-opacity="0.045"/>
+      <text x="22" y="31" class="label" font-size="10" fill="#7e969c">SOURCE</text>
+      <text x="22" y="61" class="display" font-size="23" fill="#f6f8f8">Landing</text>
+      <text x="22" y="86" class="body" font-size="13" fill="#92a5aa">UC Volumes · files</text>
+    </g>
+
+    <g transform="translate(312 326)">
+      <rect width="192" height="112" rx="18" fill="#211912" stroke="#a65727"/>
+      <rect x="7" y="7" width="178" height="98" rx="13" fill="none" stroke="#fff" stroke-opacity="0.045"/>
+      <text x="22" y="31" class="label" font-size="10" fill="#d98448">MEDALLION / 01</text>
+      <text x="22" y="61" class="display" font-size="23" fill="#ffc17d">Bronze</text>
+      <text x="22" y="86" class="body" font-size="13" fill="#c4aaa0">raw · typed · governed</text>
+    </g>
+
+    <g transform="translate(562 326)">
+      <rect width="192" height="112" rx="18" fill="#122028" stroke="#45697a"/>
+      <rect x="7" y="7" width="178" height="98" rx="13" fill="none" stroke="#fff" stroke-opacity="0.045"/>
+      <text x="22" y="31" class="label" font-size="10" fill="#7fa9bc">MEDALLION / 02</text>
+      <text x="22" y="61" class="display" font-size="23" fill="#c7e6f2">Silver</text>
+      <text x="22" y="86" class="body" font-size="13" fill="#9fb4bd">cleaned · validated</text>
+    </g>
+
+    <g transform="translate(812 326)">
+      <rect width="192" height="112" rx="18" fill="#221e10" stroke="#92711e"/>
+      <rect x="7" y="7" width="178" height="98" rx="13" fill="none" stroke="#fff" stroke-opacity="0.045"/>
+      <text x="22" y="31" class="label" font-size="10" fill="#c5a23b">MEDALLION / 03</text>
+      <text x="22" y="61" class="display" font-size="23" fill="#ffe29a">Gold</text>
+      <text x="22" y="86" class="body" font-size="13" fill="#bdb49a">published data product</text>
+    </g>
+
+    <g transform="translate(1062 326)">
+      <rect width="256" height="112" rx="18" fill="#131d2b" stroke="#466da6"/>
+      <rect x="7" y="7" width="242" height="98" rx="13" fill="none" stroke="#fff" stroke-opacity="0.045"/>
+      <text x="22" y="31" class="label" font-size="10" fill="#7fa6dd">TRUSTED USE</text>
+      <text x="22" y="61" class="display" font-size="23" fill="#d9e8ff">Consumers</text>
+      <text x="22" y="86" class="body" font-size="13" fill="#a8b8cf">marts · dashboards · ML</text>
+    </g>
+  </g>
+
+  <g>
+    <rect x="512" y="274" width="122" height="30" rx="15" fill="#123338" stroke="#2c666d"/>
+    <text x="573" y="293" text-anchor="middle" class="label" font-size="9" fill="#71d7d3">CONTRACT GATE</text>
+    <path d="M512 289H480" stroke="#2c666d"/>
+    <rect x="762" y="274" width="122" height="30" rx="15" fill="#123338" stroke="#2c666d"/>
+    <text x="823" y="293" text-anchor="middle" class="label" font-size="9" fill="#71d7d3">CONTRACT GATE</text>
+    <path d="M762 289H730" stroke="#2c666d"/>
+  </g>
+
+  <g fill="none" stroke="#ff6168" stroke-width="2.5" stroke-dasharray="8 7" marker-end="url(#redArrow)">
+    <path d="M408 438C408 494 353 500 353 550"/>
+    <path d="M658 438C658 494 560 500 560 550"/>
+    <path d="M908 438C908 494 767 500 767 550"/>
+  </g>
+  <g fill="none" stroke="#45d2ce" stroke-opacity="0.75" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#tealArrow)">
+    <path d="M472 438C472 500 945 486 945 550"/>
+    <path d="M722 438C722 494 1030 500 1030 550"/>
+    <path d="M972 438C972 494 1115 500 1115 550"/>
+  </g>
+
+  <text x="82" y="538" class="label" font-size="11" fill="#ff777d">FAILED RECORDS</text>
+  <text x="823" y="538" class="label" font-size="11" fill="#55d7d3">RUN EVIDENCE</text>
+
+  <g filter="url(#shadow)">
+    <rect x="54" y="550" width="734" height="142" rx="25" fill="#100d0f" stroke="#742d35" stroke-width="2"/>
+    <rect x="62" y="558" width="718" height="126" rx="19" fill="url(#quarantine)" stroke="#fff" stroke-opacity="0.045"/>
+  </g>
+  <g transform="translate(91 585)">
+    <path d="M25 0L50 43H0Z" fill="none" stroke="#ff777d" stroke-width="2.5"/>
+    <path d="M25 14V28M25 35V36" stroke="#ff777d" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="171" y="605" class="label" font-size="10" fill="#ff8e93">QUARANTINE / RECOVERABLE FAILURE PATH</text>
+  <text x="171" y="642" class="display" font-size="28" fill="#fff">Failed records are retained—not hidden.</text>
+  <text x="171" y="670" class="body" font-size="15" fill="#c5a8ad">rule · category · source · contract version · replay context</text>
+
+  <g filter="url(#shadow)">
+    <rect x="820" y="550" width="526" height="142" rx="25" fill="#081113" stroke="#24545a" stroke-width="2"/>
+    <rect x="828" y="558" width="510" height="126" rx="19" fill="url(#evidence)" stroke="#fff" stroke-opacity="0.045"/>
+  </g>
+  <g transform="translate(858 584)" fill="none" stroke="#58d8d4" stroke-width="2.4">
+    <path d="M0 47V25M16 47V11M32 47V33M48 47V0"/>
+    <path d="M-6 47H56"/>
+  </g>
+  <text x="940" y="605" class="label" font-size="10" fill="#62d9d5">STRUCTURED RUN LOGS</text>
+  <text x="940" y="642" class="display" font-size="28" fill="#fff">Every decision leaves evidence.</text>
+  <text x="940" y="670" class="body" font-size="15" fill="#a4bdc1">quality results · counts · duration · lineage</text>
+
+  <text x="66" y="728" class="mono" font-size="11" fill="#547078">VALID DATA CONTINUES / INVALID DATA REMAINS EXPLAINABLE</text>
+  <text x="1335" y="728" text-anchor="end" class="mono" font-size="11" fill="#547078">DOMAIN AUTONOMY / SHARED CONTROL</text>
 </svg>

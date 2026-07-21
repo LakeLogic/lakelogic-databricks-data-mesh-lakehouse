@@ -37,7 +37,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install lakelogic pyyaml polars deltalake
+# MAGIC %pip install lakelogic pyyaml polars deltalake pdfplumber
 
 # COMMAND ----------
 
