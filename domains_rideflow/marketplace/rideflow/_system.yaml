@@ -125,7 +125,8 @@ contracts:
   - layer: gold
     entity: gold_rideflow_dim_driver_scorecard
     path: "contracts/{gold_layer}/gold_rideflow_dim_driver_scorecard_v1.0.yaml"
-    depends_on: ['silver_rideflow_trips', 'silver_rideflow_driver_profiles']
+    # dim_driver must build first — the scorecard resolves driver_sk against it.
+    depends_on: ['silver_rideflow_trips', 'silver_rideflow_driver_profiles', 'gold_rideflow_dim_driver']
     enabled: true
   - layer: gold
     entity: gold_rideflow_fact_rider_daily_metrics

@@ -19,12 +19,26 @@ links:
   - name: silver_trips_full
     path: "table:{domain_catalog}.silver_rideflow_trips"
     type: table
+  # Conformed SCD2 driver dimension — used to resolve driver_sk. Same domain, so
+  # the scorecard depends_on gold_rideflow_dim_driver in _system.yaml (dim first).
+  - name: dim_driver
+    path: "table:{domain_catalog}.gold_rideflow_dim_driver"
+    type: table
 
 model:
   fields:
     - name: driver_id
       type: string
       required: true
+    # Kimball surrogate FK to the CURRENT dim_driver version. The scorecard is a
+    # current-state aggregate (no as-of date), so it joins is_current = true.
+    # Drivers absent from the dim (e.g. a leaked/typo id) → '-1' unknown member.
+    - name: driver_sk
+      type: string
+      description: "FK to gold_rideflow_dim_driver (current version); '-1' = unknown"
+      foreign_key:
+        contract: "{gold_layer}_rideflow_dim_driver"
+        column: driver_sk
     - name: total_trips
       type: integer
     - name: total_earnings
@@ -38,19 +52,34 @@ model:
 
 transformations:
   - sql: |
+      -- Aggregate all-time per-driver metrics from the FULL Silver table (via
+      -- link), then resolve the Kimball surrogate key against the CURRENT
+      -- dim_driver version. Unmatched drivers → '-1'. Explicit columns + is_current
+      -- boolean predicate keep this portable across Spark and DuckDB.
+      WITH agg AS (
+          SELECT
+              driver_id,
+              COUNT(*)                   AS total_trips,
+              SUM(fare_amount)           AS total_earnings,
+              AVG(driver_rating)         AS avg_driver_rating,
+              AVG(distance_km)           AS avg_distance_km,
+              AVG(duration_minutes)      AS avg_duration_minutes
+          FROM silver_trips_full
+          WHERE driver_id IS NOT NULL
+          -- Only re-aggregate drivers that received new trips. On a full load,
+          -- `source` contains everything, so this safely selects all drivers.
+          AND driver_id IN (SELECT DISTINCT driver_id FROM source)
+          GROUP BY driver_id
+      )
       SELECT
-          driver_id,
-          COUNT(*)                   AS total_trips,
-          SUM(fare_amount)           AS total_earnings,
-          AVG(driver_rating)         AS avg_driver_rating,
-          AVG(distance_km)           AS avg_distance_km,
-          AVG(duration_minutes)      AS avg_duration_minutes
-      -- Read the FULL Silver table (via link) so aggregates compute all-time
-      -- metrics accurately. The Jinja guard restricts the
-      -- recomputation only to drivers who had new trips.
-      FROM silver_trips_full
-      WHERE driver_id IS NOT NULL
-      -- Only re-aggregate drivers that received new trips.
-      -- On a full load, `source` contains everything, so this safely selects all drivers.
-      AND driver_id IN (SELECT DISTINCT driver_id FROM source)
-      GROUP BY driver_id
+          a.driver_id,
+          COALESCE(d.driver_sk, '-1') AS driver_sk,
+          a.total_trips,
+          a.total_earnings,
+          a.avg_driver_rating,
+          a.avg_distance_km,
+          a.avg_duration_minutes
+      FROM agg a
+      LEFT JOIN dim_driver d
+        ON  a.driver_id = d.driver_id
+        AND d.is_current = true

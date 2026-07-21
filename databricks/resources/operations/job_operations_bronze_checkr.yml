@@ -40,8 +40,23 @@ resources:
 #               LAKELOGIC_OBSERVATORY_ENDPOINT: "{{secrets/rideflow/lakelogic-observatory-endpoint}}"
 #               LAKELOGIC_API_KEY: "{{secrets/rideflow/lakelogic-api-key}}"
 
+      # TEMP (dev-fix verification only): install the local lakelogic wheel that
+      # fixes the serverless UC-Volume glob bug (#112). Version 1.40.3 > PyPI
+      # 1.40.2, so the notebook's `%pip install lakelogic` keeps this one. REMOVE
+      # once the fix ships to PyPI.
+      environments:
+        - environment_key: devfix
+          spec:
+            client: "${var.serverless_env_version}"
+            dependencies:
+              - "/Volumes/rideflow_dev_demo/nondelta/_logs/lakelogic-1.40.3-py3-none-any.whl"
+              - polars
+              - deltalake
+              - pyyaml
+
       tasks:
         - task_key: bronze_run
+          environment_key: devfix
           notebook_task:
             notebook_path: ../../notebooks/pipeline_driver.py
             base_parameters:
