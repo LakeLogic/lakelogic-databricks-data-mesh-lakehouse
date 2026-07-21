@@ -1,17 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="450" viewBox="0 0 1200 450" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="650" viewBox="0 0 1400 650" role="img" aria-labelledby="title desc">
   <title id="title">RideFlow cross-domain lineage</title>
-  <desc id="desc">Payments, Marketplace, and Operations Silver products feed shared Gold revenue and driver 360 products.</desc>
+  <desc id="desc">Silver data products owned by Payments, Marketplace, and Operations feed shared Gold revenue and driver 360 products through declared dependencies, preserving lineage across domain boundaries.</desc>
   <defs>
-    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#64748b"/></marker>
-    <style>.title{font:700 28px Arial;fill:#0f172a}.label{font:700 15px Arial;fill:#0f172a}.meta{font:12px Arial;fill:#64748b}.source{fill:#fff;stroke:#cbd5e1;stroke-width:2}.gold{fill:#fffbeb;stroke:#d97706;stroke-width:2}.line{fill:none;stroke:#64748b;stroke-width:3;marker-end:url(#arrow2)}</style>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#071014"/><stop offset="0.56" stop-color="#0a171b"/><stop offset="1" stop-color="#071215"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2411"/><stop offset="1" stop-color="#1b180e"/></linearGradient>
+    <radialGradient id="glow" cx="58%" cy="52%" r="55%"><stop offset="0" stop-color="#18b8bd" stop-opacity="0.15"/><stop offset="1" stop-color="#18b8bd" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#4ad7d1" stroke-opacity="0.032"/></pattern>
+    <filter id="shadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="9" stdDeviation="14" flood-color="#000" flood-opacity="0.28"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#6bdad6"/></marker>
+    <style>.display{font-family:'Aptos Display','Trebuchet MS',sans-serif;font-weight:700;letter-spacing:-0.025em}.label{font-family:'Aptos','Trebuchet MS',sans-serif;font-weight:700;letter-spacing:0.12em}.body{font-family:'Aptos','Trebuchet MS',sans-serif;font-weight:400}.mono{font-family:'Cascadia Code','Courier New',monospace;font-weight:600}</style>
   </defs>
-  <rect width="1200" height="450" rx="24" fill="#f8fafc"/>
-  <text x="54" y="58" class="title">Cross-domain products keep their upstream lineage</text>
-  <g transform="translate(64 105)"><rect class="source" width="310" height="78" rx="14"/><text x="20" y="31" class="label">Silver - Stripe Charges</text><text x="20" y="55" class="meta">PAYMENTS DOMAIN</text></g>
-  <g transform="translate(64 205)"><rect class="source" width="310" height="78" rx="14"/><text x="20" y="31" class="label">Silver - RideFlow Trips</text><text x="20" y="55" class="meta">MARKETPLACE DOMAIN</text></g>
-  <g transform="translate(64 305)"><rect class="source" width="310" height="78" rx="14"/><text x="20" y="31" class="label">Silver - Checkr Screenings</text><text x="20" y="55" class="meta">OPERATIONS DOMAIN</text></g>
-  <g transform="translate(800 135)"><rect class="gold" width="330" height="84" rx="14"/><text x="22" y="34" class="label">Gold - Revenue Daily</text><text x="22" y="59" class="meta">SHARED CROSS-DOMAIN PRODUCT</text></g>
-  <g transform="translate(800 275)"><rect class="gold" width="330" height="84" rx="14"/><text x="22" y="34" class="label">Gold - Driver 360</text><text x="22" y="59" class="meta">SHARED CROSS-DOMAIN PRODUCT</text></g>
-  <path class="line" d="M374 144 C560 144 610 170 800 177"/><path class="line" d="M374 244 C560 244 610 190 800 177"/>
-  <path class="line" d="M374 244 C560 244 610 317 800 317"/><path class="line" d="M374 344 C560 344 610 317 800 317"/><path class="line" d="M374 144 C560 144 650 290 800 317"/>
+  <rect width="1400" height="650" rx="34" fill="url(#canvas)"/><rect width="1400" height="650" rx="34" fill="url(#grid)"/><ellipse cx="800" cy="400" rx="590" ry="300" fill="url(#glow)"/>
+
+  <g transform="translate(66 48)"><rect x="0" y="0" width="8" height="38" rx="2" fill="#f6f8f8"/><rect x="0" y="30" width="28" height="8" rx="2" fill="#f6f8f8"/><rect x="42" y="0" width="8" height="38" rx="2" fill="#18a0a8"/><rect x="22" y="0" width="28" height="8" rx="2" fill="#18a0a8"/><text x="70" y="29" class="display" font-size="25" fill="#f6f8f8">LakeLogic</text></g>
+  <text x="66" y="132" class="label" font-size="14" fill="#51d8d4">DATA MESH / CROSS-DOMAIN LINEAGE</text>
+  <text x="66" y="180" class="display" font-size="42" fill="#f7f8f8">Shared products keep their upstream ownership.</text>
+  <text x="66" y="215" class="body" font-size="18" fill="#9badb2">Declared dependencies connect domain-owned Silver products to shared Gold outcomes.</text>
+
+  <text x="74" y="268" class="label" font-size="11" fill="#718a90">DOMAIN-OWNED SILVER PRODUCTS</text><text x="1034" y="268" class="label" font-size="11" fill="#c6a542">SHARED GOLD PRODUCTS</text>
+
+  <g fill="none" stroke="#6bdad6" stroke-opacity="0.72" stroke-width="2.5" marker-end="url(#arrow)">
+    <path d="M458 323C680 323 760 336 1000 349"/>
+    <path d="M458 423C670 423 770 370 1000 349"/>
+    <path d="M458 423C680 423 760 469 1000 475"/>
+    <path d="M458 523C680 523 760 490 1000 475"/>
+    <path d="M458 323C650 323 770 445 1000 475"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(66 285)"><rect width="392" height="76" rx="18" fill="#0a1418" stroke="#74313a"/><rect x="7" y="7" width="378" height="62" rx="13" fill="#151f23"/><circle cx="29" cy="38" r="7" fill="#ff7580"/><text x="49" y="29" class="label" font-size="9" fill="#d87d85">PAYMENTS DOMAIN</text><text x="49" y="54" class="display" font-size="20" fill="#fff">Silver · Stripe charges</text></g>
+    <g transform="translate(66 385)"><rect width="392" height="76" rx="18" fill="#0a1418" stroke="#27717a"/><rect x="7" y="7" width="378" height="62" rx="13" fill="#151f23"/><circle cx="29" cy="38" r="7" fill="#45d1cc"/><text x="49" y="29" class="label" font-size="9" fill="#69c9c7">MARKETPLACE DOMAIN</text><text x="49" y="54" class="display" font-size="20" fill="#fff">Silver · RideFlow trips</text></g>
+    <g transform="translate(66 485)"><rect width="392" height="76" rx="18" fill="#0a1418" stroke="#4e4384"/><rect x="7" y="7" width="378" height="62" rx="13" fill="#151f23"/><circle cx="29" cy="38" r="7" fill="#9d8cff"/><text x="49" y="29" class="label" font-size="9" fill="#a79ae8">OPERATIONS DOMAIN</text><text x="49" y="54" class="display" font-size="20" fill="#fff">Silver · Checkr screenings</text></g>
+
+    <g transform="translate(1000 297)"><rect width="334" height="104" rx="21" fill="#0a1418" stroke="#a78124"/><rect x="7" y="7" width="320" height="90" rx="15" fill="url(#gold)"/><text x="25" y="30" class="label" font-size="9" fill="#d5b650">SHARED / REVENUE</text><text x="25" y="62" class="display" font-size="23" fill="#ffe29a">Gold · Revenue daily</text><text x="25" y="84" class="body" font-size="12" fill="#bdb49a">payments + marketplace</text></g>
+    <g transform="translate(1000 423)"><rect width="334" height="104" rx="21" fill="#0a1418" stroke="#a78124"/><rect x="7" y="7" width="320" height="90" rx="15" fill="url(#gold)"/><text x="25" y="30" class="label" font-size="9" fill="#d5b650">SHARED / DRIVER 360</text><text x="25" y="62" class="display" font-size="23" fill="#ffe29a">Gold · Driver 360</text><text x="25" y="84" class="body" font-size="12" fill="#bdb49a">marketplace + operations + payments</text></g>
+  </g>
+
+  <g transform="translate(514 348)"><rect width="360" height="110" rx="22" fill="#0d1d21" stroke="#2b5057"/><text x="180" y="31" text-anchor="middle" class="label" font-size="10" fill="#5ed8d4">DECLARED DEPENDENCIES</text><text x="180" y="64" text-anchor="middle" class="display" font-size="23" fill="#fff">Lineage crosses boundaries.</text><text x="180" y="88" text-anchor="middle" class="body" font-size="13" fill="#9cb0b4">owners · contracts · upstream products</text></g>
+
+  <g transform="translate(514 486)"><rect width="360" height="72" rx="18" fill="#102126" stroke="#29474d"/><text x="22" y="27" class="label" font-size="9" fill="#6fdad6">WHEN A SHARED PRODUCT FAILS</text><text x="22" y="52" class="body" font-size="14" fill="#c1d0d2">Trace the first broken upstream product—and its owner.</text></g>
+  <text x="66" y="620" class="mono" font-size="11" fill="#547078">DOMAIN OWNERSHIP STAYS VISIBLE DOWNSTREAM</text><text x="1335" y="620" text-anchor="end" class="mono" font-size="11" fill="#547078">SILVER INPUTS / GOLD OUTCOMES</text>
 </svg>

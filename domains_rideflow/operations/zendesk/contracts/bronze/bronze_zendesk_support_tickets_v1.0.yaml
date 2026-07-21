@@ -107,4 +107,7 @@ source:
   load_mode: incremental
   watermark_strategy: pipeline_log
   partition:
-    format: "y_%Y/m_%m/d_%d"
+    # Generator writes hourly partitions (y/m/d/h_HH), so the format must include
+    # the hour level — otherwise a full-load partition scan looks in the daily
+    # folder and misses the files one level deeper.
+    format: "y_%Y/m_%m/d_%d/h_%H"

@@ -43,6 +43,7 @@ source:
     header: "true"
     recursiveFileLookup: "true"
   load_mode: incremental
-  watermark_strategy: pipeline_log
-  partition:
-    format: "y_%Y/m_%m/d_%d"
+  # No `partition:` block — the generator writes a single flat seed file
+  # (fx_rates_daily/fx_rates_daily_seed.csv), not date-partitioned folders. A
+  # partition format here would make a full-load scan look in non-existent
+  # y/m/d dirs and find nothing. recursiveFileLookup (above) discovers the file.

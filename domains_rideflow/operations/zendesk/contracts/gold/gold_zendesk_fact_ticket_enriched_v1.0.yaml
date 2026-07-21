@@ -143,14 +143,22 @@ links:
   - name: dim_driver
     type: table
     path: "table:`{catalog}`.marketplace.gold_rideflow_dim_driver"
+  # Raw silver ticket text/priority — `source` is projected DOWN to this gold
+  # contract's model fields before the transform runs, so subject /
+  # ticket_description / priority are not visible on `source`. This link exposes
+  # the untouched silver columns; we join it back on ticket_id.
+  - name: tickets
+    type: table
+    path: "table:{domain_catalog}.silver_zendesk_support_tickets"
 
 transformations:
-  # phase: post — derives the enrichment columns with deterministic keyword rules
-  # and resolves the Kimball surrogate keys with an SCD2-accurate as-of join on
-  # created_at (half-open [effective_from, effective_to) interval). Riders/drivers
-  # absent from the dim (profile quarantined, or a NULL id on non-trip tickets)
-  # fall back to the '-1' unknown member — never a dangling FK.
-  - phase: post
+  # phase: pre — this SQL PRODUCES the model's required columns (category,
+  # sentiment, …) that the quality row_rules check, so it MUST run BEFORE
+  # validation. It also resolves the Kimball surrogate keys with an SCD2-accurate
+  # as-of join on created_at (half-open [effective_from, effective_to) interval).
+  # Riders/drivers absent from the dim (profile quarantined, or a NULL id on
+  # non-trip tickets) fall back to the '-1' unknown member — never a dangling FK.
+  - phase: pre
     sql: |
       -- Explicit column lists + CONCAT_WS/LOWER/CASE/CAST(... AS FLOAT) so this
       -- runs identically on Spark (the Databricks demo) and DuckDB (local
@@ -164,9 +172,10 @@ transformations:
             s.driver_id,
             s.charge_id,
             s.created_at,
-            s.priority                                           AS _priority,
-            LOWER(CONCAT_WS(' ', s.subject, s.ticket_description)) AS _t
+            t.priority                                           AS _priority,
+            LOWER(CONCAT_WS(' ', t.subject, t.ticket_description)) AS _t
         FROM source s
+        LEFT JOIN tickets t ON s.ticket_id = t.ticket_id
       ),
       derived AS (
         SELECT

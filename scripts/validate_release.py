@@ -4,7 +4,6 @@ import argparse, ast, pathlib, re, sys
 import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-REQUIRED_LAKELOGIC = "1.40.0"
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -19,10 +18,12 @@ def main() -> int:
     for path in yaml_files:
         try: yaml.safe_load(path.read_text(encoding="utf-8"))
         except Exception as exc: errors.append(f"YAML parse: {path.relative_to(ROOT)}: {exc}")
-    pattern = re.compile(r"%pip install\s+lakelogic(?!==" + re.escape(REQUIRED_LAKELOGIC) + r"\b)")
+    # The demo must always install the LATEST public lakelogic — it depends on
+    # fixes that ship continuously — so notebooks must NOT pin a version.
+    pattern = re.compile(r"%pip install\s+[^\n]*\blakelogic==")
     for path in ROOT.joinpath("databricks", "notebooks").rglob("*.py"):
         if pattern.search(path.read_text(encoding="utf-8")):
-            errors.append(f"Unpinned LakeLogic dependency: {path.relative_to(ROOT)}")
+            errors.append(f"Pinned LakeLogic dependency (demo must use latest, drop the ==): {path.relative_to(ROOT)}")
     if args.release:
         readme = ROOT.joinpath("README.md").read_text(encoding="utf-8")
         if "<PUBLIC_REPOSITORY_URL>" in readme: errors.append("README still contains <PUBLIC_REPOSITORY_URL>")

@@ -15,11 +15,13 @@ source:
   # Glob into all date-partitioned hour folders for PDFs.
   path: "{landing_root}/driver_licences/**/*.pdf"
   format: pdf
-  # Process only PDFs newer than the last successful run's high-watermark
-  # (file mtime). First run reads everything; subsequent runs read only
-  # newly-arrived licences. Re-extracting every PDF every run scales badly
-  # as the corpus grows — incremental is the right default for landing PDFs.
-  load_mode: incremental
+  # Full load: re-extract every licence PDF each run. The demo regenerates its
+  # test data between runs, which leaves an incremental high-watermark ahead of
+  # the freshly-written PDFs → the source scan returns `no_new_data` and the
+  # table stays empty. At demo scale (~30 PDFs) re-extraction is trivial, so
+  # `full` is the robust choice. (For a real, ever-growing licence corpus,
+  # `incremental` is correct — but then don't regenerate the landing zone.)
+  load_mode: full
 
 extraction:
   provider: pdfplumber
