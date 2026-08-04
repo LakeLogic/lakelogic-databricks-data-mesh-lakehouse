@@ -1,4 +1,4 @@
-# Governed Data Mesh on Databricks — Data Contracts, Quarantine, and Quality Gates
+# Governed Data Mesh/multi-domain lakehouse on Databricks — Data Contracts, Quarantine, and Quality Gates
 
 A working reference implementation of a **domain-driven lakehouse built around
 data-mesh principles**, powered by
