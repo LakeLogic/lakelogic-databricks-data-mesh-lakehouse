@@ -1,0 +1,150 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# RideFlow Demo — 🕸️ Data Mesh Orchestrator (runs the WHOLE mesh in one click)
+# ══════════════════════════════════════════════════════════════════════════════
+# The single top-level job that materialises every data product across all six
+# domains / eleven systems, respecting cross-domain dependencies.
+#
+#   1. setup            — catalog / schemas / landing Volumes / contracts
+#   2. seed_all_domains — FK-consistent landing + bronze + silver for EVERY domain
+#                         (topo-sorted by cross-domain foreign-key edges, so
+#                          downstream domains read REAL upstream ids)
+#   3. per-system gold  — fans out to each "Full Pipeline Orchestrator" with
+#                         gold ON (bronze/silver already built in step 2), wired
+#                         by depends_on into the same dependency DAG the Fabric
+#                         mesh orchestrator uses:
+#                             marketplace, reference     → roots (after seed)
+#                             payments, marketing×4,
+#                             operations/checkr, /twilio → after marketplace
+#                             operations/zendesk         → after payments
+#                             shared                     → after everything
+#
+# Every per-system orchestrator runs with enable_test_data=false / bronze=false /
+# silver=false (step 2 already produced those, FK-consistent) and gold=true.
+resources:
+  jobs:
+    mesh_orchestrator:
+      name: "[${bundle.target}] RideFlow Demo — 🕸️ Data Mesh Orchestrator (whole mesh, by dependency)"
+      description: "Provision → FK-consistent seed (all domains, bronze+silver) → gold for every system in cross-domain dependency order. One click runs the entire mesh."
+
+      tags:
+        managed_by: lakelogic
+        layer: mesh
+
+      # NOTE: gold-only per-system parameters (test_data/bronze/silver=false,
+      # gold=true) are defined once as the &gold_only anchor on the first
+      # per-system task below, then aliased (*gold_only) by every other. Bronze+
+      # silver come from seed_all_domains (FK-consistent); regenerating test data
+      # per-system here would break cross-domain foreign keys.
+
+      tasks:
+        # ── Step 1: Provision catalog / schemas / volumes / contracts ─────────
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../../notebooks/_ops/00_setup.py
+            base_parameters:
+              catalog: "${var.catalog}"
+              contracts_src: "${workspace.file_path}/domains_rideflow"
+
+        # ── Step 2: FK-consistent landing + bronze + silver for ALL domains ───
+        - task_key: seed_all_domains
+          depends_on:
+            - task_key: setup
+          run_job_task:
+            job_id: ${resources.jobs.seed_all_domains.id}
+
+        # ── Step 3: Gold materialisation, in cross-domain dependency order ────
+        # Roots — depend only on the seed.
+        - task_key: marketplace_rideflow
+          depends_on:
+            - task_key: seed_all_domains
+          run_job_task:
+            job_id: ${resources.jobs.marketplace_orchestrator_rideflow.id}
+            job_parameters: &gold_only
+              enable_test_data: "false"
+              enable_bronze: "false"
+              enable_silver: "false"
+              enable_gold: "true"
+
+        - task_key: reference_internal
+          depends_on:
+            - task_key: seed_all_domains
+          run_job_task:
+            job_id: ${resources.jobs.reference_orchestrator_internal.id}
+            job_parameters: *gold_only
+
+        # After marketplace — payments, marketing (×4), operations/checkr, /twilio.
+        - task_key: payments_stripe
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.payments_orchestrator_stripe.id}
+            job_parameters: *gold_only
+
+        - task_key: marketing_google_ads
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.marketing_orchestrator_google_ads.id}
+            job_parameters: *gold_only
+
+        - task_key: marketing_google_analytics
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.marketing_orchestrator_google_analytics.id}
+            job_parameters: *gold_only
+
+        - task_key: marketing_hubspot
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.marketing_orchestrator_hubspot.id}
+            job_parameters: *gold_only
+
+        - task_key: marketing_meta_ads
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.marketing_orchestrator_meta_ads.id}
+            job_parameters: *gold_only
+
+        - task_key: operations_checkr
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.operations_orchestrator_checkr.id}
+            job_parameters: *gold_only
+
+        - task_key: operations_twilio
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.operations_orchestrator_twilio.id}
+            job_parameters: *gold_only
+
+        # zendesk enriches payments charges → after payments.
+        - task_key: operations_zendesk
+          depends_on:
+            - task_key: payments_stripe
+          run_job_task:
+            job_id: ${resources.jobs.operations_orchestrator_zendesk.id}
+            job_parameters: *gold_only
+
+        # shared marts join across every domain → run last.
+        - task_key: shared_shared
+          depends_on:
+            - task_key: reference_internal
+            - task_key: payments_stripe
+            - task_key: marketing_google_ads
+            - task_key: marketing_google_analytics
+            - task_key: marketing_hubspot
+            - task_key: marketing_meta_ads
+            - task_key: operations_checkr
+            - task_key: operations_twilio
+            - task_key: operations_zendesk
+          run_if: ALL_SUCCESS
+          run_job_task:
+            job_id: ${resources.jobs.shared_orchestrator_shared.id}
+            job_parameters: *gold_only
+
+      email_notifications: {}

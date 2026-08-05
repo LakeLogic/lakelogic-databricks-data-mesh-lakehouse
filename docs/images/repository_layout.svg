@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
+  <title id="title">LakeLogic Databricks data mesh repository layout</title>
+  <desc id="desc">A modern repository map showing continuous integration, Databricks deployment code, domain-owned RideFlow data contracts, documentation, and validation files.</desc>
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7FAFC"/>
+      <stop offset="1" stop-color="#EEF4F7"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102B35"/>
+      <stop offset="1" stop-color="#173D48"/>
+    </linearGradient>
+    <linearGradient id="domain" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E7F8F3"/>
+      <stop offset="1" stop-color="#F2FBF8"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#16343D" flood-opacity=".08"/>
+    </filter>
+    <style>
+      .eyebrow{font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2.2px;fill:#72E0C0}
+      .title{font-family:Arial,sans-serif;font-size:38px;font-weight:700;letter-spacing:-.6px;fill:#FFFFFF}
+      .subtitle{font-family:Arial,sans-serif;font-size:16px;font-weight:400;fill:#B9CDD3}
+      .card{fill:#FFFFFF;stroke:#D5E0E4;stroke-width:1.5}
+      .domain{fill:url(#domain);stroke:#37A98E;stroke-width:2}
+      .path{font-family:Consolas,'Courier New',monospace;font-size:18px;font-weight:700;fill:#12343D}
+      .pathAccent{font-family:Consolas,'Courier New',monospace;font-size:18px;font-weight:700;fill:#087D69}
+      .body{font-family:Arial,sans-serif;font-size:15px;font-weight:400;fill:#536872}
+      .small{font-family:Arial,sans-serif;font-size:14px;font-weight:400;fill:#48636B}
+      .number{font-family:Arial,sans-serif;font-size:13px;font-weight:700;fill:#53707A}
+      .numberAccent{font-family:Arial,sans-serif;font-size:13px;font-weight:700;fill:#087D69}
+      .chip{font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:1.15px}
+      .branch{fill:none;stroke:#B7C7CC;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+      .dot{fill:#FFFFFF;stroke:#89A0A8;stroke-width:2}
+    </style>
+  </defs>
+
+  <rect width="1400" height="860" fill="url(#canvas)"/>
+  <rect x="28" y="28" width="1344" height="804" rx="28" fill="#F9FBFC" stroke="#DCE6E9"/>
+
+  <g filter="url(#shadow)">
+    <rect x="54" y="54" width="1292" height="142" rx="22" fill="url(#hero)"/>
+  </g>
+  <text x="88" y="91" class="eyebrow">REPOSITORY MAP · RIDEFLOW</text>
+  <text x="88" y="137" class="title">One repository. Clear ownership.</text>
+  <text x="88" y="170" class="subtitle">Platform deployment stays separate from domain-owned data contracts.</text>
+  <g transform="translate(1141 86)">
+    <rect width="158" height="70" rx="15" fill="#FFFFFF" fill-opacity=".08" stroke="#FFFFFF" stroke-opacity=".16"/>
+    <path d="M25 27h17l7 7h31v22H25z" fill="none" stroke="#72E0C0" stroke-width="2.4" stroke-linejoin="round"/>
+    <text x="93" y="34" text-anchor="middle" class="eyebrow" style="letter-spacing:1px">5 AREAS</text>
+    <text x="93" y="54" text-anchor="middle" class="subtitle" style="font-size:12px">one source of truth</text>
+  </g>
+
+  <path class="branch" d="M105 247 V764 M105 265 H144 M105 370 H144 M105 531 H144 M105 659 H144 M105 764 H144"/>
+  <circle class="dot" cx="105" cy="265" r="6"/><circle class="dot" cx="105" cy="370" r="6"/>
+  <circle cx="105" cy="531" r="7" fill="#20A789" stroke="#DDF8F0" stroke-width="4"/>
+  <circle class="dot" cx="105" cy="659" r="6"/><circle class="dot" cx="105" cy="764" r="6"/>
+
+  <g transform="translate(144 222)">
+    <rect class="card" width="1202" height="86" rx="16"/>
+    <circle cx="40" cy="43" r="18" fill="#EDF3F5"/><text x="40" y="48" text-anchor="middle" class="number">01</text>
+    <text x="76" y="35" class="path">.github/</text>
+    <text x="76" y="60" class="body">Pull-request validation and continuous integration.</text>
+    <g transform="translate(1022 28)"><rect width="146" height="30" rx="15" fill="#EDF3F5"/><text x="73" y="20" text-anchor="middle" class="chip" fill="#536872">AUTOMATION</text></g>
+  </g>
+
+  <g transform="translate(144 327)">
+    <rect class="card" width="1202" height="86" rx="16"/>
+    <circle cx="40" cy="43" r="18" fill="#EDF3F5"/><text x="40" y="48" text-anchor="middle" class="number">02</text>
+    <text x="76" y="35" class="path">databricks/</text>
+    <text x="76" y="60" class="body">Asset Bundle, notebooks, job resources, variables, and deploy scripts. Run bundle commands here.</text>
+    <g transform="translate(976 28)"><rect width="192" height="30" rx="15" fill="#FFF3D8" stroke="#E6B553"/><text x="96" y="20" text-anchor="middle" class="chip" fill="#865B08">DEPLOYMENT CODE</text></g>
+  </g>
+
+  <g transform="translate(144 432)" filter="url(#shadow)">
+    <rect class="domain" width="1202" height="198" rx="18"/>
+    <rect x="0" width="7" height="198" rx="3.5" fill="#159C80"/>
+    <circle cx="40" cy="43" r="18" fill="#CDEFE5"/><text x="40" y="48" text-anchor="middle" class="numberAccent">03</text>
+    <text x="76" y="36" class="pathAccent">domains_rideflow/</text>
+    <text x="76" y="62" class="body">The governed data mesh: one contract tree per business domain and source system.</text>
+    <g transform="translate(931 25)"><rect width="237" height="32" rx="16" fill="#123F45"/><text x="118.5" y="21" text-anchor="middle" class="chip" fill="#FFFFFF">DOMAIN-OWNED CONTRACTS</text></g>
+
+    <path d="M76 91 H112 V165" class="branch" stroke="#78BFAF"/>
+    <path d="M112 103 H136 M112 134 H136 M112 165 H136" class="branch" stroke="#78BFAF"/>
+    <text x="146" y="109" class="pathAccent" style="font-size:15px">marketing/</text>
+    <text x="294" y="109" class="small">Google Ads · Google Analytics · HubSpot · Meta Ads</text>
+    <text x="146" y="140" class="pathAccent" style="font-size:15px">marketplace/</text>
+    <text x="294" y="140" class="small">Trips · riders · drivers · telemetry · pricing · shared Gold products</text>
+    <text x="146" y="171" class="pathAccent" style="font-size:15px">operations/ · payments/ · reference/ · shared/</text>
+    <text x="741" y="171" class="small">Defaults flow from domain → system → contract.</text>
+  </g>
+
+  <g transform="translate(144 649)">
+    <rect class="card" width="1202" height="86" rx="16"/>
+    <circle cx="40" cy="43" r="18" fill="#EDF3F5"/><text x="40" y="48" text-anchor="middle" class="number">04</text>
+    <text x="76" y="35" class="path">docs/</text>
+    <text x="76" y="60" class="body">Setup, catalog configuration, manual runs, troubleshooting, screenshots, and architecture.</text>
+    <g transform="translate(1040 28)"><rect width="128" height="30" rx="15" fill="#EDF3F5"/><text x="64" y="20" text-anchor="middle" class="chip" fill="#536872">GUIDANCE</text></g>
+  </g>
+
+  <g transform="translate(144 754)">
+    <rect class="card" width="1202" height="54" rx="16"/>
+    <circle cx="40" cy="27" r="18" fill="#EDF3F5"/><text x="40" y="32" text-anchor="middle" class="number">05</text>
+    <text x="76" y="23" class="path" style="font-size:16px">scripts/ · README.md · LICENSE</text>
+    <text x="76" y="43" class="body" style="font-size:13px">Release validation, quickstart, repository guidance, and Apache 2.0 licence.</text>
+  </g>
+</svg>

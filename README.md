@@ -1,4 +1,13 @@
-# Governed Data Mesh/multi-domain lakehouse on Databricks — Data Contracts, Quarantine, and Quality Gates
+# Multi-Domain Lakehouse on Databricks — a Governed Data Mesh Implementation
+
+*One Unity Catalog lakehouse, many domain-owned data products — implementing the principles of a
+**data mesh** (domain ownership, data as a product, a self-service platform, and federated
+governance) with data contracts, quarantine and quality gates.*
+
+> **Let every team own its data — without losing control of quality, PII or trust.**
+> A governed data mesh on Databricks: domain teams ship their own Bronze/Silver/Gold data products
+> on Unity Catalog, while one shared layer enforces schema, quality, lineage and PII rules across
+> all of them — deployed as code and run with a single click.
 
 A working reference implementation of a **domain-driven lakehouse built around
 data-mesh principles**, powered by
@@ -12,10 +21,46 @@ similar to Uber. Six domains own their data products without rebuilding the
 platform controls for every table. The core demo runs on serverless compute and
 Unity Catalog Volumes, with no ADLS or external storage required.
 
+```text
+RideFlow · one Databricks lakehouse (Unity Catalog) · 6 domains · 11 source systems
+│
+├── Marketplace   (rideflow)
+│   ├── Riders & Drivers
+│   ├── Trips
+│   └── Cancellations
+│
+├── Payments   (stripe)
+│   ├── Charges
+│   └── Payouts
+│
+├── Operations   (checkr · twilio · zendesk)
+│   ├── Background checks & driver licences
+│   ├── SMS logs
+│   └── Support tickets
+│
+├── Marketing   (google_ads · google_analytics · hubspot · meta_ads)
+│   ├── Campaigns & spend
+│   ├── App events & sessions
+│   └── Email & push
+│
+├── Reference   (internal)
+│   ├── Cities
+│   └── FX rates
+│
+└── Shared   (cross-domain marts)
+    └── Products that join across every domain
+```
+
 ![RideFlow governed data mesh architecture](docs/images/rideflow_governed_data_mesh_architecture.png)
 
 *Six RideFlow domains publish governed data products through Unity Catalog.
 LakeLogic applies shared contract controls and records quarantine and run evidence.*
+
+🟢 **The whole governed estate, one click.** A single mesh orchestrator runs every domain's
+data products in cross-domain dependency order — here, all systems fan out and land green on
+serverless compute, no infrastructure to manage.
+
+![The RideFlow Data Mesh Orchestrator run — every domain's data products green, in dependency order](docs/images/databricks_mesh_orchestrator_run_graph.png)
 
 > A community project from the LakeLogic team, not an official Databricks product.
 > The notebooks install the latest public [`lakelogic`](https://pypi.org/project/lakelogic/)
@@ -203,11 +248,31 @@ Catalog: rideflow_dev_demo
 
 ## Repository layout
 
+The repository keeps reusable data-product definitions separate from the code
+that deploys and runs them on Databricks:
+
+![LakeLogic Databricks data mesh repository layout](docs/images/repository_layout.png)
+
 ```text
-domains_rideflow/             Contract trees organised by domain and system
+.github/
+  workflows/validate.yml      CI validation for contracts and Python files
+domains_rideflow/             Domain-owned contract trees
+  marketing/                  Google Ads, Google Analytics, HubSpot, and Meta Ads
+    <system>/
+      _system.yaml             System defaults and contract registry
+      contracts/
+        bronze/                Source-aligned ingestion contracts
+        silver/                Cleaned and conformed data products
+        gold/                  Business-facing facts, dimensions, and aggregates
+  marketplace/                Trips, riders, drivers, telemetry, and pricing
+  operations/                 Screening, support, licensing, and operations data
+  payments/                   Charges, refunds, payouts, and financial products
+  reference/                  Shared lookups and conformed reference data
+  shared/                     Cross-domain products and marts
 databricks/
   databricks.yml              Asset Bundle targets
   databrick_variables.yml     Shared bundle variables
+  deploy.ps1 / deploy.sh      Windows and Unix deployment wrappers
   notebooks/
     _ops/00_setup.py          Catalog, schema, Volume, and contract setup
     pipeline_driver.py        Registry-driven Bronze, Silver, and Gold runner
@@ -217,7 +282,18 @@ databricks/
     _bootstrap/               One-click bootstrap job
     <domain>/                 Domain and system jobs
 docs/                         Alternative setup and troubleshooting guides
+  images/                     README screenshots and architecture diagrams
+scripts/
+  validate_release.py         Static checks used locally and in CI
+README.md                     Public overview and quickstart
+LICENSE                       Apache 2.0 licence
 ```
+
+`domains_rideflow/` contains the portable business definitions. `databricks/`
+contains the platform-specific deployment and execution code. This boundary is
+intentional: a domain team can review its contracts without needing to understand
+the complete Asset Bundle, while the platform team can change deployment code
+without moving business rules into notebooks.
 
 ## Open source and optional Cloud
 
