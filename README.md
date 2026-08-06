@@ -23,32 +23,24 @@ Unity Catalog Volumes, with no ADLS or external storage required.
 
 ```text
 RideFlow · one Databricks lakehouse (Unity Catalog) · 6 domains · 11 source systems
+Every domain runs the same medallion — Bronze (raw, typed) → Silver (cleaned, deduped) → Gold (products)
 │
-├── Marketplace   (rideflow)
-│   ├── Riders & Drivers
-│   ├── Trips
-│   └── Cancellations
+├── Marketplace   (rideflow)                          ← shown expanded as the example
+│   ├── Bronze   raw, typed, validated
+│   │     driver_profiles · rider_profiles · driver_telemetry · rider_app_events
+│   │     trip_requests · trip_completed · trip_cancellations
+│   ├── Silver   cleaned, deduped, conformed
+│   │     driver_profiles · rider_profiles · trips (joined) · trip_requests
+│   │     driver_telemetry · rider_app_events
+│   └── Gold   business products
+│         dim_driver · dim_driver_scorecard · dim_rider
+│         fact_trip_daily_kpis · fact_rider_daily_metrics · fact_surge_pricing_inference
 │
-├── Payments   (stripe)
-│   ├── Charges
-│   └── Payouts
-│
-├── Operations   (checkr · twilio · zendesk)
-│   ├── Background checks & driver licences
-│   ├── SMS logs
-│   └── Support tickets
-│
-├── Marketing   (google_ads · google_analytics · hubspot · meta_ads)
-│   ├── Campaigns & spend
-│   ├── App events & sessions
-│   └── Email & push
-│
-├── Reference   (internal)
-│   ├── Cities
-│   └── FX rates
-│
-└── Shared   (cross-domain marts)
-    └── Products that join across every domain
+├── Payments     (stripe)        →  Bronze → Silver → Gold   ·  charges, payouts
+├── Operations   (checkr · twilio · zendesk)   →  Bronze → Silver → Gold
+├── Marketing    (google_ads · google_analytics · hubspot · meta_ads)   →  Bronze → Silver → Gold
+├── Reference    (internal)      →  Bronze → Silver → Gold   ·  cities, fx rates
+└── Shared       (cross-domain marts)   →  Gold   ·  products that join every domain
 ```
 
 ![RideFlow governed data mesh architecture](docs/images/rideflow_governed_data_mesh_architecture.png)
