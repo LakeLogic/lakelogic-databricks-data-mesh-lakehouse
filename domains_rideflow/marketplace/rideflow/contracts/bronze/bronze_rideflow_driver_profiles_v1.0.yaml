@@ -15,7 +15,6 @@ model:
   fields:
     - name: driver_id
       type: string
-      required: true
       description: "Unique driver identifier"
     - name: name
       type: string

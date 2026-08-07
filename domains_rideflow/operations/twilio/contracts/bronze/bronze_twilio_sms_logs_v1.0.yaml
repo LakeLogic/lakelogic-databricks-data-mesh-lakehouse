@@ -13,11 +13,9 @@ model:
   fields:
     - name: message_sid
       type: string
-      required: true
       description: "Twilio message SID"
     - name: recipient_phone
       type: string
-      required: true
       pii: true
       description: "Recipient phone number"
     - name: sender_phone

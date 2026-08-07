@@ -14,7 +14,6 @@ model:
   fields:
     - name: rider_id
       type: string
-      required: true
       description: "Unique rider identifier"
     - name: name
       type: string

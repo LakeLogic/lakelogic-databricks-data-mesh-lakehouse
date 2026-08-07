@@ -13,7 +13,6 @@ model:
   fields:
     - name: ticket_id
       type: string
-      required: true
       description: "Zendesk ticket ID"
     # ── FK fields populated based on entry_point (see below) ─────────────
     - name: entry_point
@@ -51,7 +50,6 @@ model:
     # ── Requester contact (was previously the only identifier) ───────────
     - name: requester_email
       type: string
-      required: true
       pii: true
       description: "Requester email"
     - name: requester_name

@@ -37,13 +37,11 @@ model:
 
     - name: full_name
       type: string
-      required: true
       extraction_task: metadata
       extraction_examples: ['Name:\s+(.+)']
       
     - name: licence_number
       type: string
-      required: true
       extraction_task: metadata
       extraction_examples: ['Licence No:\s+(\S+)']
       

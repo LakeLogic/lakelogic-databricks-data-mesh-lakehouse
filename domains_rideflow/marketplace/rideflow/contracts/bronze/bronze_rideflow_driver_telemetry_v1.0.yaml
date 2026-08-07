@@ -14,11 +14,9 @@ model:
   fields:
     - name: telemetry_id
       type: string
-      required: true
       description: "Unique telemetry ping ID"
     - name: driver_id
       type: string
-      required: true
       description: "FK to driver_profiles"
     - name: gps_lat
       type: string

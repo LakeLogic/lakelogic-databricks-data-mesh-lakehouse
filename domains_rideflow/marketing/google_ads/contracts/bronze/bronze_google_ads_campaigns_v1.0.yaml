@@ -13,11 +13,9 @@ model:
   fields:
     - name: campaign_id
       type: string
-      required: true
       description: "Google Ads campaign ID"
     - name: campaign_name
       type: string
-      required: true
       description: "Campaign name"
     - name: ad_group_id
       type: string
