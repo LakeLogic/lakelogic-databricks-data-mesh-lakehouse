@@ -14,14 +14,12 @@ model:
   fields:
     - name: cancellation_id
       type: string
-      required: true
       description: "Unique cancellation identifier"
     - name: trip_id
       type: string
       description: "FK to trip (may be null for pre-match cancellations)"
     - name: rider_id
       type: string
-      required: true
       description: "FK to rider_profiles"
     - name: driver_id
       type: string

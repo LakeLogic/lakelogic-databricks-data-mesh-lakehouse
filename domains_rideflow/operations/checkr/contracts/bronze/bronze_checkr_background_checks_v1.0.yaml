@@ -13,11 +13,9 @@ model:
   fields:
     - name: report_id
       type: string
-      required: true
       description: "Checkr report ID"
     - name: driver_id
       type: string
-      required: true
       pii: true
       description: "FK to marketplace driver"
       foreign_key:

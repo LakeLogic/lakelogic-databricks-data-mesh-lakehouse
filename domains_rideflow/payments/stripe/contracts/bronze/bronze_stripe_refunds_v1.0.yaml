@@ -13,11 +13,9 @@ model:
   fields:
     - name: refund_id
       type: string
-      required: true
       description: "Stripe refund ID"
     - name: charge_id
       type: string
-      required: true
       description: "FK to parent charge"
       foreign_key:
         contract: "{bronze_layer}_{system}_charges"   # intra-system: stripe→stripe

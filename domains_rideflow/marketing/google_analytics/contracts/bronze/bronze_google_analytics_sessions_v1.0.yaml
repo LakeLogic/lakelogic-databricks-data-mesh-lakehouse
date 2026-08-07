@@ -13,11 +13,9 @@ model:
   fields:
     - name: session_id
       type: string
-      required: true
       description: "GA4 session ID"
     - name: user_pseudo_id
       type: string
-      required: true
       description: "GA4 anonymous client ID"
     - name: user_id
       type: string

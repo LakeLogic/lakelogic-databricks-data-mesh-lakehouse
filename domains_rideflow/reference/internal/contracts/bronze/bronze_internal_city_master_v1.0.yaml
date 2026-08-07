@@ -16,7 +16,6 @@ model:
   fields:
     - name: city_code
       type: string
-      required: true
       description: "Internal stable code (e.g. LON, NYC, BLR)"
     - name: city_name
       type: string

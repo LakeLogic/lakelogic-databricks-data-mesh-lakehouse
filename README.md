@@ -23,13 +23,13 @@ Unity Catalog Volumes, with no ADLS or external storage required.
 
 ```text
 RideFlow · one Databricks lakehouse (Unity Catalog) · 6 domains · 11 source systems
-Every domain runs the same medallion — Bronze (raw, typed) → Silver (cleaned, deduped) → Gold (products)
+Every domain runs the same medallion — Bronze (raw, all-string, schema-flexible) → Silver (typed, cleaned, transformed, validated) → Gold (products)
 │
 ├── Marketplace   (rideflow)                          ← shown expanded as the example
-│   ├── Bronze   raw, typed, validated
+│   ├── Bronze   raw · all-string · schema-flexible (evolves, keeps everything)
 │   │     driver_profiles · rider_profiles · driver_telemetry · rider_app_events
 │   │     trip_requests · trip_completed · trip_cancellations
-│   ├── Silver   cleaned, deduped, conformed
+│   ├── Silver   typed, cleaned, deduped, transformed, validated
 │   │     driver_profiles · rider_profiles · trips (joined) · trip_requests
 │   │     driver_telemetry · rider_app_events
 │   └── Gold   business products
