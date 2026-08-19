@@ -1,62 +1,23 @@
-# Multi-Domain Lakehouse on Databricks — a Governed Data Mesh Implementation
+**WORKING DATABRICKS LAKEHOUSE**
 
-*One Unity Catalog lakehouse, many domain-owned data products — implementing the principles of a
-**data mesh** (domain ownership, data as a product, a self-service platform, and federated
-governance) with data contracts, quarantine and quality gates.*
+# Build and run a governed data mesh on Databricks
 
-> **Let every team own its data — without losing control of quality, PII or trust.**
-> A governed data mesh on Databricks: domain teams ship their own Bronze/Silver/Gold data products
-> on Unity Catalog, while one shared layer enforces schema, quality, lineage and PII rules across
-> all of them — deployed as code and run with a single click.
+A working implementation of six domain-owned RideFlow data products and eleven synthetic source
+systems, defined with portable [Open Lakehouse Contracts](https://lakelogic.github.io/open-lakehouse-contract/)
+and executed by [LakeLogic Core](https://pypi.org/project/lakelogic/) through Databricks Workflows,
+serverless compute and Unity Catalog.
 
-A working reference implementation of a **domain-driven lakehouse built around
-data-mesh principles**, powered by
-[LakeLogic](https://pypi.org/project/lakelogic/) on Databricks Unity Catalog. It
-shows how domain teams can own
-Bronze, Silver, and Gold data products while sharing the same contract-driven
-quality, quarantine, lineage, and pipeline controls.
+**Schema checks · quality gates · quarantine · lineage · PII controls · service levels**
 
-The example uses **RideFlow**, a fictional ride-hailing and food-delivery business
-similar to Uber. Six domains own their data products without rebuilding the
-platform controls for every table. The core demo runs on serverless compute and
-Unity Catalog Volumes, with no ADLS or external storage required.
-
-```text
-RideFlow · one Databricks lakehouse (Unity Catalog) · 6 domains · 11 source systems
-Every domain runs the same medallion — Bronze (raw, all-string, schema-flexible) → Silver (typed, cleaned, transformed, validated) → Gold (products)
-│
-├── Marketplace   (rideflow)                          ← shown expanded as the example
-│   ├── Bronze   raw · all-string · schema-flexible (evolves, keeps everything)
-│   │     driver_profiles · rider_profiles · driver_telemetry · rider_app_events
-│   │     trip_requests · trip_completed · trip_cancellations
-│   ├── Silver   typed, cleaned, deduped, transformed, validated
-│   │     driver_profiles · rider_profiles · trips (joined) · trip_requests
-│   │     driver_telemetry · rider_app_events
-│   └── Gold   business products
-│         dim_driver · dim_driver_scorecard · dim_rider
-│         fact_trip_daily_kpis · fact_rider_daily_metrics · fact_surge_pricing_inference
-│
-├── Payments     (stripe)        →  Bronze → Silver → Gold   ·  charges, payouts
-├── Operations   (checkr · twilio · zendesk)   →  Bronze → Silver → Gold
-├── Marketing    (google_ads · google_analytics · hubspot · meta_ads)   →  Bronze → Silver → Gold
-├── Reference    (internal)      →  Bronze → Silver → Gold   ·  cities, fx rates
-└── Shared       (cross-domain marts)   →  Gold   ·  products that join every domain
-```
-
-![RideFlow governed data mesh architecture](docs/images/rideflow_governed_data_mesh_architecture.png)
-
-*Six RideFlow domains publish governed data products through Unity Catalog.
-LakeLogic applies shared contract controls and records quarantine and run evidence.*
-
-🟢 **The whole governed estate, one click.** A single mesh orchestrator runs every domain's
-data products in cross-domain dependency order — here, all systems fan out and land green on
-serverless compute, no infrastructure to manage.
+> **Reference environment:** RideFlow is a fictional ride-hailing and food-delivery business,
+> similar to Uber, using synthetic data. This is a community project from the LakeLogic team, not
+> an official Databricks product.
 
 ![The RideFlow Data Mesh Orchestrator run — every domain's data products green, in dependency order](docs/images/databricks_mesh_orchestrator_run_graph.png)
 
-> A community project from the LakeLogic team, not an official Databricks product.
-> The notebooks install the latest public [`lakelogic`](https://pypi.org/project/lakelogic/)
-> release so the demo picks up the newest fixes.
+The core implementation runs on serverless compute and Unity Catalog Volumes, with no ADLS or
+external storage required. The notebooks install the latest public
+[`lakelogic`](https://pypi.org/project/lakelogic/) release.
 
 ## What this proves
 
@@ -83,6 +44,35 @@ This repository demonstrates a middle path:
 
 *A real quarantine table in Unity Catalog. Rejected records keep their
 `_lakelogic_errors`, categories, and source instead of being silently dropped.*
+
+## Reference estate
+
+```text
+RideFlow · one Databricks lakehouse (Unity Catalog) · 6 domains · 11 source systems
+Every domain runs the same medallion — Bronze (raw, all-string, schema-flexible) → Silver (typed, cleaned, transformed, validated) → Gold (products)
+│
+├── Marketplace   (rideflow)                          ← shown expanded as the example
+│   ├── Bronze   raw · all-string · schema-flexible (evolves, keeps everything)
+│   │     driver_profiles · rider_profiles · driver_telemetry · rider_app_events
+│   │     trip_requests · trip_completed · trip_cancellations
+│   ├── Silver   typed, cleaned, deduped, transformed, validated
+│   │     driver_profiles · rider_profiles · trips (joined) · trip_requests
+│   │     driver_telemetry · rider_app_events
+│   └── Gold   business products
+│         dim_driver · dim_driver_scorecard · dim_rider
+│         fact_trip_daily_kpis · fact_rider_daily_metrics · fact_surge_pricing_inference
+│
+├── Payments     (stripe)        →  Bronze → Silver → Gold   ·  charges, payouts
+├── Operations   (checkr · twilio · zendesk)   →  Bronze → Silver → Gold
+├── Marketing    (google_ads · google_analytics · hubspot · meta_ads)   →  Bronze → Silver → Gold
+├── Reference    (internal)      →  Bronze → Silver → Gold   ·  cities, fx rates
+└── Shared       (cross-domain marts)   →  Gold   ·  products that join every domain
+```
+
+![RideFlow governed data mesh architecture](docs/images/rideflow_governed_data_mesh_architecture.png)
+
+*Six RideFlow domains publish governed data products through Unity Catalog. LakeLogic Core applies
+the shared contract controls and records quarantine and run evidence.*
 
 ## Run it
 

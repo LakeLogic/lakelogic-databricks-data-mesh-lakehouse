@@ -63,6 +63,7 @@ source:
 
 external_logic:
   type: python
+  engine: spark
   # Path is resolved relative to the contract YAML's directory (its
   # _base_path). This contract lives at
   #   reference/internal/contracts/gold/gold_internal_dim_date_v1.0.yaml
