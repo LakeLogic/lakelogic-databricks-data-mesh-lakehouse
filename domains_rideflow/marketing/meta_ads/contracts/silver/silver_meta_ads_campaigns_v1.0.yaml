@@ -37,11 +37,14 @@ quality:
   row_rules: []
   dataset_rules:
   - unique: campaign_id
-transformations:
-- deduplicate:
-    by:
-    - campaign_id
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_campaigns'
   load_mode: full
+transformations:
+- deduplicate:
+    "on":
+    - campaign_id
+    sort_by:
+    - _lakelogic_processed_at
+    order: desc

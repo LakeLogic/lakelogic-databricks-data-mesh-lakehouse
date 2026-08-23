@@ -45,11 +45,14 @@ quality:
   row_rules: []
   dataset_rules:
   - unique: session_id
-transformations:
-- deduplicate:
-    by:
-    - session_id
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_sessions'
   load_mode: full
+transformations:
+- deduplicate:
+    "on":
+    - session_id
+    sort_by:
+    - _lakelogic_processed_at
+    order: desc

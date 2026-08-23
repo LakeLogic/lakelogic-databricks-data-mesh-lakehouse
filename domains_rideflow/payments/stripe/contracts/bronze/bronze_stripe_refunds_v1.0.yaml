@@ -11,40 +11,40 @@ info:
 
 model:
   fields:
-    - name: refund_id
-      type: string
-      description: "Stripe refund ID"
-    - name: charge_id
-      type: string
-      description: "FK to parent charge"
-      foreign_key:
-        contract: "{bronze_layer}_{system}_charges"   # intra-system: stripe→stripe
-        column: charge_id
-    - name: rider_id
-      type: string
-      description: "FK to marketplace rider"
-      foreign_key:
-        contract: "{bronze_layer}_rideflow_rider_profiles"
-        column: rider_id
-    - name: amount
-      type: string
-      description: "Refund amount in minor units"
-    - name: currency
-      type: string
-      description: "ISO 4217 currency code"
-    - name: status
-      type: string
-      description: "Refund status (succeeded, pending, failed)"
-    - name: reason
-      type: string
-      description: "Refund reason code"
-    - name: refund_reason
-      type: string
-      pii: true
-      description: "Free-text refund reason (may contain PII)"
-    - name: created_at
-      type: string
-      description: "Refund creation timestamp"
+  - name: refund_id
+    type: string
+    description: "Stripe refund ID"
+  - name: charge_id
+    type: string
+    description: "FK to parent charge"
+    foreign_key:
+      contract: "{bronze_layer}_{system}_charges"     # intra-system: stripe→stripe
+      column: charge_id
+  - name: rider_id
+    type: string
+    description: "FK to marketplace rider"
+    foreign_key:
+      contract: "{bronze_layer}_rideflow_rider_profiles"
+      column: rider_id
+  - name: amount
+    type: string
+    description: "Refund amount in minor units"
+  - name: currency
+    type: string
+    description: "ISO 4217 currency code"
+  - name: status
+    type: string
+    description: "Refund status (succeeded, pending, failed)"
+  - name: reason
+    type: string
+    description: "Refund reason code"
+  - name: refund_reason
+    type: string
+    pii: true
+    description: "Free-text refund reason (may contain PII)"
+  - name: created_at
+    type: string
+    description: "Refund creation timestamp"
 
 source:
   type: landing
@@ -57,3 +57,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

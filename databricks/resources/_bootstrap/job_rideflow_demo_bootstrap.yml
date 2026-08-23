@@ -25,6 +25,15 @@ resources:
             notebook_path: ../../notebooks/_ops/00_setup.py
             base_parameters:
               catalog: "${var.catalog}"
+              # Drop the catalog before rebuilding. Needed when the catalog was created
+              # by a workspace that has since been deleted: UC catalogs live in the
+              # regional metastore, so the orphan survives with storage this workspace
+              # cannot reach, and every Volume write fails with `[Errno 22]`.
+              # Override per run: `databricks bundle run ... --params reset=true`.
+              reset: "${var.reset_catalog}"
+              # Empty on metastores that own a storage root; required where Default
+              # Storage is enabled and `CREATE CATALOG` demands an explicit location.
+              storage_root: "${var.catalog_storage_root}"
               # Exact synced location of the contract registry (DAB syncs
               # ../domains_rideflow to <file_path>/domains_rideflow).
               contracts_src: "${workspace.file_path}/domains_rideflow"

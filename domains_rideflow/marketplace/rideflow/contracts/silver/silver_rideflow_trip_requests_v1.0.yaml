@@ -10,11 +10,6 @@ info:
   target_layer: silver
   domain: marketplace
   system: rideflow
-upstream_contracts:
-  - contract: bronze_rideflow_trip_requests
-    layer: bronze
-    domain: marketplace
-    system: rideflow
 primary_key: [request_id]
 model:
   fields:
@@ -67,6 +62,8 @@ transformations:
   - deduplicate:
       by:
         - request_id
+      sort_by: [requested_at]
+      order: desc
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_trip_requests'

@@ -49,6 +49,8 @@ transformations:
 - deduplicate:
     by:
     - charge_id
+    sort_by: [created_at]
+    order: desc
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_charges'

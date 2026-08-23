@@ -11,89 +11,89 @@ info:
 
 model:
   fields:
-    - name: ticket_id
-      type: string
-      description: "Zendesk ticket ID"
+  - name: ticket_id
+    type: string
+    description: "Zendesk ticket ID"
     # ── FK fields populated based on entry_point (see below) ─────────────
-    - name: entry_point
-      type: string
-      description: "How the ticket was filed — determines which FKs are populated"
+  - name: entry_point
+    type: string
+    description: "How the ticket was filed — determines which FKs are populated"
       # Distribution (per real Uber/Lyft):
       #   in_app_trip  ~55%  → rider + trip + driver (+ maybe charge)
       #   in_app_help  ~15%  → rider only (no trip / no driver)
       #   email        ~20%  → rider + sometimes trip
       #   phone        ~10%  → rider + sometimes trip
-    - name: rider_id
-      type: string
-      description: "FK to marketplace rider (~85% populated)"
-      foreign_key:
-        contract: "{bronze_layer}_rideflow_rider_profiles"
-        column: rider_id
-    - name: trip_id
-      type: string
-      description: "FK to marketplace trip (~75% — present when ticket originates from a trip)"
-      foreign_key:
-        contract: "{bronze_layer}_rideflow_trip_completed"
-        column: trip_id
-    - name: driver_id
-      type: string
-      description: "FK to marketplace driver (~55% — present when ticket about a driver)"
-      foreign_key:
-        contract: "{bronze_layer}_rideflow_driver_profiles"
-        column: driver_id
-    - name: charge_id
-      type: string
-      description: "FK to stripe charge (~25% — present on payment/refund tickets)"
-      foreign_key:
-        contract: "{bronze_layer}_stripe_charges"
-        column: charge_id
+  - name: rider_id
+    type: string
+    description: "FK to marketplace rider (~85% populated)"
+    foreign_key:
+      contract: "{bronze_layer}_rideflow_rider_profiles"
+      column: rider_id
+  - name: trip_id
+    type: string
+    description: "FK to marketplace trip (~75% — present when ticket originates from a trip)"
+    foreign_key:
+      contract: "{bronze_layer}_rideflow_trip_completed"
+      column: trip_id
+  - name: driver_id
+    type: string
+    description: "FK to marketplace driver (~55% — present when ticket about a driver)"
+    foreign_key:
+      contract: "{bronze_layer}_rideflow_driver_profiles"
+      column: driver_id
+  - name: charge_id
+    type: string
+    description: "FK to stripe charge (~25% — present on payment/refund tickets)"
+    foreign_key:
+      contract: "{bronze_layer}_stripe_charges"
+      column: charge_id
     # ── Requester contact (was previously the only identifier) ───────────
-    - name: requester_email
-      type: string
-      pii: true
-      description: "Requester email"
-    - name: requester_name
-      type: string
-      pii: true
-      description: "Requester display name"
-    - name: requester_phone
-      type: string
-      pii: true
-      description: "Requester phone number"
-    - name: subject
-      type: string
-      description: "Ticket subject"
-    - name: ticket_description
-      type: string
-      pii: true
-      description: "Ticket body (may contain PII)"
-    - name: status
-      type: string
-      description: "new, open, pending, solved, closed"
-    - name: priority
-      type: string
-      description: "low, normal, high, urgent"
-    - name: channel
-      type: string
-      description: "email, chat, phone, web"
-    - name: assignee
-      type: string
-      description: "Assigned agent"
-    - name: tags_json
-      type: string
-      description: "Tags array as JSON"
-    - name: created_at
-      type: string
-      description: "Ticket creation timestamp"
-    - name: updated_at
-      type: string
-      description: "Last update timestamp"
-    - name: solved_at
-      type: string
-      description: "Resolution timestamp"
-    - name: satisfaction_rating
-      type: string
-      description: "CSAT score"
+  - name: requester_email
+    type: string
+    pii: true
+    description: "Requester email"
+  - name: requester_name
+    type: string
+    pii: true
+    description: "Requester display name"
+  - name: requester_phone
+    type: string
+    pii: true
+    description: "Requester phone number"
+  - name: subject
+    type: string
+    description: "Ticket subject"
+  - name: ticket_description
+    type: string
+    pii: true
+    description: "Ticket body (may contain PII)"
+  - name: status
+    type: string
+    description: "new, open, pending, solved, closed"
+  - name: priority
+    type: string
+    description: "low, normal, high, urgent"
+  - name: channel
+    type: string
+    description: "email, chat, phone, web"
+  - name: assignee
+    type: string
+    description: "Assigned agent"
+  - name: tags_json
+    type: string
+    description: "Tags array as JSON"
+  - name: created_at
+    type: string
+    description: "Ticket creation timestamp"
+  - name: updated_at
+    type: string
+    description: "Last update timestamp"
+  - name: solved_at
+    type: string
+    description: "Resolution timestamp"
+  - name: satisfaction_rating
+    type: string
+    description: "CSAT score"
 
 source:
   type: landing
@@ -109,3 +109,7 @@ source:
     # the hour level — otherwise a full-load partition scan looks in the daily
     # folder and misses the files one level deeper.
     format: "y_%Y/m_%m/d_%d/h_%H"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

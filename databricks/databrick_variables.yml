@@ -11,6 +11,22 @@ variables:
   catalog:
     description: "Unity Catalog name (created by _ops/00_setup)"
     default: "rideflow_dev_demo"
+  catalog_storage_root:
+    description: >-
+      MANAGED LOCATION for a newly created catalog, e.g.
+      abfss://uc-assets@<account>.dfs.core.windows.net/catalog . Leave blank when the
+      metastore has its own storage root. The running principal needs CREATE MANAGED
+      STORAGE on the external location covering this path.
+    default: "abfss://uc-assets@sarideflowdevadls001.dfs.core.windows.net/catalog"
+  reset_catalog:
+    description: >-
+      DROP the catalog (CASCADE) before provisioning. Default false. Set true when the
+      catalog is an ORPHAN — created by a workspace that has since been deleted. UC
+      catalogs live in the regional metastore, so they outlive their workspace: the
+      catalog still lists, but its managed storage is unreachable and every Volume
+      write fails with `[Errno 22] Invalid argument`. Destructive: drops schemas,
+      tables and volumes.
+    default: "false"
   deployment_folder:
     description: "Deployment folder"
     default: "_data_platform_rideflow_demo"

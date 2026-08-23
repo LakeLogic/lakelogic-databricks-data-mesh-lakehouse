@@ -11,27 +11,6 @@ info:
   domain: shared
   system: shared
 
-upstream_contracts:
-  - contract: silver_rideflow_trip_requests
-    domain: marketplace
-    system: rideflow
-    layer: silver
-  - contract: silver_rideflow_trips
-    domain: marketplace
-    system: rideflow
-    layer: silver
-  - contract: silver_rideflow_trip_cancellations
-    domain: marketplace
-    system: rideflow
-    layer: silver
-  - contract: silver_rideflow_driver_profiles
-    domain: marketplace
-    system: rideflow
-    layer: silver
-  - contract: silver_stripe_charges
-    domain: payments
-    system: stripe
-    layer: silver
 
 primary_key: [kpi_date, city_code]
 

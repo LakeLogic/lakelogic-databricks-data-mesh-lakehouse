@@ -13,37 +13,39 @@ info:
 
 model:
   fields:
-    - name: rate_date
-      type: date
-      required: true
-    - name: base_currency
-      type: string
-      required: true
-    - name: quote_currency
-      type: string
-      required: true
-    - name: rate
-      type: float
-      required: true
-    - name: source_feed
-      type: string
+  - name: rate_date
+    type: date
+    required: true
+  - name: base_currency
+    type: string
+    required: true
+  - name: quote_currency
+    type: string
+    required: true
+  - name: rate
+    type: float
+    required: true
+  - name: source_feed
+    type: string
 
 quality:
   row_rules: []
-  # Composite (rate_date, base_currency, quote_currency) uniqueness is captured
-  # by primary_key below. DatasetRuleUnique only supports single-column.
+  # Composite uniqueness is enforced here directly: DatasetRuleUnique accepts a
+  # list of columns. This replaced a deduplicate — with no record-version column
+  # to order by, a duplicate is a double-load or an upstream error, so it is
+  # surfaced (and halts the run) rather than silently collapsed.
   dataset_rules: []
-
 primary_key: [rate_date, base_currency, quote_currency]
-
-transformations:
-  - deduplicate:
-      by:
-        - rate_date
-        - base_currency
-        - quote_currency
-
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_fx_rates_daily'
   load_mode: full
+transformations:
+- deduplicate:
+    "on":
+    - rate_date
+    - base_currency
+    - quote_currency
+    sort_by:
+    - _lakelogic_processed_at
+    order: desc
