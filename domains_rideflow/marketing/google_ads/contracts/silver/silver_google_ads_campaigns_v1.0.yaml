@@ -39,13 +39,16 @@ primary_key: [campaign_id, ad_group_id, date]
 quality:
   row_rules: []
   dataset_rules: []
-transformations:
-- deduplicate:
-    by:
-    - campaign_id
-    - ad_group_id
-    - date
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_campaigns'
   load_mode: full
+transformations:
+- deduplicate:
+    "on":
+    - campaign_id
+    - ad_group_id
+    - date
+    sort_by:
+    - _lakelogic_processed_at
+    order: desc

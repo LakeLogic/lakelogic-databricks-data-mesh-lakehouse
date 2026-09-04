@@ -11,48 +11,48 @@ info:
 
 model:
   fields:
-    - name: event_name
-      type: string
-      description: "GA4 event name"
-    - name: event_timestamp
-      type: string
-      description: "Event timestamp (microseconds)"
-    - name: event_date
-      type: string
-      description: "Event date YYYYMMDD"
-    - name: user_pseudo_id
-      type: string
-      description: "GA4 anonymous client ID"
-    - name: user_id
-      type: string
-      pii: true
-      description: "Authenticated user ID"
-    - name: device_id
-      type: string
-      pii: true
-      description: "Mobile device ID"
-    - name: ip_address
-      type: string
-      pii: true
-      description: "Client IP address"
-    - name: device_category
-      type: string
-      description: "mobile, tablet, desktop"
-    - name: device_os
-      type: string
-      description: "iOS, Android"
-    - name: geo_country
-      type: string
-      description: "User country"
-    - name: geo_city
-      type: string
-      description: "User city"
-    - name: app_version
-      type: string
-      description: "RideFlow app version"
-    - name: event_params_json
-      type: string
-      description: "Raw event parameters as JSON"
+  - name: event_name
+    type: string
+    description: "GA4 event name"
+  - name: event_timestamp
+    type: string
+    description: "Event timestamp (microseconds)"
+  - name: event_date
+    type: string
+    description: "Event date YYYYMMDD"
+  - name: user_pseudo_id
+    type: string
+    description: "GA4 anonymous client ID"
+  - name: user_id
+    type: string
+    pii: true
+    description: "Authenticated user ID"
+  - name: device_id
+    type: string
+    pii: true
+    description: "Mobile device ID"
+  - name: ip_address
+    type: string
+    pii: true
+    description: "Client IP address"
+  - name: device_category
+    type: string
+    description: "mobile, tablet, desktop"
+  - name: device_os
+    type: string
+    description: "iOS, Android"
+  - name: geo_country
+    type: string
+    description: "User country"
+  - name: geo_city
+    type: string
+    description: "User city"
+  - name: app_version
+    type: string
+    description: "RideFlow app version"
+  - name: event_params_json
+    type: string
+    description: "Raw event parameters as JSON"
 
 source:
   type: landing
@@ -65,3 +65,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d/h_%H"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

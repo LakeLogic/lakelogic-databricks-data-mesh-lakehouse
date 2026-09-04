@@ -6,18 +6,12 @@ info:
   # which is the Bronze table name. We rename to "driver_verifications" at
   # Silver because the business meaning ("we verified the driver") is
   # clearer than the API noun ("we ran a background check"). The
-  # ``source.path`` and ``upstream_contracts`` block below make the
-  # rename explicit so lineage tooling doesn't have to infer it.
+  # ``source.path`` below makes the rename explicit so lineage tooling
+  # doesn't have to infer it.
   description: Cleaned, typed, deduplicated background-check results expressed as driver verifications.
   target_layer: silver
   domain: operations
   system: checkr
-upstream_contracts:
-  - contract: bronze_checkr_background_checks
-    domain: operations
-    system: checkr
-    layer: bronze
-    note: "Same physical data, business-friendly rename at Silver."
 model:
   fields:
   - name: report_id
@@ -67,6 +61,8 @@ transformations:
 - deduplicate:
     by:
     - report_id
+    sort_by: [created_at]
+    order: desc
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_background_checks'

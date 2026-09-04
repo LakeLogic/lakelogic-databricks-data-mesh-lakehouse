@@ -12,39 +12,39 @@ info:
 
 model:
   fields:
-    - name: telemetry_id
-      type: string
-      description: "Unique telemetry ping ID"
-    - name: driver_id
-      type: string
-      description: "FK to driver_profiles"
-    - name: gps_lat
-      type: string
-      description: "GPS latitude"
-    - name: gps_lng
-      type: string
-      description: "GPS longitude"
-    - name: speed_kmh
-      type: string
-      description: "Speed in km/h"
-    - name: heading
-      type: string
-      description: "Heading in degrees (0-360)"
-    - name: accuracy_meters
-      type: string
-      description: "GPS accuracy in meters"
-    - name: trip_id
-      type: string
-      description: "Active trip ID (null if idle)"
-    - name: status
-      type: string
-      description: "on_trip, idle, offline"
-    - name: city_code
-      type: string
-      description: "City code"
-    - name: timestamp
-      type: string
-      description: "Telemetry ping timestamp"
+  - name: telemetry_id
+    type: string
+    description: "Unique telemetry ping ID"
+  - name: driver_id
+    type: string
+    description: "FK to driver_profiles"
+  - name: gps_lat
+    type: string
+    description: "GPS latitude"
+  - name: gps_lng
+    type: string
+    description: "GPS longitude"
+  - name: speed_kmh
+    type: string
+    description: "Speed in km/h"
+  - name: heading
+    type: string
+    description: "Heading in degrees (0-360)"
+  - name: accuracy_meters
+    type: string
+    description: "GPS accuracy in meters"
+  - name: trip_id
+    type: string
+    description: "Active trip ID (null if idle)"
+  - name: status
+    type: string
+    description: "on_trip, idle, offline"
+  - name: city_code
+    type: string
+    description: "City code"
+  - name: timestamp
+    type: string
+    description: "Telemetry ping timestamp"
 
 source:
   type: landing
@@ -57,3 +57,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d/h_%H"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

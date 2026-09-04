@@ -28,11 +28,28 @@
 
 # COMMAND ----------
 
-dbutils.widgets.removeAll()
+# NOTE: `dbutils.widgets.removeAll()` must NOT be called here. In a job run it destroys
+# the values the task passed in `base_parameters`, and the re-declarations below then hand
+# back their DEFAULTS instead. That is invisible for `catalog` (the default happens to equal
+# what the job passes) but silently disabled `reset`, so the purge never ran and the job
+# failed on the orphaned volume it was meant to rebuild.
 dbutils.widgets.text("catalog", "rideflow_dev_demo", "Config - Unity Catalog name")
 # Where the synced contract registry lives in the workspace. Leave blank to
 # auto-detect relative to this notebook. The bootstrap job passes it explicitly.
 dbutils.widgets.text("contracts_src", "", "Config - Contracts source dir (workspace)")
+# Purge before provisioning. A Unity Catalog catalog lives in the REGIONAL METASTORE,
+# not the workspace — so deleting a workspace leaves its catalog behind, still listed,
+# with managed storage that this workspace cannot reach. Volumes then "exist" as
+# metadata while `/Volumes/<cat>/...` is unusable, which surfaces as a baffling
+# `OSError: [Errno 22] Invalid argument`. Reset drops that orphan and rebuilds clean.
+dbutils.widgets.dropdown("reset", "false", ["false", "true"],
+                         "Config - DROP the catalog first (destructive)")
+# Where a NEW catalog's managed data lives. Needed when the metastore has no storage
+# root of its own ("Default Storage is enabled in your account") — then plain
+# `CREATE CATALOG` is rejected and the location must be given explicitly. Leave blank
+# on metastores that do have a root. The principal also needs CREATE MANAGED STORAGE
+# on the external location that covers this path.
+dbutils.widgets.text("storage_root", "", "Config - MANAGED LOCATION for a new catalog")
 
 # COMMAND ----------
 
@@ -45,6 +62,8 @@ import os
 import shutil
 
 CATALOG = dbutils.widgets.get("catalog").strip() or "rideflow_dev_demo"
+RESET = dbutils.widgets.get("reset").strip().lower() == "true"
+STORAGE_ROOT = dbutils.widgets.get("storage_root").strip()
 contracts_src = dbutils.widgets.get("contracts_src").strip()
 
 # Auto-detect the synced contract registry by walking UP from this notebook's own
@@ -98,6 +117,47 @@ def sql(stmt: str):
     print(f"  → {stmt}")
     spark.sql(stmt)
 
+# ── Reset: drop an orphaned catalog before rebuilding ─────────────────────────
+# Only ever targets the catalog named in the widget, and refuses the shared ones a
+# typo could otherwise destroy. CASCADE takes the schemas, tables and volumes with it,
+# which is the point: a half-orphaned catalog cannot be repaired in place.
+_PROTECTED = {"main", "system", "samples", "hive_metastore", "workspace", "default"}
+
+
+def purge_catalog(name: str) -> None:
+    if name.lower() in _PROTECTED:
+        raise ValueError(
+            f"Refusing to drop `{name}` — it is a shared/system catalog. "
+            f"Set the 'catalog' widget to the demo catalog you actually want rebuilt."
+        )
+    print(f"  ⚠ RESET requested — dropping catalog `{name}` and everything in it")
+    # Volumes first: a managed volume whose storage is unreachable can block the
+    # catalog drop, and the error it raises names the volume rather than the cause.
+    try:
+        for row in spark.sql(f"SHOW SCHEMAS IN `{name}`").collect():
+            schema = row[0]
+            if schema == "information_schema":
+                continue
+            try:
+                for v in spark.sql(f"SHOW VOLUMES IN `{name}`.`{schema}`").collect():
+                    vol = v[1] if len(v) > 1 else v[0]
+                    try:
+                        sql(f"DROP VOLUME IF EXISTS `{name}`.`{schema}`.`{vol}`")
+                    except Exception as e:            # noqa: BLE001
+                        print(f"    · volume {schema}.{vol} not dropped: {e}")
+            except Exception:                          # noqa: BLE001
+                pass                                   # schema carries no volumes
+    except Exception as e:                             # noqa: BLE001
+        print(f"    · could not enumerate schemas ({e}) — going straight to DROP CATALOG")
+
+    sql(f"DROP CATALOG IF EXISTS `{name}` CASCADE")
+    print(f"  ✓ Catalog `{name}` dropped")
+
+
+if RESET:
+    purge_catalog(CATALOG)
+
+
 # ── Catalog ───────────────────────────────────────────────────────────────────
 def _catalog_exists(name: str) -> bool:
     try:
@@ -113,7 +173,14 @@ if _catalog_exists(CATALOG):
     print(f"  ✓ Catalog `{CATALOG}` already exists — skipping creation")
 else:
     try:
-        sql(f"CREATE CATALOG IF NOT EXISTS `{CATALOG}`")
+        # A metastore with no storage root rejects a bare CREATE CATALOG; it needs the
+        # location spelled out. Pass `storage_root` and the same statement works on both
+        # kinds of metastore, which is what makes this bootstrap portable.
+        if STORAGE_ROOT:
+            sql(f"CREATE CATALOG IF NOT EXISTS `{CATALOG}` "
+                f"MANAGED LOCATION '{STORAGE_ROOT.rstrip('/')}/{CATALOG}'")
+        else:
+            sql(f"CREATE CATALOG IF NOT EXISTS `{CATALOG}`")
     except Exception as e:
         print(f"  ⚠ CREATE CATALOG `{CATALOG}` failed: {e}")
 
@@ -181,14 +248,47 @@ for domain in domains:
 # COMMAND ----------
 
 contracts_vol = f"/Volumes/{CATALOG}/nondelta/_contracts"
-os.makedirs(contracts_vol, exist_ok=True)
+
+
+def assert_volume_writable(path: str) -> None:
+    """Prove the Volume is reachable, using the API serverless actually supports.
+
+    This job runs on SERVERLESS compute, where local POSIX writes into `/Volumes` are
+    restricted: `os.makedirs` appears to succeed and then `open(..., "w")` fails with
+    `[Errno 22] Invalid argument` — which reads exactly like unreachable storage and is
+    not. `dbutils.fs` is the supported path, so the probe uses it."""
+    probe = f"{path}/lakelogic_write_probe.tmp"
+    try:
+        dbutils.fs.put(probe, "ok", True)
+        dbutils.fs.rm(probe)
+    except Exception as e:                                  # noqa: BLE001
+        raise OSError(
+            f"Volume `{path}` is not writable ({e}). "
+            f"If `{CATALOG}` was created by a workspace that no longer exists, its managed "
+            f"storage cannot be reached from this one — UC catalogs outlive their workspace. "
+            f"Re-run with reset=true to drop and rebuild it, or point the 'catalog' widget "
+            f"at a catalog this workspace owns."
+        ) from e
+
+
+assert_volume_writable(contracts_vol)
+
+
+def copy_into_volume(src: str, dst: str) -> int:
+    """Copy a tree into a UC Volume via `dbutils.fs`.
+
+    Neither `shutil.copytree` (it replays POSIX metadata Volumes reject) nor plain
+    `open()` (restricted on serverless) works here. `dbutils.fs.cp` with the `file:`
+    scheme reads the synced workspace files and writes through the Volumes API."""
+    dbutils.fs.cp(f"file:{src}", dst, recurse=True)
+    return sum(len(files) for _, _, files in os.walk(src))
+
 
 copied = 0
 for domain in domains:
     src = os.path.join(contracts_src, domain)
     dst = os.path.join(contracts_vol, domain)
-    shutil.copytree(src, dst, dirs_exist_ok=True)
-    n = sum(len(fs) for _, _, fs in os.walk(dst))
+    n = copy_into_volume(src, dst)
     copied += n
     print(f"  ✓ {domain:<14} → {dst}  ({n} files)")
 

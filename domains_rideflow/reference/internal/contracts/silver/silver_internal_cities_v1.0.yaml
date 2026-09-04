@@ -13,38 +13,40 @@ info:
 
 model:
   fields:
-    - name: city_code
-      type: string
-      required: true
-    - name: city_name
-      type: string
-    - name: country_code
-      type: string
-    - name: timezone
-      type: string
-    - name: default_currency
-      type: string
-    - name: geofence_wkt
-      type: string
-    - name: launched_at
-      type: timestamp
-    - name: sunset_at
-      type: timestamp
-    - name: is_active
-      type: boolean
-      description: "Derived: sunset_at IS NULL"
+  - name: city_code
+    type: string
+    required: true
+  - name: city_name
+    type: string
+  - name: country_code
+    type: string
+  - name: timezone
+    type: string
+  - name: default_currency
+    type: string
+  - name: geofence_wkt
+    type: string
+  - name: launched_at
+    type: timestamp
+  - name: sunset_at
+    type: timestamp
+  - name: is_active
+    type: boolean
+    description: "Derived: sunset_at IS NULL"
 
 quality:
   row_rules: []
   dataset_rules:
-    - unique: city_code
-
-transformations:
-  - deduplicate:
-      by:
-        - city_code
+  - unique: city_code
 
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_city_master'
   load_mode: full
+transformations:
+- deduplicate:
+    "on":
+    - city_code
+    sort_by:
+    - _lakelogic_processed_at
+    order: desc

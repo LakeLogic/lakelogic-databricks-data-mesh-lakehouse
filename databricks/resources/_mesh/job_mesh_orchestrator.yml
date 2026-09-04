@@ -59,10 +59,18 @@ resources:
             - task_key: seed_all_domains
           run_job_task:
             job_id: ${resources.jobs.marketplace_orchestrator_rideflow.id}
-            job_parameters: &gold_only
+            # Every stage runs, so each per-system job shows real run history rather
+            # than an empty "Recent runs" column.
+            #
+            # test_data stays FALSE deliberately: `seed_all_domains` generates the
+            # landing data for the WHOLE mesh in FK dependency order, so payments reads
+            # rider_ids that marketplace actually produced. If each system regenerated
+            # its own test data here, those ids would be independently random and every
+            # cross-domain join would silently miss.
+            job_parameters: &all_stages
               enable_test_data: "false"
-              enable_bronze: "false"
-              enable_silver: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
               enable_gold: "true"
 
         - task_key: reference_internal
@@ -70,7 +78,7 @@ resources:
             - task_key: seed_all_domains
           run_job_task:
             job_id: ${resources.jobs.reference_orchestrator_internal.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         # After marketplace — payments, marketing (×4), operations/checkr, /twilio.
         - task_key: payments_stripe
@@ -78,49 +86,49 @@ resources:
             - task_key: marketplace_rideflow
           run_job_task:
             job_id: ${resources.jobs.payments_orchestrator_stripe.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         - task_key: marketing_google_ads
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
             job_id: ${resources.jobs.marketing_orchestrator_google_ads.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         - task_key: marketing_google_analytics
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
             job_id: ${resources.jobs.marketing_orchestrator_google_analytics.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         - task_key: marketing_hubspot
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
             job_id: ${resources.jobs.marketing_orchestrator_hubspot.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         - task_key: marketing_meta_ads
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
             job_id: ${resources.jobs.marketing_orchestrator_meta_ads.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         - task_key: operations_checkr
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
             job_id: ${resources.jobs.operations_orchestrator_checkr.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         - task_key: operations_twilio
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
             job_id: ${resources.jobs.operations_orchestrator_twilio.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         # zendesk enriches payments charges → after payments.
         - task_key: operations_zendesk
@@ -128,7 +136,7 @@ resources:
             - task_key: payments_stripe
           run_job_task:
             job_id: ${resources.jobs.operations_orchestrator_zendesk.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
 
         # shared marts join across every domain → run last.
         - task_key: shared_shared
@@ -145,6 +153,18 @@ resources:
           run_if: ALL_SUCCESS
           run_job_task:
             job_id: ${resources.jobs.shared_orchestrator_shared.id}
-            job_parameters: *gold_only
+            job_parameters: *all_stages
+
+        # ── Final gate: a green run must mean the work happened ───────────────
+        # Skipped tasks do not fail a run, so a broken condition gate can skip every
+        # gold stage and still finish SUCCESS. This asserts the estate actually holds
+        # the gold it claims to have built, turning a silent no-op into a failure.
+        - task_key: assert_mesh_complete
+          depends_on:
+            - task_key: shared_shared
+          notebook_task:
+            notebook_path: ../../notebooks/_ops/assert_mesh_complete.py
+            base_parameters:
+              catalog: "${var.catalog}"
 
       email_notifications: {}

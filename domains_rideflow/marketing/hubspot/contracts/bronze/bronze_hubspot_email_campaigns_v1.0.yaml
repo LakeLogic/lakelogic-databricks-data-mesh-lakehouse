@@ -11,43 +11,43 @@ info:
 
 model:
   fields:
-    - name: campaign_id
-      type: string
-      description: "HubSpot campaign ID"
-    - name: recipient_email
-      type: string
-      pii: true
-      description: "Recipient email address"
-    - name: recipient_name
-      type: string
-      pii: true
-      description: "Recipient display name"
-    - name: campaign_name
-      type: string
-      description: "Campaign name"
-    - name: subject_line
-      type: string
-      description: "Email subject line"
-    - name: sent_at
-      type: string
-      description: "Send timestamp"
-    - name: opened_at
-      type: string
-      description: "Open timestamp (null if not opened)"
-    - name: clicked_at
-      type: string
-      description: "Click timestamp (null if not clicked)"
-    - name: bounced
-      type: string
-      description: "true/false bounce flag"
+  - name: campaign_id
+    type: string
+    description: "HubSpot campaign ID"
+  - name: recipient_email
+    type: string
+    pii: true
+    description: "Recipient email address"
+  - name: recipient_name
+    type: string
+    pii: true
+    description: "Recipient display name"
+  - name: campaign_name
+    type: string
+    description: "Campaign name"
+  - name: subject_line
+    type: string
+    description: "Email subject line"
+  - name: sent_at
+    type: string
+    description: "Send timestamp"
+  - name: opened_at
+    type: string
+    description: "Open timestamp (null if not opened)"
+  - name: clicked_at
+    type: string
+    description: "Click timestamp (null if not clicked)"
+  - name: bounced
+    type: string
+    description: "true/false bounce flag"
       # Realistic ~8% bounce rate. accepted_values keeps these castable to the
       # silver boolean (a bare flag name has no boolean semantic hint otherwise).
-      accepted_values: ["false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "true"]
-    - name: unsubscribed
-      type: string
-      description: "true/false unsubscribe flag"
+    accepted_values: ["false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "true"]
+  - name: unsubscribed
+    type: string
+    description: "true/false unsubscribe flag"
       # Realistic ~5% unsubscribe rate.
-      accepted_values: ["false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "true"]
+    accepted_values: ["false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "false", "true"]
 
 source:
   type: landing
@@ -60,3 +60,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d/h_%H"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

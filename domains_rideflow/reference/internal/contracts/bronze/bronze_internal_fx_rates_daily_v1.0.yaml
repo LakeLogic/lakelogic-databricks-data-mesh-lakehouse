@@ -13,23 +13,23 @@ info:
 
 model:
   fields:
-    - name: rate_date
-      type: string
-      description: "ISO date (YYYY-MM-DD)"
-    - name: base_currency
-      type: string
-      description: "Base currency (typically EUR for ECB feed)"
-    - name: quote_currency
-      type: string
-      description: "ISO 4217 quote currency code"
-    - name: rate
-      type: float
-      description: "Mid-market rate, base per quote"
-    - name: source_feed
-      type: string
-      description: "Provider identifier (e.g. ecbreference)"
-    - name: _lakelogic_processed_at
-      type: timestamp
+  - name: rate_date
+    type: string
+    description: "ISO date (YYYY-MM-DD)"
+  - name: base_currency
+    type: string
+    description: "Base currency (typically EUR for ECB feed)"
+  - name: quote_currency
+    type: string
+    description: "ISO 4217 quote currency code"
+  - name: rate
+    type: float
+    description: "Mid-market rate, base per quote"
+  - name: source_feed
+    type: string
+    description: "Provider identifier (e.g. ecbreference)"
+  - name: _lakelogic_processed_at
+    type: timestamp
 
 source:
   type: landing
@@ -43,3 +43,7 @@ source:
   # (fx_rates_daily/fx_rates_daily_seed.csv), not date-partitioned folders. A
   # partition format here would make a full-load scan look in non-existent
   # y/m/d dirs and find nothing. recursiveFileLookup (above) discovers the file.
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

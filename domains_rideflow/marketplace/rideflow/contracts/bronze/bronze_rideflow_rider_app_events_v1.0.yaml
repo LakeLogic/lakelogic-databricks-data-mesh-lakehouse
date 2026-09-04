@@ -12,41 +12,41 @@ info:
 
 model:
   fields:
-    - name: event_id
-      type: string
-      description: "Unique event identifier"
-    - name: rider_id
-      type: string
-      description: "FK to rider_profiles"
-    - name: device_id
-      type: string
-      pii: true
-      description: "Mobile device ID — persistent identifier, treat as PII"
-    - name: ip_address
-      type: string
-      pii: true
-      description: "Client IP address — quasi-identifier under GDPR"
-    - name: event_name
-      type: string
-      description: "Event type (screen_view, button_tap, search, etc.)"
-    - name: screen_name
-      type: string
-      description: "Screen where event occurred"
-    - name: event_timestamp
-      type: string
-      description: "Event timestamp"
-    - name: app_version
-      type: string
-      description: "App version string"
-    - name: platform
-      type: string
-      description: "ios, android"
-    - name: city_code
-      type: string
-      description: "City code at time of event"
-    - name: event_properties_json
-      type: string
-      description: "Raw event properties as JSON"
+  - name: event_id
+    type: string
+    description: "Unique event identifier"
+  - name: rider_id
+    type: string
+    description: "FK to rider_profiles"
+  - name: device_id
+    type: string
+    pii: true
+    description: "Mobile device ID — persistent identifier, treat as PII"
+  - name: ip_address
+    type: string
+    pii: true
+    description: "Client IP address — quasi-identifier under GDPR"
+  - name: event_name
+    type: string
+    description: "Event type (screen_view, button_tap, search, etc.)"
+  - name: screen_name
+    type: string
+    description: "Screen where event occurred"
+  - name: event_timestamp
+    type: string
+    description: "Event timestamp"
+  - name: app_version
+    type: string
+    description: "App version string"
+  - name: platform
+    type: string
+    description: "ios, android"
+  - name: city_code
+    type: string
+    description: "City code at time of event"
+  - name: event_properties_json
+    type: string
+    description: "Raw event properties as JSON"
 
 source:
   type: landing
@@ -59,3 +59,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d/h_%H"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

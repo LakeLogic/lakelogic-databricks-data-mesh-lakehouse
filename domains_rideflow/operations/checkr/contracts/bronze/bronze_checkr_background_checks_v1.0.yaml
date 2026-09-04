@@ -11,51 +11,51 @@ info:
 
 model:
   fields:
-    - name: report_id
-      type: string
-      description: "Checkr report ID"
-    - name: driver_id
-      type: string
-      pii: true
-      description: "FK to marketplace driver"
-      foreign_key:
-        contract: "{bronze_layer}_rideflow_driver_profiles"
-        column: driver_id
-    - name: full_name
-      type: string
-      pii: true
-      description: "Driver full legal name"
-    - name: date_of_birth
-      type: string
-      pii: true
-      description: "Driver date of birth"
-    - name: ssn_last_four
-      type: string
-      pii: true
-      description: "Last 4 of SSN"
-    - name: licence_number
-      type: string
-      pii: true
-      description: "Driver licence number"
-    - name: address
-      type: string
-      pii: true
-      description: "Driver address"
-    - name: status
-      type: string
-      description: "clear, consider, suspended, dispute"
-    - name: result
-      type: string
-      description: "Overall result"
-    - name: completed_at
-      type: string
-      description: "Check completion timestamp"
-    - name: created_at
-      type: string
-      description: "Check initiation timestamp"
-    - name: adjudication
-      type: string
-      description: "Manual review result"
+  - name: report_id
+    type: string
+    description: "Checkr report ID"
+  - name: driver_id
+    type: string
+    pii: true
+    description: "FK to marketplace driver"
+    foreign_key:
+      contract: "{bronze_layer}_rideflow_driver_profiles"
+      column: driver_id
+  - name: full_name
+    type: string
+    pii: true
+    description: "Driver full legal name"
+  - name: date_of_birth
+    type: string
+    pii: true
+    description: "Driver date of birth"
+  - name: ssn_last_four
+    type: string
+    pii: true
+    description: "Last 4 of SSN"
+  - name: licence_number
+    type: string
+    pii: true
+    description: "Driver licence number"
+  - name: address
+    type: string
+    pii: true
+    description: "Driver address"
+  - name: status
+    type: string
+    description: "clear, consider, suspended, dispute"
+  - name: result
+    type: string
+    description: "Overall result"
+  - name: completed_at
+    type: string
+    description: "Check completion timestamp"
+  - name: created_at
+    type: string
+    description: "Check initiation timestamp"
+  - name: adjudication
+    type: string
+    description: "Manual review result"
 
 source:
   type: landing
@@ -68,3 +68,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

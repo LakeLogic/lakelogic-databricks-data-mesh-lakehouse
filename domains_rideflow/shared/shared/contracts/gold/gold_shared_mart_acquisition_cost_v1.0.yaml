@@ -12,23 +12,6 @@ info:
   domain: shared
   system: shared
 
-upstream_contracts:
-  - contract: silver_google_ads_campaigns
-    domain: marketing
-    system: google_ads
-    layer: silver
-  - contract: silver_meta_ads_campaigns
-    domain: marketing
-    system: meta_ads
-    layer: silver
-  - contract: silver_hubspot_email_campaigns
-    domain: marketing
-    system: hubspot
-    layer: silver
-  - contract: silver_rideflow_rider_profiles
-    domain: marketplace
-    system: rideflow
-    layer: silver
 
 primary_key: [kpi_date, channel, campaign_id]
 

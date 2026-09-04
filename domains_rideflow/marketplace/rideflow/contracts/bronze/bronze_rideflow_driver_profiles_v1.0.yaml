@@ -13,57 +13,57 @@ info:
 
 model:
   fields:
-    - name: driver_id
-      type: string
-      description: "Unique driver identifier"
-    - name: name
-      type: string
-      description: "Driver full name"
-      pii: true
-    - name: email
-      type: string
-      description: "Driver email address"
-      pii: true
-    - name: phone
-      type: string
-      description: "Driver phone number"
-      pii: true
-    - name: date_of_birth
-      type: string
-      description: "Driver date of birth"
-      pii: true
-    - name: home_address
-      type: string
-      description: "Driver home address"
-      pii: true
-    - name: licence_number
-      type: string
-      description: "Driving licence number"
-      pii: true
-    - name: licence_plate
-      type: string
-      description: "Vehicle licence plate"
-    - name: vehicle_type
-      type: string
-      description: "sedan, suv, van, motorcycle, bicycle"
-    - name: bank_account_last_four
-      type: string
-      description: "Last 4 digits of bank account"
-    - name: city_code
-      type: string
-      description: "Primary operating city"
-    - name: signup_date
-      type: string
-      description: "Account creation date"
-    - name: status
-      type: string
-      description: "active, inactive, suspended, pending_verification"
-    - name: rating
-      type: string
-      description: "Current driver rating"
-    - name: updated_at
-      type: string
-      description: "Last profile update timestamp"
+  - name: driver_id
+    type: string
+    description: "Unique driver identifier"
+  - name: name
+    type: string
+    description: "Driver full name"
+    pii: true
+  - name: email
+    type: string
+    description: "Driver email address"
+    pii: true
+  - name: phone
+    type: string
+    description: "Driver phone number"
+    pii: true
+  - name: date_of_birth
+    type: string
+    description: "Driver date of birth"
+    pii: true
+  - name: home_address
+    type: string
+    description: "Driver home address"
+    pii: true
+  - name: licence_number
+    type: string
+    description: "Driving licence number"
+    pii: true
+  - name: licence_plate
+    type: string
+    description: "Vehicle licence plate"
+  - name: vehicle_type
+    type: string
+    description: "sedan, suv, van, motorcycle, bicycle"
+  - name: bank_account_last_four
+    type: string
+    description: "Last 4 digits of bank account"
+  - name: city_code
+    type: string
+    description: "Primary operating city"
+  - name: signup_date
+    type: string
+    description: "Account creation date"
+  - name: status
+    type: string
+    description: "active, inactive, suspended, pending_verification"
+  - name: rating
+    type: string
+    description: "Current driver rating"
+  - name: updated_at
+    type: string
+    description: "Last profile update timestamp"
 
 source:
   type: landing
@@ -76,3 +76,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d/h_%H"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

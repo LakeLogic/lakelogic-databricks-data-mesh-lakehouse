@@ -11,39 +11,39 @@ info:
 
 model:
   fields:
-    - name: campaign_id
-      type: string
-      description: "Meta campaign ID"
-    - name: campaign_name
-      type: string
-      description: "Campaign name"
-    - name: adset_id
-      type: string
-      description: "Ad set ID"
-    - name: adset_name
-      type: string
-      description: "Ad set name"
-    - name: date
-      type: string
-      description: "Reporting date"
-    - name: impressions
-      type: string
-      description: "Number of impressions"
-    - name: clicks
-      type: string
-      description: "Number of clicks (link)"
-    - name: spend
-      type: string
-      description: "Total spend"
-    - name: actions_json
-      type: string
-      description: "Raw actions array as JSON"
-    - name: conversions
-      type: string
-      description: "Number of conversions"
-    - name: currency
-      type: string
-      description: "ISO 4217 currency code"
+  - name: campaign_id
+    type: string
+    description: "Meta campaign ID"
+  - name: campaign_name
+    type: string
+    description: "Campaign name"
+  - name: adset_id
+    type: string
+    description: "Ad set ID"
+  - name: adset_name
+    type: string
+    description: "Ad set name"
+  - name: date
+    type: string
+    description: "Reporting date"
+  - name: impressions
+    type: string
+    description: "Number of impressions"
+  - name: clicks
+    type: string
+    description: "Number of clicks (link)"
+  - name: spend
+    type: string
+    description: "Total spend"
+  - name: actions_json
+    type: string
+    description: "Raw actions array as JSON"
+  - name: conversions
+    type: string
+    description: "Number of conversions"
+  - name: currency
+    type: string
+    description: "ISO 4217 currency code"
 
 source:
   type: landing
@@ -56,3 +56,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d/h_%H"
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

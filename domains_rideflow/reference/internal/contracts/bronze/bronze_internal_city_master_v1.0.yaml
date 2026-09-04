@@ -14,32 +14,32 @@ info:
 
 model:
   fields:
-    - name: city_code
-      type: string
-      description: "Internal stable code (e.g. LON, NYC, BLR)"
-    - name: city_name
-      type: string
-      description: "Display name"
-    - name: country_code
-      type: string
-      description: "ISO 3166-1 alpha-3 country code"
-    - name: timezone
-      type: string
-      description: "IANA timezone (e.g. Europe/London)"
-    - name: default_currency
-      type: string
-      description: "ISO 4217 currency code"
-    - name: geofence_wkt
-      type: string
-      description: "City geofence as WKT polygon"
-    - name: launched_at
-      type: string
-      description: "Date the city launched on the platform"
-    - name: sunset_at
-      type: string
-      description: "Date the city was retired (nullable)"
-    - name: _lakelogic_processed_at
-      type: timestamp
+  - name: city_code
+    type: string
+    description: "Internal stable code (e.g. LON, NYC, BLR)"
+  - name: city_name
+    type: string
+    description: "Display name"
+  - name: country_code
+    type: string
+    description: "ISO 3166-1 alpha-3 country code"
+  - name: timezone
+    type: string
+    description: "IANA timezone (e.g. Europe/London)"
+  - name: default_currency
+    type: string
+    description: "ISO 4217 currency code"
+  - name: geofence_wkt
+    type: string
+    description: "City geofence as WKT polygon"
+  - name: launched_at
+    type: string
+    description: "Date the city launched on the platform"
+  - name: sunset_at
+    type: string
+    description: "Date the city was retired (nullable)"
+  - name: _lakelogic_processed_at
+    type: timestamp
 
 source:
   type: landing
@@ -49,3 +49,7 @@ source:
     header: "true"
   load_mode: full     # full reload each time — small static file
   watermark_strategy: none
+lineage:
+  enabled: true
+  capture_timestamp: true
+  timestamp_column_name: _lakelogic_processed_at

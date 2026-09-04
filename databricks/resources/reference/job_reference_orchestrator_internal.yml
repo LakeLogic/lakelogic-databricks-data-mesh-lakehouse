@@ -95,9 +95,16 @@ resources:
           run_job_task:
             job_id: ${resources.jobs.reference_bronze_internal.id}
 
+        # Same ALL_DONE gate as bronze: EITHER bronze ran, OR its gate said "false"
+        # (mesh runs pass enable_bronze=false because seed_all_domains already built
+        # bronze+silver). Without this, a skipped bronze leaves this gate unsatisfied,
+        # silver and gold are skipped too — and the run still reports SUCCESS.
         - task_key: check_run_silver
           depends_on:
             - task_key: bronze_ingestion
+            - task_key: check_run_bronze
+              outcome: "false"
+          run_if: ALL_DONE
           condition_task:
             op: EQUAL_TO
             left: "{{job.parameters.enable_silver}}"
@@ -110,9 +117,13 @@ resources:
           run_job_task:
             job_id: ${resources.jobs.reference_silver_internal.id}
 
+        # EITHER silver ran, OR its gate said "false" — the gold-only path the mesh uses.
         - task_key: check_run_gold
           depends_on:
             - task_key: silver_processing
+            - task_key: check_run_silver
+              outcome: "false"
+          run_if: ALL_DONE
           condition_task:
             op: EQUAL_TO
             left: "{{job.parameters.enable_gold}}"

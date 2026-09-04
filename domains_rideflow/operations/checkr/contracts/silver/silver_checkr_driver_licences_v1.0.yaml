@@ -17,28 +17,28 @@ source:
 
 model:
   fields:
-    - name: full_name
-      type: string
-      required: true
-      pii: true
-      masking: redact
-      
-    - name: licence_number
-      type: string
-      required: true
-      pii: true
-      masking: hash
-      
-    - name: date_of_birth
-      type: string
-      pii: true
-      masking: hash
-      
-    - name: expiry_date
-      type: date
-      
-    - name: vehicle_classes
-      type: string
+  - name: full_name
+    type: string
+    required: true
+    pii: true
+    masking: redact
+
+  - name: licence_number
+    type: string
+    required: true
+    pii: true
+    masking: hash
+
+  - name: date_of_birth
+    type: string
+    pii: true
+    masking: hash
+
+  - name: expiry_date
+    type: date
+
+  - name: vehicle_classes
+    type: string
 
 # Required: silver defaults to the `merge` strategy (from _system.yaml), which
 # needs a primary_key to upsert on. Without it the contract fails with
@@ -47,18 +47,20 @@ primary_key: [licence_number]
 
 quality:
   dataset_rules:
-    - unique: licence_number
+  - unique: licence_number
 
 transformations:
   # Drop only columns we know exist in bronze. The _lakelogic_llm_* lineage
   # columns added by pdfplumber are not retained by bronze (evolution=append
   # drops unknown cols on first write), so we don't need to drop them here.
-  - drop:
-      columns:
-        - file_path
-  - deduplicate:
-      by:
-        - licence_number
-
+- drop:
+    columns:
+    - file_path
+- deduplicate:
+    "on":
+    - licence_number
+    sort_by:
+    - _lakelogic_processed_at
+    order: desc
 lineage:
   enabled: true

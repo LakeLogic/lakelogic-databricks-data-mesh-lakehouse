@@ -43,6 +43,8 @@ transformations:
 - deduplicate:
     by:
     - payout_id
+    sort_by: [created_at]
+    order: desc
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_payouts'
