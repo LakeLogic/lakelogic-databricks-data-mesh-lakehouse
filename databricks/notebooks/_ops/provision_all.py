@@ -196,7 +196,7 @@ else:
             registry = DomainRegistry.from_yaml(reg, environment="dev", storage_mode="uc")
             pipeline = LakehousePipeline(registry, engine=ENGINE, spark=spark)
             summary = pipeline.run(
-                target_layers=["bronze", "silver", "gold"],
+                target_layers="bronze,silver,gold",
                 ddl_only=True,
                 environment="dev",
             )
@@ -209,6 +209,13 @@ else:
 
     print(f"\n  🏗  DDL complete — {made} tables across {len(system_registries)} systems"
           + (f", {failed} systems errored" if failed else ""))
+
+    # Fail the run when any system errored - a silent SUCCESS here once let a
+    # rebuild report green while creating zero tables.
+    if failed:
+        raise RuntimeError(
+            f"{failed} of {len(system_registries)} systems failed DDL - see the lines above."
+        )
 
 # COMMAND ----------
 
