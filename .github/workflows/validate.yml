@@ -10,7 +10,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: python -m pip install --disable-pip-version-check pyyaml
+      # open-lakehouse-contract carries the schema the demo is meant to demonstrate.
+      # Without it validate_release.py can only ask "does this YAML parse", which passes
+      # a misspelled key and a rule that no consumer will ever match.
+      - run: python -m pip install --disable-pip-version-check pyyaml open-lakehouse-contract
       - run: python scripts/validate_release.py
   secret-scan:
     runs-on: ubuntu-latest
