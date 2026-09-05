@@ -13,11 +13,21 @@
 
 # COMMAND ----------
 
-# MAGIC # pyyaml/polars/deltalake are core lakelogic dependencies - installing them
-# MAGIC # again only lets pip resolve them outside lakelogic's own version floors.
-# MAGIC # pyarrow<25: DBR ships 21.0.0, lakelogic needs >=23.0.1, and databricks-connect
-# MAGIC # caps it below 25 - without the pin pip takes the newest and breaks that cap.
-# MAGIC %pip install lakelogic "pyarrow<25" --quiet
+# ── LakeLogic source ──────────────────────────────────────────────────
+# Blank widget = install the published package from PyPI (what the demo does).
+# Set it to a wheel in the catalog's _wheels Volume to run an UNRELEASED build:
+#   scripts/upload_lakelogic_wheel.sh   ->  prints the path to paste here
+# That is the only way to exercise a LakeLogic change on Databricks BEFORE it
+# is published, rather than discovering a bad release from the demo breaking.
+dbutils.widgets.text("lakelogic_wheel", "", "LakeLogic wheel (blank = PyPI)")
+lakelogic_pkg = dbutils.widgets.get("lakelogic_wheel").strip() or "lakelogic"
+print(f"Installing LakeLogic from: {lakelogic_pkg}")
+
+# COMMAND ----------
+
+# MAGIC # Only lakelogic is named: pyyaml/polars/deltalake are its own dependencies.
+# MAGIC # pyarrow<25: DBR ships 21.0.0, lakelogic needs >=23.0.1, databricks-connect caps <25.
+# MAGIC %pip install $lakelogic_pkg "pyarrow<25" --quiet
 
 # COMMAND ----------
 
