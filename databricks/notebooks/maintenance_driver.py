@@ -24,7 +24,11 @@
 #                       '{"silver_stripe_charges":["created_at","status"]}'
 #
 
-# MAGIC %pip install lakelogic pyyaml polars deltalake
+# MAGIC # pyyaml/polars/deltalake are core lakelogic dependencies - installing them
+# MAGIC # again only lets pip resolve them outside lakelogic's own version floors.
+# MAGIC # pyarrow<25: DBR ships 21.0.0, lakelogic needs >=23.0.1, and databricks-connect
+# MAGIC # caps it below 25 - without the pin pip takes the newest and breaks that cap.
+# MAGIC %pip install lakelogic "pyarrow<25"
 
 # COMMAND ----------
 
