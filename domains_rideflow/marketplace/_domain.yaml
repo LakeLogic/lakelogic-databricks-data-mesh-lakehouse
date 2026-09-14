@@ -92,8 +92,8 @@ notifications:
 observatory:
   enabled: true
   environments: [dev, prod, staging, local, local_polars]
-  endpoint: "https://reimburse-stable-same.ngrok-free.dev/api/v1/operations/run-logs/ingest"
-  api_key: "llc_sk_16da53b2f002d8516be03122fbeae98f"
+  endpoint: ""
+  api_key: ""
   emit_on: [success, partial, failed]
 
 # ── Compliance & Privacy ─────────────────────────────────────────────────────
