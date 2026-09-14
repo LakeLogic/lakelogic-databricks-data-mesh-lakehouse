@@ -25,11 +25,11 @@ external_sources:
     source_domain: "Zendesk Inc."
     catalog_path: "zendesk_api"
     consumed_by:
-      - "support_tickets"
+      - "bronze_zendesk_support_tickets"
 
 contracts:
   - layer: bronze
-    entity: support_tickets
+    entity: bronze_zendesk_support_tickets
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_support_tickets_v1.0.yaml"
     enabled: true
 
@@ -39,8 +39,8 @@ contracts:
     enabled: true
 
   - layer: gold
-    entity: gold_zendesk_fact_ticket_enriched
-    path: "contracts/{gold_layer}/gold_zendesk_fact_ticket_enriched_v1.0.yaml"
+    entity: gold_fact_ticket_enriched
+    path: "contracts/{gold_layer}/gold_fact_ticket_enriched_v1.0.yaml"
     depends_on:
       - silver_zendesk_support_tickets
       - silver_rideflow_trips

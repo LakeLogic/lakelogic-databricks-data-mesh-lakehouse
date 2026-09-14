@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Agg Google Ads Acquisition ROI"
-  table_name: '{gold_layer}_google_ads_agg_acquisition_roi'
+  table_name: '{gold_layer}_agg_acquisition_roi'
   description: >
     Daily pre-aggregated Google Ads spend metrics rolled up across all
     campaigns. One row per reported_date. CAC and conversion rate are

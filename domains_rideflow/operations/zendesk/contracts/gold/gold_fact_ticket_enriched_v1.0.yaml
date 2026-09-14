@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Ticket Enriched"
-  table_name: "{gold_layer}_zendesk_fact_ticket_enriched"
+  table_name: "{gold_layer}_fact_ticket_enriched"
   description: >
     Per-ticket enrichment over silver_zendesk_support_tickets:
       * Classification — assigns a controlled category + intent from the ticket
@@ -41,7 +41,7 @@ model:
     # phase:post transform below. Unmatched riders → '-1' unknown member.
     - name: rider_sk
       type: string
-      description: "FK to gold_rideflow_dim_rider (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_dim_rider (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
         contract: "{gold_layer}_rideflow_dim_rider"
         column: rider_sk
@@ -60,7 +60,7 @@ model:
     # SCD2 surrogate FK to marketplace.dim_driver — resolved as-of created_at.
     - name: driver_sk
       type: string
-      description: "FK to gold_rideflow_dim_driver (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_dim_driver (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
         contract: "{gold_layer}_rideflow_dim_driver"
         column: driver_sk
@@ -139,10 +139,10 @@ source:
 links:
   - name: dim_rider
     type: table
-    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_rider"
+    path: "table:`{catalog}`.marketplace.gold_dim_rider"
   - name: dim_driver
     type: table
-    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_driver"
+    path: "table:`{catalog}`.marketplace.gold_dim_driver"
   # Raw silver ticket text/priority — `source` is projected DOWN to this gold
   # contract's model fields before the transform runs, so subject /
   # ticket_description / priority are not visible on `source`. This link exposes

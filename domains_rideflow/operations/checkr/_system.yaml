@@ -25,11 +25,11 @@ external_sources:
     source_domain: "Checkr Inc."
     catalog_path: "checkr_api"
     consumed_by:
-      - "background_checks"
+      - "bronze_checkr_background_checks"
 
 contracts:
   - layer: bronze
-    entity: background_checks
+    entity: bronze_checkr_background_checks
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_background_checks_v1.0.yaml"
     enabled: true
 
@@ -39,7 +39,7 @@ contracts:
     enabled: true
 
   - layer: bronze
-    entity: driver_licences
+    entity: bronze_checkr_driver_licences
     path: "contracts/{bronze_layer}/bronze_checkr_driver_licences_v1.0.yaml"
     enabled: true
 

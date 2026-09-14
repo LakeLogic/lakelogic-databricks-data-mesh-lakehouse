@@ -25,11 +25,11 @@ external_sources:
     source_domain: "Twilio Inc."
     catalog_path: "twilio_api"
     consumed_by:
-      - "sms_logs"
+      - "bronze_twilio_sms_logs"
 
 contracts:
   - layer: bronze
-    entity: sms_logs
+    entity: bronze_twilio_sms_logs
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_sms_logs_v1.0.yaml"
     enabled: true
 

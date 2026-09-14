@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Rider Daily Metrics"
-  table_name: "{gold_layer}_rideflow_fact_rider_daily_metrics"
+  table_name: "{gold_layer}_fact_rider_daily_metrics"
   description: "Daily aggregated rider metrics. Can be safely reprocessed and summed over time to calculate Lifetime Value."
   target_layer: gold
   domain: marketplace
@@ -21,19 +21,19 @@ links:
     type: table
   # Conformed SCD2 dimension, for the surrogate-key (as-of) lookup below.
   - name: dim_rider
-    path: "table:{domain_catalog}.gold_rideflow_dim_rider"
+    path: "table:{domain_catalog}.gold_dim_rider"
     type: table
 
 model:
   fields:
-    # Kimball surrogate FK to gold_rideflow_dim_rider, resolved SCD2-accurately by
+    # Kimball surrogate FK to gold_dim_rider, resolved SCD2-accurately by
     # activity_date. Riders with no matching dim row (e.g. profile quarantined)
     # resolve to the '-1' unknown member rather than a dangling key.
     - name: rider_sk
       type: string
       required: true
       foreign_key:
-        contract: gold_rideflow_dim_rider
+        contract: gold_dim_rider
         column: rider_sk
     - name: rider_id
       type: string

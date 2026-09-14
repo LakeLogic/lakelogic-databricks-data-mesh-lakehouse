@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Stripe Payment Reconciliation"
-  table_name: '{gold_layer}_stripe_fact_payment_reconciliation'
+  table_name: '{gold_layer}_fact_payment_reconciliation'
   description: >
     Daily charge volume + status mix per currency. Primary source is
     silver_stripe_charges; per-charge refund / payout linkage is added

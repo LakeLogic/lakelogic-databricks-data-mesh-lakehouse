@@ -25,11 +25,11 @@ external_sources:
     source_domain: "Meta Platforms Inc."
     catalog_path: "meta_ads_api"
     consumed_by:
-      - "campaigns"
+      - "bronze_meta_ads_campaigns"
 
 contracts:
   - layer: bronze
-    entity: campaigns
+    entity: bronze_meta_ads_campaigns
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_campaigns_v1.0.yaml"
     enabled: true
 

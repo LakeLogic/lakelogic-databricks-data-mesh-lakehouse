@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Dim Country"
-  table_name: "{gold_layer}_internal_dim_country"
+  table_name: "{gold_layer}_dim_country"
   description: >
     ISO 3166-1 country dimension. Loaded once from a static CSV seed; can be
     refreshed when ISO publishes a new revision.

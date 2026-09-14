@@ -42,6 +42,9 @@ model:
     type: string
     description: "City code (LON, NYC, BER, PAR, TYO, SYD)"
     accepted_values: [LON, NYC, BER, PAR, TYO, SYD]
+  - name: country_code
+    type: string
+    description: "ISO 3166-1 alpha-2 country of city_code — the partition key (materialization._all in _system.yaml)"
   - name: requested_at
     type: string
     description: "Trip request timestamp"

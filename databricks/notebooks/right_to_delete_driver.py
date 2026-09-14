@@ -10,7 +10,43 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-# MAGIC %pip install lakelogic pyyaml polars deltalake
+# ── LakeLogic source ──────────────────────────────────────────────────
+# Blank widget = install the published package from PyPI (what the demo does).
+# Set it to a wheel in the catalog's _wheels Volume to run an UNRELEASED build:
+#   scripts/upload_lakelogic_wheel.sh   ->  prints the path to paste here
+# That is the only way to exercise a LakeLogic change on Databricks BEFORE it
+# is published, rather than discovering a bad release from the demo breaking.
+dbutils.widgets.text("lakelogic_wheel", "", "LakeLogic wheel (blank = PyPI)")
+dbutils.widgets.text("lakelogic_version", "", "LakeLogic version (blank = latest)")
+_wheel = dbutils.widgets.get("lakelogic_wheel").strip()
+# --force-reinstall matters: Databricks pre-installs the packages named in
+# this cell into the notebook environment at session startup, so pip sees the
+# PUBLISHED lakelogic already present. An unreleased wheel carries the SAME
+# version number, so pip reports "already satisfied" and silently keeps the
+# released code - the run then tests the wrong build while looking correct.
+_version = dbutils.widgets.get("lakelogic_version").strip()
+# The PyPI branch needs the same protection the wheel branch already had.
+# Databricks PRE-INSTALLS the packages named in this cell at session start,
+# so a bare `lakelogic` is "already satisfied" by whatever version the
+# environment was built with — pip installs nothing and the run silently
+# executes the OLD code. That is exactly how a run on "1.51.0" reproduced a
+# bug fixed in 1.51.0: it was really running the pre-installed 1.50.0, and
+# the null `lakelogic_version` in its telemetry was the only tell.
+# An explicit `==` is unsatisfied by an older pre-install, so pip must act;
+# `--upgrade` covers the unpinned case.
+if _wheel:
+    lakelogic_pkg = f"{_wheel} --force-reinstall"
+elif _version:
+    lakelogic_pkg = f"lakelogic=={_version}"
+else:
+    lakelogic_pkg = "lakelogic --upgrade"
+print(f"Installing LakeLogic from: {lakelogic_pkg}")
+
+# COMMAND ----------
+
+# MAGIC # Only lakelogic is named: pyyaml/polars/deltalake are its own dependencies.
+# MAGIC # pyarrow<25: DBR ships 21.0.0, lakelogic needs >=23.0.1, databricks-connect caps <25.
+# MAGIC %pip install $lakelogic_pkg "pyarrow<25"
 
 # COMMAND ----------
 

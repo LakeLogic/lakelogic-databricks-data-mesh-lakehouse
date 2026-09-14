@@ -33,3 +33,18 @@ variables:
   serverless_env_version:
     description: "Serverless environment (client) version for pre-provisioned job deps. Bump if `bundle deploy` rejects it (see the value in a serverless notebook's Environment panel)."
     default: "3"
+  lakelogic_version:
+    description: >-
+      Pin the PyPI version, e.g. "1.51.0". Blank installs the latest with
+      --upgrade. Needed because Databricks pre-installs lakelogic into the
+      notebook environment: a bare `pip install lakelogic` is then "already
+      satisfied" and the run silently executes the pre-installed version.
+    default: ""
+  lakelogic_wheel:
+    description: >-
+      Path to a LakeLogic wheel in the catalog's _wheels Volume, e.g.
+      /Volumes/<catalog>/nondelta/_wheels/lakelogic-<version>-py3-none-any.whl .
+      Blank (the default) installs the published package from PyPI, which is what
+      the demo does. Set it to test an UNRELEASED build before publishing:
+      scripts/upload_lakelogic_wheel.sh builds one and prints the path.
+    default: ""

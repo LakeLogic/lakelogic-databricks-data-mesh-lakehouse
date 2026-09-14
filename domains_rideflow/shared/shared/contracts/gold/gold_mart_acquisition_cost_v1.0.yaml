@@ -1,7 +1,7 @@
 version: 1.0.0
 info:
   title: "Gold — Mart Acquisition Cost"
-  table_name: '{gold_layer}_shared_mart_acquisition_cost'
+  table_name: '{gold_layer}_mart_acquisition_cost'
   description: >
     Customer Acquisition Cost (CAC) per (kpi_date, channel, campaign).
     Channel spend comes from the three marketing campaign Silver tables

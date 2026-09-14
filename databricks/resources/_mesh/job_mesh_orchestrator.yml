@@ -42,6 +42,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/_ops/00_setup.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               catalog: "${var.catalog}"
               contracts_src: "${workspace.file_path}/domains_rideflow"
 
@@ -165,6 +167,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/_ops/assert_mesh_complete.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               catalog: "${var.catalog}"
 
       email_notifications: {}

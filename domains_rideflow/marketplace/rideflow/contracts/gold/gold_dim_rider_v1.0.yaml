@@ -1,14 +1,13 @@
 version: 1.0.0
 
 info:
-  title: "Gold — Dim Driver (SCD2)"
-  table_name: "{gold_layer}_rideflow_dim_driver"
+  title: "Gold — Dim Rider (SCD2)"
+  table_name: "{gold_layer}_dim_rider"
   description: >
-    Slowly Changing Dimension (Type 2) for marketplace drivers. Tracks
+    Slowly Changing Dimension (Type 2) for marketplace riders. Tracks
     history when an attribute that affects analytics changes — status,
-    vehicle, licence, city, rating. Every fact that references driver_id
-    keys via (driver_sk) or via (driver_id, effective_from .. effective_to)
-    for point-in-time joins.
+    home city, preferred payment method. Used for point-in-time joins
+    by every fact that references rider_id.
   target_layer: gold
   domain: marketplace
   system: rideflow
@@ -16,14 +15,14 @@ info:
 model:
   fields:
     # ── Surrogate + business keys ────────────────────────────────────────
-    - name: driver_sk
+    - name: rider_sk
       type: string
       # string, not long: surrogate_key_strategy=hash emits a sha2 hex string.
       # NOT required: injected by the SCD2 materializer, so it is absent from the
       # source. Marking it required would quarantine every source row at schema
       # validation (which runs before materialization) → 0 versions written.
       description: "Surrogate key (sha2 hash); new for each SCD2 version"
-    - name: driver_id
+    - name: rider_id
       type: string
       required: true
       description: "Business key — stable across versions"
@@ -37,64 +36,60 @@ model:
     - name: phone
       type: string
       pii: true
-    - name: licence_number
+    - name: home_address
       type: string
       pii: true
-    - name: licence_plate
-      type: string
-      description: "Vehicle plate (SCD2-tracked — changes when driver switches vehicle)"
-    - name: vehicle_type
-      type: string
-      description: "SCD2-tracked"
+      description: "SCD2-tracked — rider may move"
     - name: city_code
       type: string
-      description: "SCD2-tracked — driver may move between cities"
+      description: "SCD2-tracked — primary operating city"
+    - name: country_code
+      type: string
+      description: "ISO 3166-1 alpha-2 country of city_code — the partition key (materialization._all in _system.yaml)"
     - name: status
       type: string
-      description: "SCD2-tracked: active | inactive | suspended | pending_verification"
-    - name: rating
-      type: float
-      description: "Snapshot at version creation (rating drifts continuously; not SCD2-tracked)"
+      description: "SCD2-tracked: active | inactive | suspended"
+    - name: preferred_payment_method
+      type: string
+      description: "SCD2-tracked — payment method preference change"
     - name: signup_date
       type: date
     - name: updated_at
       type: timestamp
-      description: "silver_rideflow_driver_profiles.updated_at — drives version cuts"
+      description: "silver_rideflow_rider_profiles.updated_at — drives version cuts"
     # ── SCD2 mechanics ───────────────────────────────────────────────────
     - name: effective_from
       type: timestamp
-      # NOT required: injected by the SCD2 materializer (see driver_sk note).
-      description: "When this version became current"
+      # NOT required: injected by the SCD2 materializer (see rider_sk note).
     - name: effective_to
       type: timestamp
       description: "Closed when superseded; NULL for current version"
     - name: is_current
       type: boolean
-      # NOT required: injected by the SCD2 materializer (see driver_sk note).
-      description: "TRUE for the active version, FALSE for historical versions"
-    - name: version_number
-      type: long
-      description: "1, 2, 3... per driver_id (SCD2 materializer emits bigint)"
+      # NOT required: injected by the SCD2 materializer (see rider_sk note).
+    # NOTE: no version_number column — the engine writes it as INT on merge but
+    # BIGINT on initial load, so re-runs fail (DELTA_FAILED_TO_MERGE_FIELDS).
+    # SCD2 history is captured by effective_from/to + is_current.
 
 # SCD2 matches existing↔incoming on the BUSINESS key, so primary_key must be
-# driver_id (stable across versions) — NOT the surrogate driver_sk (generated
-# per version by the materializer). Composite (driver_id, effective_from)
-# uniqueness is documented via natural_key.
-primary_key: [driver_id]
-natural_key: [driver_id, effective_from]
+# rider_id (stable across versions) — NOT the surrogate rider_sk (generated per
+# version by the materializer). Composite (rider_id, effective_from) uniqueness
+# is documented via natural_key.
+primary_key: [rider_id]
+natural_key: [rider_id, effective_from]
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_rideflow_driver_profiles"
+  path: "table:{domain_catalog}.silver_rideflow_rider_profiles"
   load_mode: full
 
 # NOTE: gold uses `evolution: append` (set at the registry level in _system.yaml).
-# The SCD2 materializer injects driver_sk + effective_from/to + is_current +
+# The SCD2 materializer injects rider_sk + effective_from/to + is_current +
 # version_number AFTER schema validation, so they are absent from the source;
 # `strict` would quarantine every row as "Missing fields" → 0 versions written.
 
-# SCD2 reads silver_rideflow_driver_profiles directly and cuts new versions on
-# `updated_at`. The SCD2 mechanics columns (driver_sk, effective_from/to,
+# SCD2 reads silver_rideflow_rider_profiles directly and cuts new versions on
+# `updated_at`. The SCD2 mechanics columns (rider_sk, effective_from/to,
 # is_current, version_number) are injected by the materializer below — they are
 # NOT expected to exist in the source. (An earlier pre-phase SELECT that renamed
 # updated_at -> source_updated_at was removed: the engine pruned the source read
@@ -108,19 +103,20 @@ materialization:
   strategy: scd2
   format: delta
   scd2:
-    surrogate_key: driver_sk
+    surrogate_key: rider_sk
     surrogate_key_strategy: hash
     timestamp_field: updated_at
     effective_from_field: effective_from
     effective_to_field: effective_to
     current_flag_field: is_current
-    version_column: version_number
+    # Disable _change_reason: engine adds it only on the MERGE path, not initial
+    # load → re-run schema mismatch (DELTA_METADATA_MISMATCH) under UC Table ACLs.
+    change_reason_column: ""
     track_columns:
-      - licence_plate
-      - vehicle_type
       - city_code
+      - home_address
       - status
-      - licence_number
+      - preferred_payment_method
     unknown_member:
       enabled: true
       surrogate_key_value: "-1"
@@ -128,4 +124,4 @@ materialization:
 quality:
   row_rules: []
   dataset_rules:
-    - unique: driver_sk
+    - unique: rider_sk

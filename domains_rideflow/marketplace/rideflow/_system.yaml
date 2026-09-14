@@ -44,43 +44,43 @@ external_sources:
     source_domain: "Internal Platform"
     catalog_path: "rideflow_backend_api"
     consumed_by:
-      - "rider_profiles"
-      - "rider_app_events"
-      - "driver_profiles"
-      - "driver_telemetry"
-      - "trip_requests"
-      - "trip_completed"
-      - "trip_cancellations"
+      - "bronze_rideflow_rider_profiles"
+      - "bronze_rideflow_rider_app_events"
+      - "bronze_rideflow_driver_profiles"
+      - "bronze_rideflow_driver_telemetry"
+      - "bronze_rideflow_trip_requests"
+      - "bronze_rideflow_trip_completed"
+      - "bronze_rideflow_trip_cancellations"
 
 # ── Contract Registry ───────────────────────────────────────────────────────
 contracts:
   # Bronze Layer
   - layer: bronze
-    entity: rider_profiles
+    entity: bronze_rideflow_rider_profiles
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_rider_profiles_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: rider_app_events
+    entity: bronze_rideflow_rider_app_events
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_rider_app_events_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: driver_profiles
+    entity: bronze_rideflow_driver_profiles
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_driver_profiles_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: driver_telemetry
+    entity: bronze_rideflow_driver_telemetry
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_driver_telemetry_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: trip_requests
+    entity: bronze_rideflow_trip_requests
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_trip_requests_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: trip_completed
+    entity: bronze_rideflow_trip_completed
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_trip_completed_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: trip_cancellations
+    entity: bronze_rideflow_trip_cancellations
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_trip_cancellations_v1.0.yaml"
     enabled: true
 
@@ -103,50 +103,50 @@ contracts:
   - layer: silver
     entity: silver_rideflow_trips
     path: "contracts/{silver_layer}/silver_rideflow_trips_v1.0.yaml"
-    depends_on: ['trip_completed', 'silver_rideflow_rider_profiles', 'silver_rideflow_driver_profiles']
+    depends_on: ['bronze_rideflow_trip_completed', 'silver_rideflow_rider_profiles', 'silver_rideflow_driver_profiles']
     enabled: true
   - layer: silver
     entity: silver_rideflow_trip_requests
     path: "contracts/{silver_layer}/silver_rideflow_trip_requests_v1.0.yaml"
-    depends_on: ['trip_requests']
+    depends_on: ['bronze_rideflow_trip_requests']
     enabled: true
   - layer: silver
     entity: silver_rideflow_trip_cancellations
     path: "contracts/{silver_layer}/silver_rideflow_trip_cancellations_v1.0.yaml"
-    depends_on: ['trip_cancellations']
+    depends_on: ['bronze_rideflow_trip_cancellations']
     enabled: true
 
 # Gold Layer
   - layer: gold
-    entity: gold_rideflow_fact_trip_daily_kpis
-    path: "contracts/{gold_layer}/gold_rideflow_fact_trip_daily_kpis_v1.0.yaml"
+    entity: gold_fact_trip_daily_kpis
+    path: "contracts/{gold_layer}/gold_fact_trip_daily_kpis_v1.0.yaml"
     depends_on: ['silver_rideflow_trips']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_driver_scorecard
-    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_scorecard_v1.0.yaml"
+    entity: gold_dim_driver_scorecard
+    path: "contracts/{gold_layer}/gold_dim_driver_scorecard_v1.0.yaml"
     # dim_driver must build first — the scorecard resolves driver_sk against it.
-    depends_on: ['silver_rideflow_trips', 'silver_rideflow_driver_profiles', 'gold_rideflow_dim_driver']
+    depends_on: ['silver_rideflow_trips', 'silver_rideflow_driver_profiles', 'gold_dim_driver']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_rider_daily_metrics
-    path: "contracts/{gold_layer}/gold_rideflow_fact_rider_daily_metrics_v1.0.yaml"
+    entity: gold_fact_rider_daily_metrics
+    path: "contracts/{gold_layer}/gold_fact_rider_daily_metrics_v1.0.yaml"
     # dim_rider must build first — the fact resolves rider_sk against it (as-of join).
-    depends_on: ['silver_rideflow_trips', 'silver_rideflow_rider_profiles', 'gold_rideflow_dim_rider']
+    depends_on: ['silver_rideflow_trips', 'silver_rideflow_rider_profiles', 'gold_dim_rider']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_surge_pricing_inference
-    path: "contracts/{gold_layer}/gold_rideflow_fact_surge_pricing_inference_v1.0.yaml"
+    entity: gold_fact_surge_pricing_inference
+    path: "contracts/{gold_layer}/gold_fact_surge_pricing_inference_v1.0.yaml"
     depends_on: ['silver_rideflow_trips']
     enabled: false
   - layer: gold
-    entity: gold_rideflow_dim_driver
-    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_v1.0.yaml"
+    entity: gold_dim_driver
+    path: "contracts/{gold_layer}/gold_dim_driver_v1.0.yaml"
     depends_on: ['silver_rideflow_driver_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_rider
-    path: "contracts/{gold_layer}/gold_rideflow_dim_rider_v1.0.yaml"
+    entity: gold_dim_rider
+    path: "contracts/{gold_layer}/gold_dim_rider_v1.0.yaml"
     depends_on: ['silver_rideflow_rider_profiles']
     enabled: true
 
@@ -162,6 +162,14 @@ lineage:
 
 # ── Materialization (per-layer defaults, contracts override) ────────────────
 materialization:
+  # Every layer partitions by country: the simulator stamps country_code on every entity
+  # from its city, and one country follows a record through every relationship (a GB
+  # rider's trip is driven by a GB driver), so each country lands in its own folder
+  # (country_code=GB/) from bronze to gold. Tables without the column (e.g. per-rider
+  # aggregates) are written unpartitioned, with a warning. A table that already exists
+  # keeps its layout until it is rebuilt — Delta cannot repartition in place.
+  _all:
+    partition_by: [country_code]
   bronze:
     strategy: append
     format: delta

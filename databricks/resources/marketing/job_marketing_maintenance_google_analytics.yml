@@ -47,6 +47,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/maintenance_driver.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml"
               environment: "${bundle.target}"
               target_layers: "bronze,silver,gold"

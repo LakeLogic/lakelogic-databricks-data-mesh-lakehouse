@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Surge Pricing Inference"
-  table_name: "{gold_layer}_{system}_fact_surge_pricing_inference"
+  table_name: "{gold_layer}_fact_surge_pricing_inference"
   description: "Tracks ML inference outputs for dynamic surge pricing, classifying ML behavior against EU AI Act bounds."
   target_layer: gold
   domain: marketplace

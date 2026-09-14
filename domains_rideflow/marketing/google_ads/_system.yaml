@@ -25,11 +25,11 @@ external_sources:
     source_domain: "Google LLC"
     catalog_path: "google_ads_api"
     consumed_by:
-      - "campaigns"
+      - "bronze_google_ads_campaigns"
 
 contracts:
   - layer: bronze
-    entity: campaigns
+    entity: bronze_google_ads_campaigns
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_campaigns_v1.0.yaml"
     enabled: true
 
@@ -38,8 +38,8 @@ contracts:
     path: "contracts/{silver_layer}/silver_google_ads_campaigns_v1.0.yaml"
     enabled: true
   - layer: gold
-    entity: gold_google_ads_agg_acquisition_roi
-    path: "contracts/{gold_layer}/gold_google_ads_agg_acquisition_roi_v1.0.yaml"
+    entity: gold_agg_acquisition_roi
+    path: "contracts/{gold_layer}/gold_agg_acquisition_roi_v1.0.yaml"
     depends_on: ['silver_google_ads_campaigns']
     enabled: true
 lineage:

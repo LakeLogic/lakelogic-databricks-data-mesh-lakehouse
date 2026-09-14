@@ -44,6 +44,9 @@ model:
   - name: city_code
     type: string
     description: "City code at time of event"
+  - name: country_code
+    type: string
+    description: "ISO 3166-1 alpha-2 country of city_code — the partition key (materialization._all in _system.yaml)"
   - name: event_properties_json
     type: string
     description: "Raw event properties as JSON"
