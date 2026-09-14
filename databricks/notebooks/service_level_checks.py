@@ -1,9 +1,14 @@
 # Databricks notebook source
 # ═══════════════════════════════════════════════════════════════════════════════
-# Notebook  : SLO & Data Quality Assessor
-# Purpose   : Evaluates dataset freshness and pipeline scheduling SLAs against
-#             rules defined in the Domain `_registry.yaml`.
-#             Broadcasys telemetry to LakeLogic Cloud if configured in the registry.
+# Notebook  : service_level_checks — Service Level Checks
+# Purpose   : Evaluates the `slo:` block a domain declares — per-layer freshness
+#             and pipeline scheduling — against the tables actually present, and
+#             reports the verdict to LakeLogic Cloud so Data Products can show a
+#             service level instead of "Not evaluated".
+#
+# Named for what it CHECKS, not for one of the checks. It was
+# `slo_freshness_check`, which described freshness alone while the validator also
+# evaluates row counts and schedule — and "SLO" is the acronym, not the thing.
 #
 # Widgets:
 #   registry_path : Required. Path to the evaluated _registry.yaml
@@ -18,7 +23,29 @@
 # That is the only way to exercise a LakeLogic change on Databricks BEFORE it
 # is published, rather than discovering a bad release from the demo breaking.
 dbutils.widgets.text("lakelogic_wheel", "", "LakeLogic wheel (blank = PyPI)")
-lakelogic_pkg = dbutils.widgets.get("lakelogic_wheel").strip() or "lakelogic"
+dbutils.widgets.text("lakelogic_version", "", "LakeLogic version (blank = latest)")
+_wheel = dbutils.widgets.get("lakelogic_wheel").strip()
+# --force-reinstall matters: Databricks pre-installs the packages named in
+# this cell into the notebook environment at session startup, so pip sees the
+# PUBLISHED lakelogic already present. An unreleased wheel carries the SAME
+# version number, so pip reports "already satisfied" and silently keeps the
+# released code - the run then tests the wrong build while looking correct.
+_version = dbutils.widgets.get("lakelogic_version").strip()
+# The PyPI branch needs the same protection the wheel branch already had.
+# Databricks PRE-INSTALLS the packages named in this cell at session start,
+# so a bare `lakelogic` is "already satisfied" by whatever version the
+# environment was built with — pip installs nothing and the run silently
+# executes the OLD code. That is exactly how a run on "1.51.0" reproduced a
+# bug fixed in 1.51.0: it was really running the pre-installed 1.50.0, and
+# the null `lakelogic_version` in its telemetry was the only tell.
+# An explicit `==` is unsatisfied by an older pre-install, so pip must act;
+# `--upgrade` covers the unpinned case.
+if _wheel:
+    lakelogic_pkg = f"{_wheel} --force-reinstall"
+elif _version:
+    lakelogic_pkg = f"lakelogic=={_version}"
+else:
+    lakelogic_pkg = "lakelogic --upgrade"
 print(f"Installing LakeLogic from: {lakelogic_pkg}")
 
 # COMMAND ----------
@@ -55,14 +82,33 @@ PIPELINE_RUN_ID = dbutils.widgets.get("pipeline_run_id").strip()
 
 # COMMAND ----------
 
+import os
+
 from lakelogic.core.registry import DomainRegistry
 from lakelogic.core.slo import SLOValidator
-from lakelogic.core.observer import RemoteObserver
+from lakelogic.core.run_log import emit_slo_report
 import json
 
 try:
     print(f"Loading Registry: {REGISTRY_PATH} (env: {ENVIRONMENT})")
-    registry = DomainRegistry.from_yaml(REGISTRY_PATH, environment=ENVIRONMENT)
+    # ── Catalog — derived from the registry Volume path ──────────────────────
+    # THE SAME DERIVATION THE PIPELINE DRIVER USES. Without it `{catalog}` resolves
+    # to an empty string and every run-log query is built as
+    #     FROM .marketplace._pipeline_run_log
+    # which fails with [PARSE_SYNTAX_ERROR] Syntax error at or near '.'. The catalog
+    # is read from /Volumes/<catalog>/... so the tables this checks always match the
+    # catalog the job is deployed against — one source of truth, same as the pipeline.
+    _derived_catalog = "rideflow_dev_demo"
+    if REGISTRY_PATH.startswith("/Volumes/"):
+        _parts = REGISTRY_PATH.split("/")
+        if len(_parts) > 2 and _parts[2]:
+            _derived_catalog = _parts[2]
+    os.environ.setdefault(f"RIDEFLOW_{ENVIRONMENT.upper()}_CATALOG", _derived_catalog)
+    print(f"Catalog: {_derived_catalog}")
+
+    # `storage_mode="uc"` matches the pipeline driver: the roots must resolve to the
+    # same Unity Catalog tables the pipeline writes, or the checks read nothing.
+    registry = DomainRegistry.from_yaml(REGISTRY_PATH, environment=ENVIRONMENT, storage_mode="uc")
     validator = SLOValidator(registry, spark=spark)
     
     print("\nRunning validations...")
@@ -87,18 +133,32 @@ try:
         
     print("=" * 70)
     
-    # Cloud sync for SaaS
-    if registry.cloud.enabled and registry.cloud.report_url:
-        print("\n☁️ Syncing telemetry to LakeLogic Cloud...")
-        observer = RemoteObserver()
-        report_dict = report.model_dump()
-        report_dict["pipeline_run_id"] = PIPELINE_RUN_ID
-        report_dict["environment"] = ENVIRONMENT
-        try:
-            observer.report({"type": "slo", "report": report_dict})
-            print("  ✅ Synced successfully.")
-        except Exception as e:
-            print(f"  ⚠ Failed to sync: {e}")
+    # Cloud sync — THE SAME PATH THE PIPELINE DRIVER USES.
+    #
+    # This used to go through `RemoteObserver`, a different mechanism that is off
+    # unless LAKELOGIC_REMOTE_OBSERVER=true, addressed by LINEAGELOGIC_REPORT_URL
+    # (an env var nothing sets), and posting a `{"type": "slo"}` body the platform
+    # has no handler for. It also checked `registry.cloud.report_url` and then built
+    # the observer WITHOUT passing it, so a configured endpoint was ignored. Nothing
+    # ever arrived: 0 of 2,082 recorded runs carried an SLO result.
+    #
+    # `emit_slo_report` uses the observatory config, headers, endpoint and spooling
+    # that carry every pipeline run log, and shapes the body so results land in
+    # `run_metadata.slo` — where the platform already reads them.
+    print("\nSyncing service levels to LakeLogic Cloud...")
+    # Pass the REPORT, not `report.results`. The report carries the `check_run_id`
+    # that `run_checks()` minted, and `emit_slo_report` stamps it on every row so the
+    # platform can group the posts back into one invocation — otherwise it receives N
+    # independent rows and cannot say "15 of 71 objectives breached" or send one
+    # notification per check run instead of one per failing entity. The emitter
+    # duck-types this, so passing the list still works; it just arrives with no id.
+    sent = emit_slo_report(
+        registry,
+        report,
+        environment=ENVIRONMENT,
+        pipeline_run_id=PIPELINE_RUN_ID or None,
+    )
+    print(f"  Sent {sent} entity rows.")
             
     # Set exit states for Databricks workflows
     dbutils.jobs.taskValues.set(key="slo_passed", value=report.passed)

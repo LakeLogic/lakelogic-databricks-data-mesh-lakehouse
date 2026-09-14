@@ -45,6 +45,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/pipeline_driver.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/hubspot/_system.yaml"
               environment: "${bundle.target}"
               engine: "spark"

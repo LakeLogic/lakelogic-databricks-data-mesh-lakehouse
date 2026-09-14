@@ -139,3 +139,22 @@ resources:
           run_job_task:
             job_id: ${resources.jobs.marketing_gold_google_ads.id}
 
+        # ── Closing gate: did the layers we ENABLED actually run? ──────────
+        # A Databricks task whose dependency chain is unsatisfied is EXCLUDED, and
+        # the job still terminates SUCCESS — this mesh has reported exactly that
+        # with silver AND gold excluded. ALL_DONE so it runs whatever happened
+        # upstream; it fails the run when an enabled layer left no run-log rows.
+        - task_key: assert_layers_ran
+          depends_on:
+            - task_key: gold_aggregation
+            - task_key: check_run_gold
+              outcome: "false"
+          run_if: ALL_DONE
+          notebook_task:
+            notebook_path: ../../notebooks/_ops/assert_layers_ran.py
+            base_parameters:
+              catalog: "${var.catalog}"
+              domain: "${var.domain}"
+              enable_bronze: "{{job.parameters.enable_bronze}}"
+              enable_silver: "{{job.parameters.enable_silver}}"
+              enable_gold: "{{job.parameters.enable_gold}}"

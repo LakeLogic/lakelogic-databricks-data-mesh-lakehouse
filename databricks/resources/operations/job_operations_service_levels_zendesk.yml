@@ -1,0 +1,52 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Operations / zendesk — Service Level Checks
+# ══════════════════════════════════════════════════════════════════════════════
+# Evaluates the `slo:` block this domain declares — per-layer freshness and row
+# counts — against the tables actually present, and reports the verdict to
+# LakeLogic Cloud so Data Products can show a service level instead of
+# "Not evaluated".
+#
+# WHY THIS JOB EXISTS
+# `service_level_checks.py` and the SLOValidator behind it were already written,
+# and the domains already declare objectives. Nothing scheduled the notebook, so
+# across 2,082 recorded runs not one carried an SLO result and every product read
+# "Not evaluated" — the objectives were promised and never measured.
+#
+# It runs SEPARATELY from the pipelines on purpose: freshness is a statement about
+# the age of data ON THE CLOCK, not about whether the last load succeeded. A table
+# that stopped being written a day ago is stale whether or not anything ran.
+
+resources:
+  jobs:
+    operations_service_level_checks_zendesk:
+      name: "[${bundle.target}] operations / zendesk — Service Level Checks"
+      description: "Evaluates declared freshness + row-count objectives and reports them to LakeLogic."
+
+      tags:
+        domain: operations
+        system: zendesk
+        layer: service_levels
+        managed_by: lakelogic
+
+      schedule:
+        # Hourly, on the half hour. Freshness thresholds in this mesh start at 60
+        # minutes (bronze), so a daily check could not observe a breach before it
+        # had already been true for most of a day. Offset from :00 to stay clear of
+        # the pipelines that run on the hour.
+        quartz_cron_expression: "0 30 * ? * *"
+        timezone_id: "UTC"
+        pause_status: PAUSED
+
+      tasks:
+        - task_key: check_service_levels
+          notebook_task:
+            notebook_path: ../../notebooks/service_level_checks.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/zendesk/_system.yaml"
+              environment: "${bundle.target}"
+              # Blank: this run is not downstream of one pipeline execution. The
+              # notebook sends the field through as-is, and an invented id would
+              # attach the verdict to a run that did not produce it.
+              pipeline_run_id: ""

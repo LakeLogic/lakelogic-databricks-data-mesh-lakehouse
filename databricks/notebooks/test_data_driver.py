@@ -19,7 +19,29 @@
 # That is the only way to exercise a LakeLogic change on Databricks BEFORE it
 # is published, rather than discovering a bad release from the demo breaking.
 dbutils.widgets.text("lakelogic_wheel", "", "LakeLogic wheel (blank = PyPI)")
-lakelogic_pkg = dbutils.widgets.get("lakelogic_wheel").strip() or "lakelogic"
+dbutils.widgets.text("lakelogic_version", "", "LakeLogic version (blank = latest)")
+_wheel = dbutils.widgets.get("lakelogic_wheel").strip()
+# --force-reinstall matters: Databricks pre-installs the packages named in
+# this cell into the notebook environment at session startup, so pip sees the
+# PUBLISHED lakelogic already present. An unreleased wheel carries the SAME
+# version number, so pip reports "already satisfied" and silently keeps the
+# released code - the run then tests the wrong build while looking correct.
+_version = dbutils.widgets.get("lakelogic_version").strip()
+# The PyPI branch needs the same protection the wheel branch already had.
+# Databricks PRE-INSTALLS the packages named in this cell at session start,
+# so a bare `lakelogic` is "already satisfied" by whatever version the
+# environment was built with — pip installs nothing and the run silently
+# executes the OLD code. That is exactly how a run on "1.51.0" reproduced a
+# bug fixed in 1.51.0: it was really running the pre-installed 1.50.0, and
+# the null `lakelogic_version` in its telemetry was the only tell.
+# An explicit `==` is unsatisfied by an older pre-install, so pip must act;
+# `--upgrade` covers the unpinned case.
+if _wheel:
+    lakelogic_pkg = f"{_wheel} --force-reinstall"
+elif _version:
+    lakelogic_pkg = f"lakelogic=={_version}"
+else:
+    lakelogic_pkg = "lakelogic --upgrade"
 print(f"Installing LakeLogic from: {lakelogic_pkg}")
 
 # COMMAND ----------
@@ -272,6 +294,8 @@ def _gen_trip_events(landing_uri):
             "pickup_lat": t.get("pickup_lat", ""), "pickup_lng": t.get("pickup_lng", ""),
             "dropoff_lat": t.get("dropoff_lat", ""), "dropoff_lng": t.get("dropoff_lng", ""),
             "city_code": t.get("city_code") or "LON",
+            # Same country as the trip it derives from (the simulator sets it from the city).
+            "country_code": t.get("country_code") or "",
             "requested_at": t.get("requested_at") or t.get("pickup_at") or "",
             "estimated_fare": t.get("fare_amount", ""),
             "estimated_eta_minutes": str(random.randint(2, 12)),
@@ -299,6 +323,7 @@ def _gen_trip_events(landing_uri):
             "cancelled_by": random.choice(["rider", "driver"]),
             "cancel_reason_code": random.choice(["rider_no_show", "driver_cancel", "long_wait", "price_change", "other"]),
             "city_code": t.get("city_code", "LON"),
+            "country_code": t.get("country_code", ""),
             "requested_at": ts,
             "cancelled_at": ts,
             "cancellation_fee": str(round(random.uniform(0, 5), 2)),

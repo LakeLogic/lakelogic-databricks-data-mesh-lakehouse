@@ -1,7 +1,7 @@
 version: 1.0.0
 info:
   title: "Gold — Fact Revenue Daily"
-  table_name: '{gold_layer}_shared_fact_revenue_daily'
+  table_name: '{gold_layer}_fact_revenue_daily'
   description: >
     Daily platform revenue normalized to GBP. Aggregates Stripe charges
     (gross + commission + driver payout + refunds) attributed to Rideflow

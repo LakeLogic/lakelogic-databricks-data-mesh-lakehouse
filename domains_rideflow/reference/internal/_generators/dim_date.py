@@ -1,5 +1,5 @@
 """
-External-logic hook for gold_internal_dim_date.
+External-logic hook for gold_dim_date.
 
 Called by the LakeLogic pipeline at gold materialization time. Delegates to
 the OSS calendar generator and returns the result as a Polars DataFrame —

@@ -20,11 +20,11 @@ storage:
 contracts:
   # ── Bronze: raw external feeds ────────────────────────────────────────────
   - layer: bronze
-    entity: city_master
+    entity: bronze_internal_city_master
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_city_master_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: fx_rates_daily
+    entity: bronze_internal_fx_rates_daily
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_fx_rates_daily_v1.0.yaml"
     enabled: true
 
@@ -42,42 +42,42 @@ contracts:
 
   # ── Gold: dim_ (SCD2 capable) and fact_ ───────────────────────────────────
   - layer: gold
-    entity: gold_internal_dim_date
-    path: "contracts/{gold_layer}/gold_internal_dim_date_v1.0.yaml"
+    entity: gold_dim_date
+    path: "contracts/{gold_layer}/gold_dim_date_v1.0.yaml"
     enabled: true
   - layer: gold
-    entity: gold_internal_dim_country
-    path: "contracts/{gold_layer}/gold_internal_dim_country_v1.0.yaml"
+    entity: gold_dim_country
+    path: "contracts/{gold_layer}/gold_dim_country_v1.0.yaml"
     enabled: true
   - layer: gold
-    entity: gold_internal_dim_currency
-    path: "contracts/{gold_layer}/gold_internal_dim_currency_v1.0.yaml"
+    entity: gold_dim_currency
+    path: "contracts/{gold_layer}/gold_dim_currency_v1.0.yaml"
     enabled: true
   - layer: gold
-    entity: gold_internal_dim_city
-    path: "contracts/{gold_layer}/gold_internal_dim_city_v1.0.yaml"
+    entity: gold_dim_city
+    path: "contracts/{gold_layer}/gold_dim_city_v1.0.yaml"
     depends_on: ['silver_internal_cities']
     enabled: true
   - layer: gold
-    entity: gold_internal_fact_fx_rate_daily
-    path: "contracts/{gold_layer}/gold_internal_fact_fx_rate_daily_v1.0.yaml"
+    entity: gold_fact_fx_rate_daily
+    path: "contracts/{gold_layer}/gold_fact_fx_rate_daily_v1.0.yaml"
     depends_on: ['silver_internal_fx_rates_daily']
     enabled: true
   - layer: gold
-    entity: gold_internal_dim_vehicle_type
-    path: "contracts/{gold_layer}/gold_internal_dim_vehicle_type_v1.0.yaml"
+    entity: gold_dim_vehicle_type
+    path: "contracts/{gold_layer}/gold_dim_vehicle_type_v1.0.yaml"
     enabled: true
   - layer: gold
-    entity: gold_internal_dim_payment_method
-    path: "contracts/{gold_layer}/gold_internal_dim_payment_method_v1.0.yaml"
+    entity: gold_dim_payment_method
+    path: "contracts/{gold_layer}/gold_dim_payment_method_v1.0.yaml"
     enabled: true
   - layer: gold
-    entity: gold_internal_dim_surge_tier
-    path: "contracts/{gold_layer}/gold_internal_dim_surge_tier_v1.0.yaml"
+    entity: gold_dim_surge_tier
+    path: "contracts/{gold_layer}/gold_dim_surge_tier_v1.0.yaml"
     enabled: true
   - layer: gold
-    entity: gold_internal_dim_cancellation_reason
-    path: "contracts/{gold_layer}/gold_internal_dim_cancellation_reason_v1.0.yaml"
+    entity: gold_dim_cancellation_reason
+    path: "contracts/{gold_layer}/gold_dim_cancellation_reason_v1.0.yaml"
     enabled: true
 
 lineage:

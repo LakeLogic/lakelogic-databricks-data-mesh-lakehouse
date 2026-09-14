@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Trip Daily KPIs"
-  table_name: "{gold_layer}_rideflow_fact_trip_daily_kpis"
+  table_name: "{gold_layer}_fact_trip_daily_kpis"
   description: "Daily revenue, volume, and distance KPIs aggregated from completed trips."
   target_layer: gold
   domain: marketplace
@@ -27,6 +27,9 @@ model:
       required: true
     - name: city_code
       type: string
+    - name: country_code
+      type: string
+      description: "ISO 3166-1 alpha-2 country of city_code — the partition key (materialization._all in _system.yaml)"
     - name: total_trips
       type: integer
     - name: total_revenue
@@ -49,6 +52,7 @@ transformations:
       SELECT
           CAST(requested_at AS DATE) AS kpi_date,
           city_code,
+          country_code,
           COUNT(*)                   AS total_trips,
           SUM(fare_amount)           AS total_revenue,
           SUM(distance_km)           AS total_distance_km,
@@ -62,7 +66,8 @@ transformations:
       -- Only re-aggregate dates that received new trips.
       -- On a full load, `source` contains everything, so this safely selects all dates.
       AND CAST(requested_at AS DATE) IN (SELECT DISTINCT CAST(requested_at AS DATE) FROM source)
-      GROUP BY CAST(requested_at AS DATE), city_code
+      -- country_code is determined by city_code, so grouping by it keeps the grain (kpi_date, city_code).
+      GROUP BY CAST(requested_at AS DATE), city_code, country_code
 
 downstream:
   - name: "Executive Daily KPI Dashboard"

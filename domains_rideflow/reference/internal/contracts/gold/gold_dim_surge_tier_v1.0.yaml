@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Dim Surge Tier"
-  table_name: "{gold_layer}_internal_dim_surge_tier"
+  table_name: "{gold_layer}_dim_surge_tier"
   description: >
     Surge pricing tier brackets (1.0x, 1.3x, 1.7x, 2.5x, 4.0x) with display
     labels. Joined by trip facts and surge_pricing_inference for analysis.

@@ -47,6 +47,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/test_data_driver.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_ads/_system.yaml"
               environment: "${bundle.target}"
               num_windows: "24"

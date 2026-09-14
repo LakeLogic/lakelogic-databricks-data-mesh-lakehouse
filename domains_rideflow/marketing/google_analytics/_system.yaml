@@ -25,16 +25,16 @@ external_sources:
     source_domain: "Google LLC"
     catalog_path: "google_analytics_api"
     consumed_by:
-      - "app_events"
-      - "sessions"
+      - "bronze_google_analytics_app_events"
+      - "bronze_google_analytics_sessions"
 
 contracts:
   - layer: bronze
-    entity: app_events
+    entity: bronze_google_analytics_app_events
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_app_events_v1.0.yaml"
     enabled: true
   - layer: bronze
-    entity: sessions
+    entity: bronze_google_analytics_sessions
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_sessions_v1.0.yaml"
     enabled: true
 

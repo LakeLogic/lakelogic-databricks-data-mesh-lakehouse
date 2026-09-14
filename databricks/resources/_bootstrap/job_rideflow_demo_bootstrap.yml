@@ -24,6 +24,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/_ops/00_setup.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               catalog: "${var.catalog}"
               # Drop the catalog before rebuilding. Needed when the catalog was created
               # by a workspace that has since been deleted: UC catalogs live in the
@@ -58,6 +60,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/_ops/release_smoke_test.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               catalog: "${var.catalog}"
 
       email_notifications: {}

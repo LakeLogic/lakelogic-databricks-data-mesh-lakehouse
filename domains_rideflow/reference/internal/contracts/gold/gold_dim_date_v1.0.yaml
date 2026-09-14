@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Dim Date"
-  table_name: "{gold_layer}_internal_dim_date"
+  table_name: "{gold_layer}_dim_date"
   description: >
     Canonical date dimension covering 2020-01-01 .. 2030-12-31. Materialized
     entirely by a Python generator (no upstream source); the bootstrap seed
@@ -66,7 +66,7 @@ external_logic:
   engine: spark
   # Path is resolved relative to the contract YAML's directory (its
   # _base_path). This contract lives at
-  #   reference/internal/contracts/gold/gold_internal_dim_date_v1.0.yaml
+  #   reference/internal/contracts/gold/gold_dim_date_v1.0.yaml
   # and the generator lives at
   #   reference/internal/_generators/dim_date.py
   # so we climb two levels.

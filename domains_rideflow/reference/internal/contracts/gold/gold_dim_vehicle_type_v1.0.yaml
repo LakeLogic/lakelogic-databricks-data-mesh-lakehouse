@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Dim Vehicle Type"
-  table_name: "{gold_layer}_internal_dim_vehicle_type"
+  table_name: "{gold_layer}_dim_vehicle_type"
   description: >
     Vehicle category dimension (sedan, suv, van, motorcycle, bicycle) with
     capacity and product-mapping attributes. Joined by trip facts.

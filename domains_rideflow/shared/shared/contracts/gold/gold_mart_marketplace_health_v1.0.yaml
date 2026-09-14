@@ -1,7 +1,7 @@
 version: 1.0.0
 info:
   title: "Gold — Mart Marketplace Health"
-  table_name: '{gold_layer}_shared_mart_marketplace_health'
+  table_name: '{gold_layer}_mart_marketplace_health'
   description: >
     Cross-domain marketplace KPIs per (kpi_date, city_code). Joins
     requests / completed trips / cancellations / charges / driver

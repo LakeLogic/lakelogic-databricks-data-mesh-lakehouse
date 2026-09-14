@@ -20,7 +20,29 @@
 # That is the only way to exercise a LakeLogic change on Databricks BEFORE it
 # is published, rather than discovering a bad release from the demo breaking.
 dbutils.widgets.text("lakelogic_wheel", "", "LakeLogic wheel (blank = PyPI)")
-lakelogic_pkg = dbutils.widgets.get("lakelogic_wheel").strip() or "lakelogic"
+dbutils.widgets.text("lakelogic_version", "", "LakeLogic version (blank = latest)")
+_wheel = dbutils.widgets.get("lakelogic_wheel").strip()
+# --force-reinstall matters: Databricks pre-installs the packages named in
+# this cell into the notebook environment at session startup, so pip sees the
+# PUBLISHED lakelogic already present. An unreleased wheel carries the SAME
+# version number, so pip reports "already satisfied" and silently keeps the
+# released code - the run then tests the wrong build while looking correct.
+_version = dbutils.widgets.get("lakelogic_version").strip()
+# The PyPI branch needs the same protection the wheel branch already had.
+# Databricks PRE-INSTALLS the packages named in this cell at session start,
+# so a bare `lakelogic` is "already satisfied" by whatever version the
+# environment was built with — pip installs nothing and the run silently
+# executes the OLD code. That is exactly how a run on "1.51.0" reproduced a
+# bug fixed in 1.51.0: it was really running the pre-installed 1.50.0, and
+# the null `lakelogic_version` in its telemetry was the only tell.
+# An explicit `==` is unsatisfied by an older pre-install, so pip must act;
+# `--upgrade` covers the unpinned case.
+if _wheel:
+    lakelogic_pkg = f"{_wheel} --force-reinstall"
+elif _version:
+    lakelogic_pkg = f"lakelogic=={_version}"
+else:
+    lakelogic_pkg = "lakelogic --upgrade"
 print(f"Installing LakeLogic from: {lakelogic_pkg}")
 
 # COMMAND ----------

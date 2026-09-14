@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Dim Currency"
-  table_name: "{gold_layer}_internal_dim_currency"
+  table_name: "{gold_layer}_dim_currency"
   description: >
     ISO 4217 currency dimension with symbol, decimal places and country
     associations. Joined by fact_revenue_daily and fact_fx_rate_daily.

@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Dim Driver 360 (cross-domain)"
-  table_name: '{gold_layer}_shared_dim_driver_360'
+  table_name: '{gold_layer}_dim_driver_360'
   description: >
     Per-driver 360 view assembled from THREE source domains:
       * marketplace (silver_rideflow_driver_profiles) — identity, status, rating

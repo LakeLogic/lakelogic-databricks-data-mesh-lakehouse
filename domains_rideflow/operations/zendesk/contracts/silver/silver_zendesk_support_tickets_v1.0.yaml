@@ -52,7 +52,7 @@ model:
   - name: ticket_description
     type: string
     # Free-text ticket body — kept as RAW text so the gold contract
-    # (gold_zendesk_fact_ticket_enriched) can derive category/intent/sentiment
+    # (gold_fact_ticket_enriched) can derive category/intent/sentiment
     # from it. Hashing/redacting here would destroy the text before enrichment.
     # Direct identifiers (email/name/phone above) are masked instead.
   - name: status

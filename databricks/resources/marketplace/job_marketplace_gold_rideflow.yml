@@ -2,8 +2,12 @@
 # RideFlow Marketplace — Gold Aggregation Job
 # ══════════════════════════════════════════════════════════════════════════════
 # Business-level aggregates from Silver → Gold.
-# Entities: gold_rideflow_trip_kpis, gold_rideflow_driver_scorecard,
-#           gold_rideflow_rider_lifetime_value, gold_rideflow_surge_pricing_model
+# Entities: gold_fact_trip_daily_kpis, gold_dim_driver_scorecard,
+#           gold_fact_rider_daily_metrics, gold_fact_surge_pricing_inference,
+#           gold_dim_driver, gold_dim_rider
+# (This list named four datasets that never existed under those names — trip_kpis,
+#  rider_lifetime_value and surge_pricing_model were never registry entities. It is
+#  now the actual gold contents of marketplace/rideflow.)
 
 resources:
   jobs:
@@ -46,6 +50,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/pipeline_driver.py
             base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/${var.domain}/${var.system}/_system.yaml"
               environment: "${bundle.target}"
               engine: "spark"

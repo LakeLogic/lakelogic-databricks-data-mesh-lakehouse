@@ -35,6 +35,9 @@ model:
     masking: redact
   - name: city_code
     type: string
+  - name: country_code
+    type: string
+    description: "ISO 3166-1 alpha-2 country of city_code — the partition key (materialization._all in _system.yaml)"
   - name: signup_date
     type: date
   - name: status

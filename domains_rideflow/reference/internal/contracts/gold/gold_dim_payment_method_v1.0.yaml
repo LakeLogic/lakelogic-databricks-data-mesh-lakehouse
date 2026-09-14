@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Dim Payment Method"
-  table_name: "{gold_layer}_internal_dim_payment_method"
+  table_name: "{gold_layer}_dim_payment_method"
   description: >
     Payment-method dimension (card, apple_pay, google_pay, cash, wallet)
     with PCI/cashflow flags. Joined by stripe charges and reconciliation
