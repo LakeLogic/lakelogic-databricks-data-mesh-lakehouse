@@ -64,7 +64,7 @@ model:
 quality:
   row_rules:
   - name: positive_spend
-    sql: "fare_amount >= 0"
+    sql: "fare_amount IS NULL OR fare_amount >= 0"
   - name: valid_rating
     sql: "rider_rating IS NULL OR (rider_rating >= 1.0 AND rider_rating <= 5.0)"
 
@@ -72,7 +72,8 @@ quality:
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_trip_completed'
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
 transformations:
 - deduplicate:
     "on":

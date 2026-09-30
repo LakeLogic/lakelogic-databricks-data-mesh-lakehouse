@@ -1,0 +1,54 @@
+version: 1.0.0
+info:
+  title: Gold — Dim Preferred Payment Method
+  target_layer: gold
+  description: 'grain: one row per preferred_payment_method'
+  table_name: '{gold_layer}_rideflow_dim_preferred_payment_method'
+  system: rideflow
+  domain: marketplace
+model:
+  fields:
+  - name: preferred_payment_method_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: preferred_payment_method
+    type: string
+    required: true
+    description: Dimension attribute 'preferred_payment_method', projected from the
+      'preferred_payment_method' entity.
+dataset: gold_rideflow_dim_preferred_payment_method
+primary_key:
+- preferred_payment_method
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - preferred_payment_method
+      name: preferred_payment_method_unique
+      category: uniqueness
+      description: No two rows share the same preferred_payment_method.
+natural_key:
+- preferred_payment_method
+materialization:
+  strategy: merge
+  scd1:
+    surrogate_key: preferred_payment_method_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+transformations:
+- phase: pre
+  sql: |-
+    SELECT DISTINCT preferred_payment_method
+    FROM source
+    WHERE preferred_payment_method IS NOT NULL
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_profiles
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

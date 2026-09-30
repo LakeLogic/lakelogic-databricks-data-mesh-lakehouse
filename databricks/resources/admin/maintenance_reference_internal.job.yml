@@ -7,11 +7,12 @@
 
 resources:
   jobs:
-    reference_maintenance_internal:
-      name: "[${bundle.target}] reference / internal — Maintenance (OPTIMIZE + VACUUM)"
+    maintenance_reference_internal:
+      name: "[${bundle.target}] pl_admin_maintenance_reference_internal"
       description: "Weekly Delta OPTIMIZE + VACUUM across all medallion layers."
 
       tags:
+        group: admin
         domain: reference
         system: internal
         layer: maintenance
@@ -45,7 +46,7 @@ resources:
       tasks:
         - task_key: maintain_all_layers
           notebook_task:
-            notebook_path: ../../notebooks/maintenance_driver.py
+            notebook_path: ../../notebooks/nb_maintenance_optimize.py
             base_parameters:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"

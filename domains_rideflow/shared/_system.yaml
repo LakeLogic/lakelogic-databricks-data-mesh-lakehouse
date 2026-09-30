@@ -10,6 +10,8 @@ metadata:
 
 storage:
   domain_catalog: "`{catalog}`.shared"
+  quarantine_root: "`{catalog}`.shared"
+  quarantine_table_name: "quarantine_{table}"
 
 # Cross-domain sources consumed by shared Gold products
 external_sources:
@@ -72,11 +74,11 @@ environments:
     storage_account: "${RIDEFLOW_DEV_STORAGE_ACCOUNT}"
     <<: *azure_storage
   staging:
-    catalog: "rideflow_demo_staging"
+    catalog: "governed_rideflow_lakehouse_demo_staging"
     storage_account: "${RIDEFLOW_STG_STORAGE_ACCOUNT}"
     <<: *azure_storage
   prod:
-    catalog: "rideflow_demo_prod"
+    catalog: "governed_rideflow_lakehouse_demo_prod"
     storage_account: "${RIDEFLOW_PROD_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:

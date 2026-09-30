@@ -9,8 +9,8 @@ variables:
     description: "Source system"
     default: "rideflow"
   catalog:
-    description: "Unity Catalog name (created by _ops/00_setup)"
-    default: "rideflow_dev_demo"
+    description: "Unity Catalog name (created by nb_00_setup)"
+    default: "governed_rideflow_lakehouse_demo"
   catalog_storage_root:
     description: >-
       MANAGED LOCATION for a newly created catalog, e.g.

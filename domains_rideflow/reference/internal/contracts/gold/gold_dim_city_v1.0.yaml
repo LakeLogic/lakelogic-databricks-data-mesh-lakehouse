@@ -14,9 +14,9 @@ info:
 model:
   fields:
     - name: city_sk
-      type: long
+      type: string
       required: true
-      description: "Surrogate key; new for each SCD2 version"
+      description: "Surrogate key (hash of city_code + effective_from); new for each SCD2 version; '-1' is the unknown member"
     - name: city_code
       type: string
       required: true
@@ -44,6 +44,9 @@ model:
     - name: is_current
       type: boolean
       required: true
+    - name: version_number
+      type: long
+      description: "SCD2 version column, written by the materializer"
 
 quality:
   row_rules: []
@@ -57,7 +60,8 @@ primary_key: [city_code]
 source:
   type: table
   path: "table:{domain_catalog}.silver_internal_cities"
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
 
 # Project silver to the dimension's attributes and rename country_code ->
 # country_alpha3. Cities have no source change-timestamp, so effective_from
@@ -89,6 +93,7 @@ materialization:
     effective_from_field: effective_from
     effective_to_field: effective_to
     current_flag_field: is_current
+    version_column: version_number
     track_columns:
       - geofence_wkt
       - timezone

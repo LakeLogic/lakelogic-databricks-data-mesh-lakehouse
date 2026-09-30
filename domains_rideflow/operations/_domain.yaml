@@ -57,13 +57,6 @@ slo:
       low:
         min_good_ratio: 0.90
 
-  schedule:
-    environments: ["dev", "prod", "staging"]
-    expected_start_utc: "06:30"
-    expected_completion_utc: "07:30"
-    expected_duration_minutes: 25
-    warn_if_duration_exceeds_minutes: 50
-    timezone: "UTC"
 
 # ── Cost Governance ──────────────────────────────────────────────────────────
 cost:
@@ -77,16 +70,15 @@ cost:
 
 # ── Observatory Telemetry ────────────────────────────────────────────────────
 observatory:
-  enabled: false
+  enabled: true
   environments: [dev, prod, staging, local, local_polars]
   # Resolved at runtime from LAKELOGIC_OBSERVATORY_ENDPOINT — set by the
-  # notebooks (pipeline_driver, test_data_driver_all). Hardcoding a port
+  # notebooks (nb_pipeline_driver, test_data_driver_all). Hardcoding a port
   # drifted every time the local API moved (8001 → 8012 etc.). Use the env
   # var so all four domains stay aligned with the running backend.
   endpoint: "${LAKELOGIC_OBSERVATORY_ENDPOINT}"
   api_key: "${LAKELOGIC_API_KEY}"
   emit_on: [success, partial, failed]
-  include_quarantine_sample: true     # attach first 50 quarantined rows
 
 # ── Compliance & Privacy ─────────────────────────────────────────────────────
 compliance:

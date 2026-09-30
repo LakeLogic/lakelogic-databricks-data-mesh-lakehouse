@@ -57,13 +57,6 @@ slo:
       low:
         min_good_ratio: 0.95
 
-  schedule:
-    environments: ["dev", "prod", "staging"]
-    expected_start_utc: "05:00"
-    expected_completion_utc: "06:00"
-    expected_duration_minutes: 20
-    warn_if_duration_exceeds_minutes: 45
-    timezone: "UTC"
 
 # ── Cost Governance ──────────────────────────────────────────────────────────
 cost:
@@ -77,16 +70,13 @@ cost:
 
 # ── Observatory Telemetry ────────────────────────────────────────────────────
 observatory:
-  # Per-domain opt-out preserved. Endpoint resolves from the shared env var
-  # the notebooks set, so flipping `enabled: true` here is enough — no need
-  # to touch the URL. Set to `true` when you want payments telemetry to
-  # flow to the SaaS observatory.
-  enabled: false
+  # Endpoint and key resolve from the env vars the notebooks set from the
+  # Databricks secret scope — never inline. Set `enabled: false` to opt out.
+  enabled: true
   environments: [dev, prod, staging, local, local_polars]
   endpoint: "${LAKELOGIC_OBSERVATORY_ENDPOINT}"
   api_key: "${LAKELOGIC_API_KEY}"
   emit_on: [success, partial, failed]
-  include_quarantine_sample: true     # attach first 50 quarantined rows
 
 # ── Compliance & Privacy ─────────────────────────────────────────────────────
 compliance:

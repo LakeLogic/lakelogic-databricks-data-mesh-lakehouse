@@ -30,7 +30,7 @@
 # skipping is legitimate; silently skipping is not.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-dbutils.widgets.text("catalog", "rideflow_dev_demo", "Catalog")
+dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Catalog")
 dbutils.widgets.text("domain", "", "Domain (run-log schema)")
 dbutils.widgets.text("enable_bronze", "true", "Bronze was enabled")
 dbutils.widgets.text("enable_silver", "true", "Silver was enabled")
@@ -46,7 +46,7 @@ ENABLED = {
     for layer in ("bronze", "silver", "gold")
 }
 
-RUN_LOG = f"`{CATALOG}`.`{DOMAIN}`.`_pipeline_run_log`"
+RUN_LOG = f"`{CATALOG}`.`{DOMAIN}`.`_lakelogic_run_log`"
 
 print(f"Asserting layers ran | catalog={CATALOG} domain={DOMAIN} window={WINDOW}m")
 print(f"Enabled: {', '.join(k for k, v in ENABLED.items() if v) or '(none)'}")
@@ -57,7 +57,7 @@ from pyspark.sql import functions as F
 
 try:
     runs = (
-        spark.table(f"{CATALOG}.{DOMAIN}._pipeline_run_log")
+        spark.table(f"{CATALOG}.{DOMAIN}._lakelogic_run_log")
         .filter(F.col("timestamp") >= F.expr(f"current_timestamp() - interval {WINDOW} minutes"))
     )
 except Exception as exc:

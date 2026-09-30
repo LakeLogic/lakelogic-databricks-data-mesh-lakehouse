@@ -46,7 +46,7 @@ model:
     type: string
   - name: bank_account_last_four
     type: string
-    pii: true
+    sensitive: true
     masking: hash
   - name: city_code
     type: string
@@ -78,4 +78,5 @@ transformations:
 source:
   type: table
   path: 'table:{domain_catalog}.bronze_rideflow_driver_profiles'
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at

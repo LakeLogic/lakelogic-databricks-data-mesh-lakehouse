@@ -35,11 +35,11 @@ dbutils.widgets.text("event_hub_connection", "", "Event Hub Connection String")
 dbutils.widgets.text("event_hub_name", "eh-rideflow-marketplace", "Event Hub Name")
 dbutils.widgets.text("consumer_group", "$Default", "Consumer Group")
 dbutils.widgets.text("output_path",
-    "/Volumes/rideflow_dev_demo/nondelta/_landing/marketplace/rideflow",
+    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_landing/marketplace/rideflow",
     "Output Path (Landing Zone)",
 )
 dbutils.widgets.text("checkpoint_path",
-    "/Volumes/rideflow_dev_demo/nondelta/_checkpoints/streaming_bronze",
+    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_checkpoints/streaming_bronze",
     "Checkpoint Path",
 )
 dbutils.widgets.text("trigger_interval", "30 seconds", "Trigger Interval")

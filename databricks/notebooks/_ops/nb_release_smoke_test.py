@@ -1,14 +1,14 @@
 # Databricks notebook source
 """Fail the release bootstrap when its promised outputs are missing."""
 
-dbutils.widgets.text("catalog", "rideflow_dev_demo", "Catalog")
+dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Catalog")
 CATALOG = dbutils.widgets.get("catalog").strip()
 
 required_tables = [
     ("marketplace", "bronze_rideflow_trip_completed"),
     ("marketplace", "silver_rideflow_trips"),
-    ("marketplace", "gold_fact_trip_daily_kpis"),
-    ("marketplace", "gold_dim_rider"),
+    ("marketplace", "gold_rideflow_fact_trip_completed"),
+    ("marketplace", "gold_rideflow_dim_rider_profiles"),
 ]
 
 available = {
@@ -21,13 +21,13 @@ missing = [f"{schema}.{table}" for schema, table in required_tables if (schema, 
 if missing:
     raise AssertionError(f"Missing expected tables: {', '.join(missing)}")
 
-gold_rows = spark.table(f"`{CATALOG}`.marketplace.gold_fact_trip_daily_kpis").count()
+gold_rows = spark.table(f"`{CATALOG}`.marketplace.gold_rideflow_fact_trip_completed").count()
 if gold_rows < 1:
-    raise AssertionError("Gold trip KPI table exists but contains no rows")
+    raise AssertionError("Gold trip fact table exists but contains no rows")
 
 quarantine_tables = [
     table for schema, table in available
-    if schema == "quarantine" and table.startswith("marketplace_")
+    if schema == "marketplace" and table.startswith("quarantine_")
 ]
 if not quarantine_tables:
     raise AssertionError("No Marketplace quarantine tables were created")
@@ -39,11 +39,11 @@ scd2_columns = {
         SELECT column_name
         FROM `{CATALOG}`.information_schema.columns
         WHERE table_schema = 'marketplace'
-          AND table_name = 'gold_dim_rider'
+          AND table_name = 'gold_rideflow_dim_rider_profiles'
         """
     ).collect()
 }
-required_scd2 = {"rider_sk", "effective_from", "effective_to", "is_current"}
+required_scd2 = {"rider_profiles_sk", "effective_from", "effective_to", "is_current", "version_number"}
 if not required_scd2.issubset(scd2_columns):
     raise AssertionError(f"Missing SCD2 columns: {sorted(required_scd2 - scd2_columns)}")
 

@@ -1,0 +1,148 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# pl_privacy_retention — Retention Check (every domain / system)
+# ══════════════════════════════════════════════════════════════════════════════
+# Read-only. Compares each table's oldest record to the retention window its
+# domain declares, records the observation in _lakelogic_retention_evidence
+# beside the domain run log, and reports it to LakeLogic. Never deletes.
+# One task per system, as LakeLogic Build Centre renders it.
+
+resources:
+  jobs:
+    retention_check:
+      name: "[${bundle.target}] pl_privacy_retention"
+      description: "Report data older than each domain's declared retention period."
+
+      tags:
+        group: privacy
+        managed_by: lakelogic
+
+      schedule:
+        quartz_cron_expression: "0 0 3 * * ?"
+        timezone_id: "UTC"
+        pause_status: PAUSED
+
+      parameters:
+        - name: fail_on_breach
+          default: "true"
+
+      tasks:
+        - task_key: marketing_google_ads
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_ads/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: marketing_google_analytics
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: marketing_hubspot
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/hubspot/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: marketing_meta_ads
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/meta_ads/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: marketplace_rideflow
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketplace/rideflow/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: operations_checkr
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/checkr/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: operations_twilio
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/twilio/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: operations_zendesk
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/zendesk/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: payments_stripe
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/payments/stripe/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: reference_internal
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/reference/internal/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"
+
+        - task_key: shared_shared
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_retention_check.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/shared/shared/_system.yaml"
+              environment: "${bundle.target}"
+              fail_on_breach: "{{job.parameters.fail_on_breach}}"

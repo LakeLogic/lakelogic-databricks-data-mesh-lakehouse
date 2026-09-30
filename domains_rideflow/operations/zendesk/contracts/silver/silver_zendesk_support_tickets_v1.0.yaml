@@ -72,7 +72,8 @@ model:
   - name: solved_at
     type: timestamp
   - name: satisfaction_rating
-    type: float
+    type: string
+    description: "Zendesk CSAT score: good | bad | blank when not rated (a label, not a number)"
 primary_key: [ticket_id]
 quality:
   row_rules: []
@@ -87,4 +88,5 @@ transformations:
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_support_tickets'
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at

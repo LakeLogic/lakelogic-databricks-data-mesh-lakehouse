@@ -53,6 +53,9 @@ primary_key: [driver_id]
 source:
   type: table
   path: "table:`{catalog}`.marketplace.silver_rideflow_driver_profiles"
+  # Stays full (deliberate): an aggregate over its sources. An incremental batch
+  # holds only new rows, so re-grouping it would overwrite a complete aggregate
+  # with a partial one; the engine has no recompute-affected-keys mode.
   load_mode: full
 
 # Cross-domain enrichment via joins. Each `reference` must be reachable from

@@ -2,11 +2,11 @@
 
 The one-click bootstrap job chains the setup, test-data, and pipeline notebooks together. This guide runs the same flow manually so you can inspect each stage.
 
-The examples use the `marketplace / rideflow` system and the default `rideflow_dev_demo` catalog.
+The examples use the `marketplace / rideflow` system and the default `governed_rideflow_lakehouse_demo` catalog.
 
 ## 1. Provision the structures
 
-Open `databricks/notebooks/_ops/provision_all`, leave the `catalog` widget set to `rideflow_dev_demo`, and select **Run All**.
+Open `databricks/notebooks/_ops/provision_all`, leave the `catalog` widget set to `governed_rideflow_lakehouse_demo`, and select **Run All**.
 
 The notebook creates:
 
@@ -18,10 +18,10 @@ The notebook creates:
 
 ## 2. Generate landing data
 
-Open `databricks/notebooks/test_data_driver.py` and set:
+Open `databricks/notebooks/nb_test_data_driver.py` and set:
 
 ```text
-registry_path = /Volumes/rideflow_dev_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
+registry_path = /Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
 environment = dev
 inject_edge_cases = true
 ```
@@ -30,10 +30,10 @@ Select **Run All**. The notebook writes synthetic RideFlow data into the marketp
 
 ## 3. Process the medallion
 
-Open `databricks/notebooks/pipeline_driver.py` and set:
+Open `databricks/notebooks/nb_pipeline_driver.py` and set:
 
 ```text
-registry_path = /Volumes/rideflow_dev_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
+registry_path = /Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
 environment = dev
 engine = spark
 storage_mode = uc
@@ -46,20 +46,20 @@ Select **Run All**. LakeLogic resolves the declared dependencies and processes B
 
 The structured run log records contract status, row counts, engine, and duration for each stage.
 
-> `pipeline_driver` defaults to resetting and recreating the selected layers for clean demo runs. Keep `reset_layers` enabled for a fresh run. Disable it only when you intentionally want append behaviour.
+> `nb_pipeline_driver` defaults to resetting and recreating the selected layers for clean demo runs. Keep `reset_layers` enabled for a fresh run. Disable it only when you intentionally want append behaviour.
 
 ## 4. Inspect the outputs
 
 Run the following in a Databricks SQL editor:
 
 ```sql
-USE CATALOG rideflow_dev_demo;
+USE CATALOG governed_rideflow_lakehouse_demo;
 SHOW SCHEMAS;
 SHOW TABLES IN marketplace;
 SHOW TABLES IN quarantine;
 
 SELECT *
-FROM marketplace.gold_fact_trip_daily_kpis
+FROM marketplace.gold_rideflow_fact_trip_completed
 LIMIT 20;
 ```
 
@@ -70,16 +70,16 @@ Then select one of the tables returned by `SHOW TABLES IN quarantine` and inspec
 Point both drivers at another staged system registry, for example:
 
 ```text
-/Volumes/rideflow_dev_demo/nondelta/_contracts/payments/stripe/_system.yaml
+/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/payments/stripe/_system.yaml
 ```
 
 Run the test-data driver and pipeline driver again. Table names and dependencies are resolved from the contracts under `domains_rideflow/`.
 
-If you deployed the Asset Bundle, you can instead run a domain orchestrator:
+If you deployed the Asset Bundle, you can instead run a system job (test data -> bronze -> silver -> gold in one job):
 
 ```bash
-databricks bundle run payments_orchestrator_stripe -t dev -p rideflow_dev
-databricks bundle run marketing_orchestrator_google_ads -t dev -p rideflow_dev
+databricks bundle run payments_stripe -t dev -p rideflow_dev
+databricks bundle run marketing_google_ads -t dev -p rideflow_dev
 ```
 
 ## Clean up
@@ -88,7 +88,7 @@ If you deployed the bundle, run both commands from `databricks/`:
 
 ```bash
 databricks bundle destroy -t dev -p rideflow_dev
-databricks catalogs delete rideflow_dev_demo --force -p rideflow_dev
+databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 
 If you used only the direct notebook path, the catalog deletion is sufficient because no bundle-managed jobs or workspace files were deployed.

@@ -5,11 +5,22 @@ domain: shared
 system: shared
 
 metadata:
-  run_log_table: "{domain_catalog}._pipeline_run_log"
+  run_log_table: "{domain_catalog}._lakelogic_run_log"
   run_log_backend: "spark"
+  slo_checks_table: "{domain_catalog}._lakelogic_slo_checks"
+  slo_checks_backend: "spark"
+
+quarantine:
+  enabled: true
+  fail_on_quarantine: false
+  include_error_reason: true
+  format: "delta"
+  mode: "append"
 
 storage:
   domain_catalog: "`{catalog}`.shared"
+  quarantine_root: "`{catalog}`.shared"
+  quarantine_table_name: "quarantine_{table}"
 
 contracts:
   - layer: gold

@@ -66,4 +66,5 @@ transformations:
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_background_checks'
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at

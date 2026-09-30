@@ -1,0 +1,130 @@
+version: 1.0.0
+info:
+  title: Gold — Fact Trip Cancellations
+  target_layer: gold
+  description: 'grain: one row per trip cancellation event'
+  table_name: '{gold_layer}_rideflow_fact_trip_cancellations'
+  system: rideflow
+  domain: marketplace
+model:
+  fields:
+  - name: cancellation_id
+    type: string
+    required: true
+    description: Grain key of the 'trip_cancellations' fact.
+  - name: cancellation_fee_amount
+    type: decimal(10,2)
+    required: false
+    description: Column 'cancellation_fee_amount' of the 'trip_cancellations' fact.
+  - name: trip_id
+    type: string
+    required: false
+    description: Column 'trip_id' of the 'trip_cancellations' fact.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' of the 'trip_cancellations' fact.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' of the 'trip_cancellations' fact.
+  - name: cancelled_at
+    type: timestamp
+    required: false
+    description: Column 'cancelled_at' of the 'trip_cancellations' fact.
+  - name: requested_at
+    type: timestamp
+    required: false
+    description: Column 'requested_at' of the 'trip_cancellations' fact.
+  - name: driver_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_rideflow_dim_driver_profiles
+      column: driver_profiles_sk
+    description: Surrogate key of gold_rideflow_dim_driver_profiles, looked up as
+      of cancelled_at; '-1' when the dimension does not know the row.
+  - name: rider_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_rideflow_dim_rider_profiles
+      column: rider_profiles_sk
+    description: Surrogate key of gold_rideflow_dim_rider_profiles, looked up as of
+      cancelled_at; '-1' when the dimension does not know the row.
+  - name: cancelled_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `cancelled_at`.'
+dataset: gold_rideflow_fact_trip_cancellations
+primary_key:
+- cancellation_id
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - cancellation_id
+      name: cancellation_id_unique
+      category: uniqueness
+      description: No two rows share the same cancellation_id.
+  - name: driver_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE driver_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose driver_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: rider_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE rider_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose rider_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.cancellation_id,
+      r.trip_id,
+      r.rider_id,
+      r.driver_id,
+      r.cancelled_at,
+      r.requested_at,
+      r.cancellation_fee AS cancellation_fee_amount,
+      COALESCE(d1.driver_profiles_sk, '-1') AS driver_sk,
+      COALESCE(d2.rider_profiles_sk, '-1') AS rider_sk,
+      CAST(r.cancelled_at AS DATE) AS cancelled_date
+    FROM source r
+    LEFT JOIN gold_rideflow_dim_driver_profiles d1
+      ON  r.driver_id = d1.driver_id
+      AND r.cancelled_at >= d1.effective_from
+      AND r.cancelled_at < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_rideflow_dim_rider_profiles d2
+      ON  r.rider_id = d2.rider_id
+      AND r.cancelled_at >= d2.effective_from
+      AND r.cancelled_at < COALESCE(d2.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+links:
+- name: gold_rideflow_dim_driver_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_rideflow_dim_driver_profiles
+- name: gold_rideflow_dim_rider_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_rideflow_dim_rider_profiles
+upstream:
+- gold_rideflow_dim_driver_profiles
+- gold_rideflow_dim_rider_profiles
+materialization:
+  # Transaction facts are immutable events: the engine requires append for them.
+  strategy: append
+  fact:
+    type: transaction
+  partition_by:
+  - cancelled_date
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_cancellations
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

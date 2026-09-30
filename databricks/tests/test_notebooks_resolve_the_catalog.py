@@ -1,20 +1,20 @@
 """Every notebook that builds a registry must resolve `{catalog}` the same way.
 
 THE FAILURE
-    `service_level_checks` built its registry as
+    `nb_slo_checks` built its registry as
 
         DomainRegistry.from_yaml(REGISTRY_PATH, environment=ENVIRONMENT)
 
-    while `pipeline_driver` first derives the catalog from the registry Volume path
+    while `nb_pipeline_driver` first derives the catalog from the registry Volume path
     into `RIDEFLOW_<ENV>_CATALOG` and passes `storage_mode="uc"`. Without the env var
     the `{catalog}` placeholder in
 
         domain_catalog: "`{catalog}`.{domain}"
-        run_log_table:  "{domain_catalog}._pipeline_run_log"
+        run_log_table:  "{domain_catalog}._lakelogic_run_log"
 
     resolved to an empty string, so every run-log query was built as
 
-        FROM .marketplace._pipeline_run_log
+        FROM .marketplace._lakelogic_run_log
 
     and Databricks answered [PARSE_SYNTAX_ERROR] Syntax error at or near '.'.
     The job "succeeded" — the checks simply all failed to parse.
@@ -33,7 +33,12 @@ import pytest
 NOTEBOOKS = Path(__file__).resolve().parents[1] / "notebooks"
 
 # Notebooks that construct a DomainRegistry and therefore need the catalog resolved.
-REGISTRY_NOTEBOOKS = ["pipeline_driver.py", "service_level_checks.py"]
+REGISTRY_NOTEBOOKS = [
+    "nb_pipeline_driver.py",
+    "nb_slo_checks.py",
+    "nb_compliance_retention_check.py",
+    "nb_compliance_erasure.py",
+]
 
 
 def _src(name: str) -> str:

@@ -45,6 +45,9 @@ primary_key: [date]
 source:
   type: table
   path: "table:{domain_catalog}.silver_google_ads_campaigns"
+  # Stays full (deliberate): an aggregate over its sources. An incremental batch
+  # holds only new rows, so re-grouping it would overwrite a complete aggregate
+  # with a partial one; the engine has no recompute-affected-keys mode.
   load_mode: full
 
 # The engine prunes `source` to this contract's MODEL columns before the pre-SQL

@@ -1,45 +1,62 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# RideFlow Demo — Seed ALL domains (FK-consistent)
+# RideFlow Demo — Seed ALL systems (FK-consistent), one task per system seed job
 # ══════════════════════════════════════════════════════════════════════════════
-# Runs test_data_driver in `seed_mode=all`: discovers every domain, topo-sorts by
-# cross-domain foreign-key edges, then per wave generates landing data AND runs
-# bronze+silver — so downstream domains read REAL upstream ids (payments→rider_id,
-# zendesk→charge_id, hubspot→rider_id). Run once after 00_setup; afterwards the
-# per-domain orchestrators can build gold (enable_test_data=false).
+# Runs each system's own seed job (pl_test_synthetic_seed_<domain>_<system>) in
+# foreign-key order. Each seed generates landing data AND builds its bronze+silver
+# (build_bronze_silver=true), so a downstream seed reads REAL upstream ids from silver:
+#   marketplace → marketing(ga, hubspot), checkr, stripe
+#   marketplace + stripe → zendesk
+# shared has no generator (gold-only), so it has no seed task.
 resources:
   jobs:
-    seed_all_domains:
-      name: "[${bundle.target}] RideFlow Demo — 🌱 Seed ALL domains (FK-consistent)"
-      description: "Generate landing data + bronze+silver for every domain in FK dependency order."
+    synthetic_seed:
+      name: "[${bundle.target}] pl_test_synthetic_seed"
+      description: "Runs every system seed job in FK dependency order (landing data + bronze+silver)."
 
       tags:
+        group: test
         managed_by: lakelogic
         layer: seed
 
-      environments:
-        - environment_key: default
-          spec:
-            client: "${var.serverless_env_version}"
-            dependencies:
-              - lakelogic
-              - polars
-              - deltalake
-              - pyyaml
-              - reportlab    # operations/checkr synthesises driver-licence PDFs
-              - pdfplumber   # operations/checkr bronze extracts those PDFs (extraction.provider)
-
       tasks:
-        - task_key: seed_all_domains
-          environment_key: default
-          notebook_task:
-            notebook_path: ../../notebooks/test_data_driver.py
-            base_parameters:
-              lakelogic_wheel: "${var.lakelogic_wheel}"
-              lakelogic_version: "${var.lakelogic_version}"
-              # registry_path only used to derive the catalog; seed_mode=all walks the whole registry
-              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketplace/rideflow/_system.yaml"
-              environment: "${bundle.target}"
-              num_windows: "24"
-              inject_edge_cases: "true"
-              seed_mode: "all"
-
+        - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_marketplace_rideflow.id}
+        - task_key: reference_internal
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_reference_internal.id}
+        - task_key: marketing_google_ads
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_marketing_google_ads.id}
+        - task_key: marketing_meta_ads
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_marketing_meta_ads.id}
+        - task_key: operations_twilio
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_operations_twilio.id}
+        - task_key: marketing_google_analytics
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_marketing_google_analytics.id}
+        - task_key: marketing_hubspot
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_marketing_hubspot.id}
+        - task_key: operations_checkr
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_operations_checkr.id}
+        - task_key: payments_stripe
+          depends_on:
+            - task_key: marketplace_rideflow
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_payments_stripe.id}
+        - task_key: operations_zendesk
+          depends_on:
+            - task_key: marketplace_rideflow
+            - task_key: payments_stripe
+          run_job_task:
+            job_id: ${resources.jobs.synthetic_seed_operations_zendesk.id}

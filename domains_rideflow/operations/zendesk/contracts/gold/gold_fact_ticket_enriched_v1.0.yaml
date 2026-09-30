@@ -35,16 +35,16 @@ model:
     - name: rider_id
       type: string
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_rider"
+        contract: "{gold_layer}_rideflow_dim_rider_profiles"
         column: rider_id
-    # SCD2 surrogate FK to marketplace.dim_rider — resolved as-of created_at in the
+    # SCD2 surrogate FK to marketplace.gold_rideflow_dim_rider_profiles — resolved as-of created_at in the
     # phase:post transform below. Unmatched riders → '-1' unknown member.
     - name: rider_sk
       type: string
-      description: "FK to gold_dim_rider (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_rideflow_dim_rider_profiles (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_rider"
-        column: rider_sk
+        contract: "{gold_layer}_rideflow_dim_rider_profiles"
+        column: rider_profiles_sk
     - name: trip_id
       type: string
       description: "Nullable — present on ~75% of tickets"
@@ -55,15 +55,15 @@ model:
       type: string
       description: "Nullable — present on ~55%"
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_driver"
+        contract: "{gold_layer}_rideflow_dim_driver_profiles"
         column: driver_id
-    # SCD2 surrogate FK to marketplace.dim_driver — resolved as-of created_at.
+    # SCD2 surrogate FK to marketplace.gold_rideflow_dim_driver_profiles — resolved as-of created_at.
     - name: driver_sk
       type: string
-      description: "FK to gold_dim_driver (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_rideflow_dim_driver_profiles (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_driver"
-        column: driver_sk
+        contract: "{gold_layer}_rideflow_dim_driver_profiles"
+        column: driver_profiles_sk
     - name: charge_id
       type: string
       description: "Nullable — present on ~25% (payment/refund tickets)"
@@ -128,7 +128,8 @@ primary_key: [ticket_id]
 source:
   type: table
   path: "table:{domain_catalog}.silver_zendesk_support_tickets"
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
 
 # ── Cross-domain conformed dimensions (marketplace schema) ────────────────────
 # These SCD2 dims live in the marketplace domain, not operations, so the paths
@@ -139,10 +140,10 @@ source:
 links:
   - name: dim_rider
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_rider"
+    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_rider_profiles"
   - name: dim_driver
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_driver"
+    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_driver_profiles"
   # Raw silver ticket text/priority — `source` is projected DOWN to this gold
   # contract's model fields before the transform runs, so subject /
   # ticket_description / priority are not visible on `source`. This link exposes
@@ -240,17 +241,17 @@ transformations:
                                 WHEN 'normal' THEN 0.40
                                 WHEN 'low'    THEN 0.15
                                 ELSE 0.40 END AS FLOAT)         AS urgency_score,
-          COALESCE(dr.rider_sk,  '-1') AS rider_sk,
-          COALESCE(dd.driver_sk, '-1') AS driver_sk
+          COALESCE(dr.rider_profiles_sk, '-1') AS rider_sk,
+          COALESCE(dd.driver_profiles_sk, '-1') AS driver_sk
       FROM derived d
       LEFT JOIN dim_rider dr
         ON  d.rider_id   =  dr.rider_id
         AND d.created_at >= dr.effective_from
-        AND d.created_at <  dr.effective_to
+        AND d.created_at <  COALESCE(dr.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
       LEFT JOIN dim_driver dd
         ON  d.driver_id  =  dd.driver_id
         AND d.created_at >= dd.effective_from
-        AND d.created_at <  dd.effective_to
+        AND d.created_at <  COALESCE(dd.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
 
 quality:
   row_rules:

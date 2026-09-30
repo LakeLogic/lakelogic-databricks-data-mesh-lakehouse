@@ -1,6 +1,6 @@
 # Databricks notebook source
 # ═══════════════════════════════════════════════════════════════════════════════
-# Notebook  : assert_mesh_complete — fail the run when the mesh silently did nothing
+# Notebook  : nb_assert_mesh_complete — fail the run when the mesh silently did nothing
 # Purpose   : A Databricks task that is SKIPPED does not fail its run. So when a
 #             condition gate never reaches its "true" outcome, every downstream
 #             stage is skipped and the orchestrator still reports SUCCESS.
@@ -17,7 +17,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("catalog", "rideflow_dev_demo", "Config - Unity Catalog name")
+dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Config - Unity Catalog name")
 # Schemas that must hold at least one gold table once the mesh has run. Comma
 # separated so a target with a different domain set can narrow it.
 dbutils.widgets.text("gold_domains", "marketing,marketplace,operations,payments",

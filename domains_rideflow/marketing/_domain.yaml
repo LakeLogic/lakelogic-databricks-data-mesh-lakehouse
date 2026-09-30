@@ -57,13 +57,6 @@ slo:
       low:
         min_good_ratio: 0.90
 
-  schedule:
-    environments: ["dev", "prod", "staging"]
-    expected_start_utc: "06:00"
-    expected_completion_utc: "07:00"
-    expected_duration_minutes: 30
-    warn_if_duration_exceeds_minutes: 60
-    timezone: "UTC"
 
 # ── Cost Governance ──────────────────────────────────────────────────────────
 cost:
@@ -77,14 +70,13 @@ cost:
 
 # ── Observatory Telemetry ────────────────────────────────────────────────────
 observatory:
-  enabled: false
+  enabled: true
   environments: [dev, prod, staging, local, local_polars]
   # Resolved at runtime from LAKELOGIC_OBSERVATORY_ENDPOINT (set by the
   # notebooks). Don't hardcode a port — it drifts as the local API moves.
   endpoint: "${LAKELOGIC_OBSERVATORY_ENDPOINT}"
   api_key: "${LAKELOGIC_API_KEY}"
   emit_on: [success, partial, failed]
-  include_quarantine_sample: true     # attach first 50 quarantined rows
 
 # ── Compliance & Privacy ─────────────────────────────────────────────────────
 compliance:

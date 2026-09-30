@@ -1,0 +1,54 @@
+version: 1.0.0
+info:
+  title: Gold — Dim Cancelled By
+  target_layer: gold
+  description: 'grain: one row per cancelled_by'
+  table_name: '{gold_layer}_rideflow_dim_cancelled_by'
+  system: rideflow
+  domain: marketplace
+model:
+  fields:
+  - name: cancelled_by_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: cancelled_by
+    type: string
+    required: true
+    description: Dimension attribute 'cancelled_by', projected from the 'cancelled_by'
+      entity.
+dataset: gold_rideflow_dim_cancelled_by
+primary_key:
+- cancelled_by
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - cancelled_by
+      name: cancelled_by_unique
+      category: uniqueness
+      description: No two rows share the same cancelled_by.
+natural_key:
+- cancelled_by
+materialization:
+  strategy: merge
+  scd1:
+    surrogate_key: cancelled_by_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+transformations:
+- phase: pre
+  sql: |-
+    SELECT DISTINCT cancelled_by
+    FROM source
+    WHERE cancelled_by IS NOT NULL
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_cancellations
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

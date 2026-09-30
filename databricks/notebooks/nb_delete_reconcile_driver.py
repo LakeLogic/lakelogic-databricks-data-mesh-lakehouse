@@ -8,7 +8,7 @@
 #             a truncated/stale snapshot can't mass-tombstone the table.
 #
 # Design    : docs/hard-delete-reconciliation.md
-# Sibling of: right_to_delete_driver.py (standalone Delta maintenance workflow).
+# Sibling of: nb_compliance_erasure.py (standalone Delta maintenance workflow).
 #
 # Safety    : soft-delete only (never physical delete) · guarded (abort on mass
 #             delete) · freshness-gated · race-guarded · resurrection-aware · dry-run.
@@ -68,7 +68,7 @@ dbutils.widgets.removeAll()
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 dbutils.widgets.text("registry_path",
-    "/Volumes/rideflow_dev_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
+    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
     "Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Env")
@@ -253,9 +253,9 @@ def reconcile_entity(*, entity: str, target: str, primary_key, snapshot_df,
 # MAGIC ## 🚀 Run reconciliation
 # MAGIC
 # MAGIC Entities are selected from the registry: those whose contract declares
-# MAGIC `deletion.strategy: snapshot_reconcile` (or matching the entity filter). The
-# MAGIC snapshot source comes from the contract's `deletion.key_source`, or the
-# MAGIC `snapshot_table` widget override.
+# MAGIC <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">deletion.strategy: snapshot_reconcile</span> (or matching the entity filter). The
+# MAGIC snapshot source comes from the contract's <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">deletion.key_source</span>, or the
+# MAGIC <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">snapshot_table</span> widget override.
 
 # COMMAND ----------
 

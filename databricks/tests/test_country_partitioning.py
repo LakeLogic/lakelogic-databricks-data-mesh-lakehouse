@@ -25,13 +25,12 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 SYSTEM = ROOT / "domains_rideflow" / "marketplace" / "rideflow"
 
-#: Gold tables whose grain is one rider or driver — no single country column to carry, so they
-#: are written unpartitioned (with a warning). Add one here only with that reason.
-UNPARTITIONED_GOLD = {
-    "gold_dim_driver_scorecard_v1.0.yaml",
-    "gold_fact_rider_daily_metrics_v1.0.yaml",
-    "gold_fact_surge_pricing_inference_v1.0.yaml",  # fed by its own landing, not the simulator
-}
+#: Gold is the Build Centre-generated star (gold_rideflow_*). Its facts declare their own
+#: `materialization.partition_by` (the event date), which overrides `_all`; its dims are keyed
+#: per rider / driver / code, with no single country to carry, so they are written
+#: unpartitioned (with a warning). Bronze and silver still carry country_code end to end.
+def _gold_partitions_itself(contract: Path) -> bool:
+    return contract.parent.name == "gold" and contract.name.startswith("gold_rideflow_")
 
 
 def _load(path: Path) -> dict:
@@ -53,19 +52,22 @@ def test_every_marketplace_layer_partitions_by_country():
     ids=lambda p: p.name,
 )
 def test_every_contract_carries_the_partition_column(contract: Path):
-    if contract.name in UNPARTITIONED_GOLD:
-        pytest.skip("per-entity grain; written unpartitioned by design")
+    if _gold_partitions_itself(contract):
+        pytest.skip("BC gold: facts partition by event date, dims are per-entity")
     assert "country_code" in _fields(contract), f"{contract.name} would write unpartitioned"
 
 
-def test_the_daily_kpi_aggregate_keeps_country():
-    sql = " ".join(
-        t.get("sql", "") for t in _load(SYSTEM / "contracts" / "gold" / "gold_fact_trip_daily_kpis_v1.0.yaml")["transformations"]
-    )
-    assert "country_code," in sql and "city_code, country_code" in sql
+def test_gold_facts_declare_their_own_partition():
+    facts = sorted((SYSTEM / "contracts" / "gold").glob("gold_rideflow_fact_*.yaml"))
+    assert facts, "no BC gold facts found"
+    unpartitioned = [
+        f.name for f in facts
+        if not ((_load(f).get("materialization") or {}).get("partition_by"))
+    ]
+    assert not unpartitioned, f"facts with no partition_by: {unpartitioned}"
 
 
 def test_derived_trip_events_inherit_the_trips_country():
-    driver = (ROOT / "databricks" / "notebooks" / "test_data_driver.py").read_text(encoding="utf-8")
+    driver = (ROOT / "databricks" / "notebooks" / "nb_test_data_driver.py").read_text(encoding="utf-8")
     body = driver.split("def _gen_trip_events", 1)[1].split("\ndef ", 1)[0]
     assert body.count('"country_code": t.get("country_code"') == 2, "requests and cancellations both carry it"

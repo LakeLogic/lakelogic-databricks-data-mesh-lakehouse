@@ -35,7 +35,7 @@ model:
     description: "Driver payout email"
   - name: bank_account_last_four
     type: string
-    pii: true
+    sensitive: true
     description: "Last 4 of bank account"
   - name: arrival_date
     type: string

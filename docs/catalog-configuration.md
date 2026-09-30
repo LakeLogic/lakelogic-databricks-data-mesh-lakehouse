@@ -1,6 +1,6 @@
 # Use a different Unity Catalog catalog
 
-`rideflow_dev_demo` is the default demo catalog, not a required name. The repository keeps the catalog name as a single configuration value so schemas, Volumes, registry paths, and tables can follow it consistently.
+`governed_rideflow_lakehouse_demo` is the default demo catalog, not a required name. The repository keeps the catalog name as a single configuration value so schemas, Volumes, registry paths, and tables can follow it consistently.
 
 The target catalog must exist and be writable. On workspaces that use Default Storage, create it once in the Databricks UI or reuse an existing catalog such as `workspace`.
 
@@ -28,9 +28,9 @@ The drivers derive the catalog from that registry path, so tables, schemas, and 
 
 ## Manual notebooks
 
-For `00_setup` or `provision_all`, set the `catalog` widget to the catalog you want to use.
+For `nb_00_setup` or `provision_all`, set the `catalog` widget to the catalog you want to use.
 
-For `pipeline_driver.py` and `test_data_driver.py`, set `registry_path` explicitly:
+For `nb_pipeline_driver.py` and `nb_test_data_driver.py`, set `registry_path` explicitly:
 
 ```text
 /Volumes/<your-catalog>/nondelta/_contracts/marketplace/rideflow/_system.yaml

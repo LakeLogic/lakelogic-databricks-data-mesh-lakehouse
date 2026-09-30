@@ -7,9 +7,9 @@
 # MAGIC
 # MAGIC **Checks performed:**
 # MAGIC 1. YAML syntax — can the file be parsed?
-# MAGIC 2. Schema validation — does it pass `validate_contract()`?
-# MAGIC 3. Naming convention — `lowercase_snake_case.yaml`
-# MAGIC 4. Required fields — `version`, `model.fields`, etc.
+# MAGIC 2. Schema validation — does it pass <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">validate_contract()</span>?
+# MAGIC 3. Naming convention — <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">lowercase_snake_case.yaml</span>
+# MAGIC 4. Required fields — <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">version</span>, <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">model.fields</span>, etc.
 
 # COMMAND ----------
 

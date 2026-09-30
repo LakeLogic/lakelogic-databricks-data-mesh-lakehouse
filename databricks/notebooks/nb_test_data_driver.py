@@ -48,7 +48,7 @@ print(f"Installing LakeLogic from: {lakelogic_pkg}")
 
 # MAGIC # Only lakelogic is named: pyyaml/polars/deltalake are its own dependencies.
 # MAGIC # pyarrow<25: DBR ships 21.0.0, lakelogic needs >=23.0.1, databricks-connect caps <25.
-# MAGIC %pip install $lakelogic_pkg "pyarrow<25" reportlab
+# MAGIC %pip install $lakelogic_pkg "pyarrow<25" reportlab pdfplumber
 
 # COMMAND ----------
 
@@ -65,11 +65,13 @@ dbutils.widgets.removeAll()
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 dbutils.widgets.text("registry_path",
-    "/Volumes/rideflow_dev_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
+    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
     "Config - Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Config - Environment")
-dbutils.widgets.text("num_windows", "24", "Config - Hours (Windows)")
+dbutils.widgets.text("num_windows", "48", "Config - Hours (Windows)")  # 2 days of hourly history
+dbutils.widgets.text("rows_per_table", "100", "Config - Rows per table per window")
+dbutils.widgets.dropdown("build_bronze_silver", "false", ["true", "false"], "Config - Build bronze+silver after generating")
 dbutils.widgets.dropdown("inject_edge_cases", "true", ["true", "false"], "Config - Edge Cases")
 # single  = generate only the system named by registry_path (called per-orchestrator).
 # all     = discover every domain, topo-sort by cross-domain FK edges, then for each
@@ -101,7 +103,10 @@ except NameError:
     dbutils = DBUtilsMock()
 
 ENVIRONMENT = dbutils.widgets.get("environment").strip() or "dev"
-NUM_WINDOWS = int(dbutils.widgets.get("num_windows").strip() or "24")
+NUM_WINDOWS = int(dbutils.widgets.get("num_windows").strip() or "48")
+# Every generator's write is capped here, so a seed stays small and fast; raise it once
+# the end-to-end run is proven.
+ROWS_PER_TABLE = int(dbutils.widgets.get("rows_per_table").strip() or "100")
 INJECT_EDGE_CASES = dbutils.widgets.get("inject_edge_cases").lower() == "true"
 REGISTRY_PATH = dbutils.widgets.get("registry_path").strip()
 SEED_MODE = (dbutils.widgets.get("seed_mode").strip() or "single").lower()
@@ -110,8 +115,8 @@ SEED_MODE = (dbutils.widgets.get("seed_mode").strip() or "single").lower()
 
 # MAGIC %md
 # MAGIC ## 🔐 Inject Domain Secrets (Interactive Fallback)
-# MAGIC When running interactively outside of a Databricks Job, `spark_env_vars` are not automatically injected.
-# MAGIC This cell manually pulls the secret scope and maps them to environment variables (e.g., `rideflow-dev-storage-account` → `RIDEFLOW_DEV_STORAGE_ACCOUNT`).
+# MAGIC When running interactively outside of a Databricks Job, <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">spark_env_vars</span> are not automatically injected.
+# MAGIC This cell manually pulls the secret scope and maps them to environment variables (e.g., <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">rideflow-dev-storage-account</span> → <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">RIDEFLOW_DEV_STORAGE_ACCOUNT</span>).
 
 # COMMAND ----------
 
@@ -165,7 +170,7 @@ if not storage_account:
 
 # Catalog — derived from the registry Volume path (/Volumes/<catalog>/...) so it
 # always matches the catalog this run targets. One source of truth; no ADLS needed.
-_derived_catalog = "rideflow_dev_demo"
+_derived_catalog = "governed_rideflow_lakehouse_demo"
 if REGISTRY_PATH.startswith("/Volumes/"):
     _p = REGISTRY_PATH.split("/")
     if len(_p) > 2 and _p[2]:
@@ -209,11 +214,11 @@ print(f"⏱ Windows: {NUM_WINDOWS} hours")
 # MAGIC %md
 # MAGIC ## 🌊 Per-domain data generators
 # MAGIC
-# MAGIC This driver is called once per system (its `registry_path` widget). It looks
-# MAGIC up a generator for `(domain, system)` and writes that system's landing data.
-# MAGIC - **marketplace/rideflow** → native `StreamingSimulator` + 800 edge cases
+# MAGIC This driver is called once per system (its <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">registry_path</span> widget). It looks
+# MAGIC up a generator for <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">(domain, system)</span> and writes that system's landing data.
+# MAGIC - **marketplace/rideflow** → native <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">StreamingSimulator</span> + 800 edge cases
 # MAGIC - **marketing / payments / operations** → synthetic CSV/PDF generators
-# MAGIC   (ported from the RA repo's `test_data_driver_all`). Cross-domain FK pools
+# MAGIC   (ported from the RA repo's <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">test_data_driver_all</span>). Cross-domain FK pools
 # MAGIC   (e.g. hubspot→rider_id) are read from **UC silver via Spark**, so run the
 # MAGIC   marketplace orchestrator first for referential integrity; otherwise the
 # MAGIC   readers fall back to synthetic IDs and the pipeline still runs.
@@ -255,7 +260,7 @@ def _write_csv(landing_root, entity, rows):
     with out.open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader()
-        w.writerows(rows)
+        w.writerows((rows := rows[:ROWS_PER_TABLE]))
     print(f"   {entity}: {len(rows)} rows -> {out}")
 
 
@@ -338,10 +343,10 @@ def gen_marketplace_rideflow(registry, landing_uri):
     sim = StreamingSimulator.rideflow_marketplace(
         landing_root=landing_uri, window_minutes=60,
         start_time=datetime.now(timezone.utc) - timedelta(hours=NUM_WINDOWS),
-        seed=42, initial_riders=200, initial_drivers=100,
+        seed=42, initial_riders=ROWS_PER_TABLE, initial_drivers=max(ROWS_PER_TABLE // 2, 10),
     )
     total_rows, windows = 0, []
-    for window in sim.run(num_windows=NUM_WINDOWS, micro_batches=10, up_to=datetime.now(timezone.utc), resume=True):
+    for window in sim.run(num_windows=NUM_WINDOWS, micro_batches=1, up_to=datetime.now(timezone.utc), resume=True):
         windows.append(window); total_rows += window.total_rows
     print(f"   {total_rows:,} rows across {len(windows)} window(s)" if windows else "   (simulator caught up — no new windows)")
     fk = sim.validate_fk_consistency()
@@ -354,17 +359,23 @@ def gen_marketplace_rideflow(registry, landing_uri):
     if not INJECT_EDGE_CASES:
         return
     random.seed(42)
-    cities = ["LON", "NYC", "BER", "PAR", "TYO", "SYD"]
+    # city -> country: the contract carries country_code after city_code, and bronze CSV is
+    # read by POSITION, so a missing column shifted every later value one place left.
+    city_country = {"LON": "GB", "NYC": "US", "BER": "DE", "PAR": "FR", "TYO": "JP", "SYD": "AU"}
+    cities = list(city_country)
+    # Scaled to the seed size: a fixed 800 bad rows swamped a 100-row seed (39% quarantined).
+    n_edge = max(ROWS_PER_TABLE, 80)
+    scale = lambda k: round(k * n_edge / 800)
     base_time = datetime.now(timezone.utc).replace(hour=8, minute=0, second=0, microsecond=0)
     records = []
-    for i in range(800):
+    for i in range(n_edge):
         req_dt = base_time.replace(hour=random.randint(7, 22), minute=random.randint(0, 59))
         records.append({
             "trip_id": str(uuid.uuid4()), "rider_id": f"R-{uuid.uuid4().hex[:8]}", "driver_id": f"D-{uuid.uuid4().hex[:8]}",
             "trip_type": random.choice(["ride", "eats_delivery"]),
             "pickup_lat": str(round(random.uniform(51.4, 51.6), 6)), "pickup_lng": str(round(random.uniform(-0.2, 0.1), 6)),
             "dropoff_lat": str(round(random.uniform(51.4, 51.6), 6)), "dropoff_lng": str(round(random.uniform(-0.2, 0.1), 6)),
-            "city_code": random.choice(cities),
+            "city_code": (city := random.choice(cities)), "country_code": city_country[city],
             "requested_at": req_dt.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "pickup_at": (req_dt + timedelta(minutes=2)).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "dropoff_at": (req_dt + timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -374,23 +385,23 @@ def gen_marketplace_rideflow(registry, landing_uri):
             "payment_method": random.choice(["card", "apple_pay", "google_pay", "cash"]),
             "rider_rating": str(random.randint(1, 5)), "driver_rating": str(random.randint(1, 5)), "notes": "",
         })
-    for i in range(0, 120):   records[i]["fare_amount"] = "-15.50"                       # TC-001 negative fare
-    for i in range(120, 200): records[i]["driver_id"] = records[i]["rider_id"]           # TC-002 self-service
-    for i in range(200, 350):                                                            # TC-003 time travel
+    for i in range(0, scale(120)):   records[i]["fare_amount"] = "-15.50"                       # TC-001 negative fare
+    for i in range(scale(120), scale(200)): records[i]["driver_id"] = records[i]["rider_id"]           # TC-002 self-service
+    for i in range(scale(200), scale(350)):                                                            # TC-003 time travel
         records[i]["pickup_at"]  = (base_time + timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M:%SZ")
         records[i]["dropoff_at"] = (base_time + timedelta(hours=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    for i in range(350, 450): records[i]["distance_km"] = "650.5"                        # TC-004 impossible trip
-    for i in range(450, 600): records[i]["notes"] = "DROP TABLE trips; SELECT * FROM users;"  # TC-005 injection
-    for i in range(600, 680): records[i]["surge_multiplier"] = "5.8"                     # TC-006 cap violation
-    for i in range(680, 740): records[i]["city_code"] = "XYZ"                            # TC-007 unknown market
+    for i in range(scale(350), scale(450)): records[i]["distance_km"] = "650.5"                        # TC-004 impossible trip
+    for i in range(scale(450), scale(600)): records[i]["notes"] = "DROP TABLE trips; SELECT * FROM users;"  # TC-005 injection
+    for i in range(scale(600), scale(680)): records[i]["surge_multiplier"] = "5.8"                     # TC-006 cap violation
+    for i in range(scale(680), scale(740)): records[i]["city_code"] = "XYZ"                            # TC-007 unknown market
     dup_id = records[0]["trip_id"]
-    for i in range(740, 800): records[i]["trip_id"] = dup_id                             # TC-008 duplicate id
+    for i in range(scale(740), n_edge): records[i]["trip_id"] = dup_id                             # TC-008 duplicate id
     random.shuffle(records)
     part_str = f"y_{base_time.strftime('%Y')}/m_{base_time.strftime('%m')}/d_{base_time.strftime('%d')}/h_99"
     edge_path = f"{landing_uri}/trip_completed/{part_str}/edge_cases.csv"
     os.makedirs(os.path.dirname(edge_path), exist_ok=True)
     pl.DataFrame(records).write_csv(edge_path)
-    print(f"   injected 800 edge cases (TC-001..TC-008) → {edge_path}")
+    print(f"   injected {n_edge} edge cases (TC-001..TC-008) → {edge_path}")
 
 
 # ── marketing wave ───────────────────────────────────────────────────────────
@@ -517,7 +528,7 @@ def gen_payments_stripe(registry, landing_uri):
         out_dir = landing_root / entity / part; out_dir.mkdir(parents=True, exist_ok=True)
         out = out_dir / f"{entity}_seed.csv"
         with out.open("w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)
+            w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows((rows := rows[:ROWS_PER_TABLE]))
         print(f"   ↳ {entity}: {len(rows)} rows → {out}")
 
     CCYS = ["GBP", "USD", "EUR"]; PM = ["card", "apple_pay", "google_pay"]
@@ -581,7 +592,7 @@ def gen_operations_twilio(registry, landing_uri):
         })
     out = out_dir / "sms_logs_seed.csv"
     with out.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)
+        w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows((rows := rows[:ROWS_PER_TABLE]))
     print(f"   sms_logs: {len(rows)} rows -> {out}")
 
 
@@ -626,7 +637,7 @@ def gen_operations_zendesk(registry, landing_uri):
         })
     out = out_dir / "support_tickets_seed.csv"
     with out.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)
+        w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows((rows := rows[:ROWS_PER_TABLE]))
     print(f"   support_tickets: {len(rows)} rows -> {out}")
 
 
@@ -657,7 +668,7 @@ def gen_operations_checkr(registry, landing_uri):
     if bc_rows:
         out = bc_dir / "background_checks_seed.csv"
         with out.open("w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(bc_rows[0].keys())); w.writeheader(); w.writerows(bc_rows)
+            w = csv.DictWriter(f, fieldnames=list(bc_rows[0].keys())); w.writeheader(); w.writerows((bc_rows := bc_rows[:ROWS_PER_TABLE]))
         print(f"   background_checks: {len(bc_rows)} rows -> {out}")
     # driver_licence PDFs (parsed by the pdfplumber extraction contract)
     try:
@@ -695,7 +706,7 @@ def gen_reference_internal(registry, landing_uri):
         out_dir.mkdir(parents=True, exist_ok=True)
         out = out_dir / f"{entity}_seed.csv"
         with out.open("w", encoding="utf-8", newline="") as f:
-            wr = csv.DictWriter(f, fieldnames=list(rows[0].keys())); wr.writeheader(); wr.writerows(rows)
+            wr = csv.DictWriter(f, fieldnames=list(rows[0].keys())); wr.writeheader(); wr.writerows((rows := rows[:ROWS_PER_TABLE]))
         print(f"   {entity}: {len(rows)} rows -> {out}")
 
     cities = [("LON","London","GB","Europe/London","GBP","2018-04-01"),("NYC","New York","US","America/New_York","USD","2017-06-15"),
@@ -788,6 +799,11 @@ if SEED_MODE != "all":
         print(f"⚙️  Generating {DOMAIN}/{SYSTEM} with {_gen.__name__} → {LANDING_URI}")
         _gen(registry, LANDING_URI)
         print(f"✅ Landing data written for {DOMAIN}/{SYSTEM}")
+    # Seed orchestration (pl_test_synthetic_seed) builds bronze+silver per system so a
+    # DOWNSTREAM seed reads real ids from this system's silver (FK-consistent data).
+    if dbutils.widgets.get("build_bronze_silver").lower() == "true":
+        print("🏗  bronze + silver …")
+        _run_bronze_silver(registry)
 else:
     # ── all-domains, FK-ordered seed (mirrors RA test_data_driver_all) ────────
     import glob as _glob, re as _re, yaml as _yaml

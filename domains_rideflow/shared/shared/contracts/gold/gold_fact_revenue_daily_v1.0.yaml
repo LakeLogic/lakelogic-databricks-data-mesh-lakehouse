@@ -56,6 +56,9 @@ source:
   type: table
   # Primary fact source. Joins are declared in `transformations` below.
   path: "table:`{catalog}`.payments.silver_stripe_charges"
+  # Stays full (deliberate): an aggregate over its sources. An incremental batch
+  # holds only new rows, so re-grouping it would overwrite a complete aggregate
+  # with a partial one; the engine has no recompute-affected-keys mode.
   load_mode: full
 
 transformations:
@@ -117,11 +120,11 @@ transformations:
 quality:
   row_rules:
     - name: net_revenue_non_negative
-      sql: "net_revenue_amount >= 0"
+      sql: "net_revenue_amount IS NULL OR net_revenue_amount >= 0"
     - name: refund_le_gross
-      sql: "refund_amount <= gross_revenue_amount"
+      sql: "refund_amount IS NULL OR gross_revenue_amount IS NULL OR refund_amount <= gross_revenue_amount"
     - name: trip_count_positive
-      sql: "trip_count >= 0"
+      sql: "trip_count IS NULL OR trip_count >= 0"
   dataset_rules: []
 
 materialization:
