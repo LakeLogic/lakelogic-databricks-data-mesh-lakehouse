@@ -1,5 +1,7 @@
 version: 1.0.0
 info:
+  data_product: revenue_reporting
+  data_product_output: fact_revenue_daily
   title: "Gold — Fact Revenue Daily"
   table_name: '{gold_layer}_fact_revenue_daily'
   description: >

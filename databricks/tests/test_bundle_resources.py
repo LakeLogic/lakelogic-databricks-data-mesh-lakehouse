@@ -305,3 +305,24 @@ def test_no_two_contracts_share_a_title_and_version():
         seen[((c.get("info") or {}).get("title"), c.get("version"))].append(f.name)
     dupes = {k: v for k, v in seen.items() if len(v) > 1}
     assert not dupes, dupes
+
+
+def test_every_data_product_tag_names_a_declared_output():
+    """Contracts tag info.data_product / data_product_output; each pair must be an
+    expected_output of a product in that domain's _domain.yaml, or the Data Products page
+    shows the output as unlinked (the daily facts carried 'trip_daily_kpis' against a declared
+    'fact_trip_daily_kpis', 2026-09-30)."""
+    from pathlib import Path
+
+    import yaml
+
+    domains = Path(__file__).resolve().parents[2] / "domains_rideflow"
+    declared = set()
+    for f in domains.glob("*/_domain.yaml"):
+        for p in (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("products") or []:
+            declared |= {(p["id"], o["id"]) for o in p.get("expected_outputs") or []}
+    assert len(declared) >= 20
+    for f in domains.glob("*/*/contracts/gold/*.yaml"):
+        info = (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("info") or {}
+        if info.get("data_product"):
+            assert (info["data_product"], info.get("data_product_output")) in declared, f.name

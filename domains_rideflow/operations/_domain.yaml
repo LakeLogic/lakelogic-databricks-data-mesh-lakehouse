@@ -90,3 +90,13 @@ bronze_layer: bronze
 silver_layer: silver
 gold_layer: gold
 
+# ── Data Products ──────────────────────────────────────────────────────────
+products:
+  - id: customer_support
+    name: Customer Support
+    description: Support tickets enriched with trip and payment context.
+    lifecycle: active
+    expected_outputs:
+    - id: fact_ticket_enriched
+      name: Enriched Tickets
+      kind: table

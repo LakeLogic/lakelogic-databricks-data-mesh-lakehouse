@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: reference_data
+  data_product_output: dim_date
   title: "Gold — Dim Date"
   table_name: "{gold_layer}_dim_date"
   description: >

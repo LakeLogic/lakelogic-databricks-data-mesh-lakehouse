@@ -88,3 +88,13 @@ bronze_layer: bronze
 silver_layer: silver
 gold_layer: gold
 
+# ── Data Products ──────────────────────────────────────────────────────────
+products:
+  - id: acquisition_performance
+    name: Acquisition Performance
+    description: Paid acquisition spend and return on investment by campaign.
+    lifecycle: active
+    expected_outputs:
+    - id: agg_acquisition_roi
+      name: Google Ads Acquisition ROI
+      kind: table

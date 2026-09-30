@@ -144,18 +144,34 @@ gold_layer: gold
 products:
   - id: trip_performance
     name: Trip Performance
-    description: Daily trip and rider performance for the marketplace, built from completed trips and rider activity.
+    description: Daily trip volume, revenue and distance, plus rider activity.
+    lifecycle: active
+    expected_outputs:
+    - id: fact_trip_daily_kpis
+      name: Trip Daily KPIs
+      kind: table
+    - id: fact_rider_daily_metrics
+      name: Rider Daily Metrics
+      kind: table
+  - id: rider_and_driver_profiles
+    name: Rider and Driver Profiles
+    description: Current and historical rider and driver profiles, and driver performance.
+    lifecycle: active
+    expected_outputs:
+    - id: dim_rider
+      name: Rider
+      kind: table
+    - id: dim_driver
+      name: Driver
+      kind: table
+    - id: dim_driver_scorecard
+      name: Driver Scorecard
+      kind: table
+  - id: surge_pricing
+    name: Surge Pricing
+    description: Surge pricing model decisions, recorded for monitoring and AI Act oversight.
     lifecycle: proposed
     expected_outputs:
-      - id: trip_daily_kpis
-        name: Fact Trip Daily KPIs
-        kind: table
-        required: true
-      - id: rider_daily_metrics
-        name: Fact Rider Daily Metrics
-        kind: table
-        required: true
-      - id: surge_pricing_inference
-        name: Fact Surge Pricing Inference
-        kind: table
-        required: false
+    - id: fact_surge_pricing_inference
+      name: Surge Pricing Inference
+      kind: table

@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: reference_data
+  data_product_output: dim_cancellation_reason
   title: "Gold — Dim Cancellation Reason"
   table_name: "{gold_layer}_dim_cancellation_reason"
   description: >

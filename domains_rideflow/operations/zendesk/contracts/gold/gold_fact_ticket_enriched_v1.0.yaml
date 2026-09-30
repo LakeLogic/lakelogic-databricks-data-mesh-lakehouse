@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: customer_support
+  data_product_output: fact_ticket_enriched
   title: "Gold — Fact Ticket Enriched"
   table_name: "{gold_layer}_fact_ticket_enriched"
   description: >

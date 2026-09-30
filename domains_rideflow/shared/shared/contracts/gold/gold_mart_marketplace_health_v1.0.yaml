@@ -1,5 +1,7 @@
 version: 1.0.0
 info:
+  data_product: marketplace_health
+  data_product_output: mart_marketplace_health
   title: "Gold — Mart Marketplace Health"
   table_name: '{gold_layer}_mart_marketplace_health'
   description: >

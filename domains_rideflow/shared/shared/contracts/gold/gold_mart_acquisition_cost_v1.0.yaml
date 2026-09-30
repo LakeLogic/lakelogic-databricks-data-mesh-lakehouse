@@ -1,5 +1,7 @@
 version: 1.0.0
 info:
+  data_product: acquisition_cost
+  data_product_output: mart_acquisition_cost
   title: "Gold — Mart Acquisition Cost"
   table_name: '{gold_layer}_mart_acquisition_cost'
   description: >

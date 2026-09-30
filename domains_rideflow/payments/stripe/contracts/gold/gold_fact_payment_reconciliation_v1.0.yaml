@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: payment_reconciliation
+  data_product_output: fact_payment_reconciliation
   title: "Gold — Fact Stripe Payment Reconciliation"
   table_name: '{gold_layer}_fact_payment_reconciliation'
   description: >

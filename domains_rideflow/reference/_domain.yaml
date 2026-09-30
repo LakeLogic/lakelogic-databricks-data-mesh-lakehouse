@@ -115,3 +115,43 @@ retention:
 bronze_layer: bronze
 silver_layer: silver
 gold_layer: gold
+
+# ── Data Products ──────────────────────────────────────────────────────────
+products:
+  - id: reference_data
+    name: Reference Data
+    description: 'Shared dimensions: calendar, geography, currency and ride classifications.'
+    lifecycle: active
+    expected_outputs:
+    - id: dim_date
+      name: Date
+      kind: table
+    - id: dim_city
+      name: City
+      kind: table
+    - id: dim_country
+      name: Country
+      kind: table
+    - id: dim_currency
+      name: Currency
+      kind: table
+    - id: dim_payment_method
+      name: Payment Method
+      kind: table
+    - id: dim_vehicle_type
+      name: Vehicle Type
+      kind: table
+    - id: dim_surge_tier
+      name: Surge Tier
+      kind: table
+    - id: dim_cancellation_reason
+      name: Cancellation Reason
+      kind: table
+  - id: fx_rates
+    name: FX Rates
+    description: Daily foreign exchange rates for currency conversion.
+    lifecycle: active
+    expected_outputs:
+    - id: fact_fx_rate_daily
+      name: FX Rate Daily
+      kind: table
