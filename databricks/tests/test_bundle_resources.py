@@ -289,3 +289,19 @@ def test_the_mesh_runs_the_setup_workflow_and_setup_only_provisions():
     mesh = {t["task_key"]: t for t in load("data/_mesh_orchestrator.job.yml")["tasks"]}
     assert mesh["setup"]["run_job_task"]["job_id"] == "${resources.jobs.setup.id}"
     assert [d["task_key"] for d in mesh["verify_marketplace_outputs"]["depends_on"]] == ["marketplace_rideflow"]
+
+
+def test_no_two_contracts_share_a_title_and_version():
+    """LakeLogic's Git Sync rejects duplicates: Build Centre's gold_rideflow_dim_vehicle_type
+    repeated reference's "Gold — Dim Vehicle Type" v1.0.0 and the sync marked it INVALID."""
+    from collections import defaultdict
+    from pathlib import Path
+
+    import yaml
+
+    seen = defaultdict(list)
+    for f in (Path(__file__).resolve().parents[2] / "domains_rideflow").glob("*/*/contracts/*/*.yaml"):
+        c = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        seen[((c.get("info") or {}).get("title"), c.get("version"))].append(f.name)
+    dupes = {k: v for k, v in seen.items() if len(v) > 1}
+    assert not dupes, dupes

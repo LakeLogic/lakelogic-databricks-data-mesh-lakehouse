@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Rider Daily Metrics"
-  table_name: "{gold_layer}_fact_rider_daily_metrics"
+  table_name: "{gold_layer}_rideflow_fact_rider_daily_metrics"
   description: "Daily aggregated rider metrics. Can be safely reprocessed and summed over time to calculate Lifetime Value."
   target_layer: gold
   domain: marketplace
@@ -13,6 +13,8 @@ info:
 source:
   type: table
   path: "table:{domain_catalog}.silver_rideflow_trips"
+  # full: GROUP BY (rider_id, activity_date); the `source IN` guard limits which dates are
+  # recomputed (listed in GOLD_FULL, test_incremental_processing.py).
   load_mode: full
 
 primary_key: [rider_id, activity_date]
@@ -23,19 +25,19 @@ links:
     type: table
   # Conformed SCD2 dimension, for the surrogate-key (as-of) lookup below.
   - name: dim_rider
-    path: "table:{domain_catalog}.gold_dim_rider"
+    path: "table:{domain_catalog}.gold_rideflow_dim_rider"
     type: table
 
 model:
   fields:
-    # Kimball surrogate FK to gold_dim_rider, resolved SCD2-accurately by
+    # Kimball surrogate FK to gold_rideflow_dim_rider, resolved SCD2-accurately by
     # activity_date. Riders with no matching dim row (e.g. profile quarantined)
     # resolve to the '-1' unknown member rather than a dangling key.
     - name: rider_sk
       type: string
       required: true
       foreign_key:
-        contract: gold_dim_rider
+        contract: "{gold_layer}_rideflow_dim_rider"
         column: rider_sk
     - name: rider_id
       type: string
@@ -96,8 +98,25 @@ transformations:
       LEFT JOIN dim_rider d
         ON  a.rider_id      =  d.rider_id
         AND a.activity_date >= CAST(d.effective_from AS DATE)
-        AND a.activity_date <  CAST(d.effective_to   AS DATE)
+        AND a.activity_date <  COALESCE(CAST(d.effective_to AS DATE), DATE '9999-12-31')
 
+materialization:
+  strategy: merge
+  # Gold facts declare their own partition (the event date), overriding _all's country_code:
+  # this per-rider aggregate carries no country.
+  partition_by:
+    - activity_date
+
+quality:
+  row_rules:
+    - name: non_negative_trips
+      sql: "daily_trips IS NULL OR daily_trips >= 0"
+    - name: non_negative_spend
+      sql: "daily_spend IS NULL OR daily_spend >= 0"
+    - name: non_negative_tips
+      sql: "daily_tips IS NULL OR daily_tips >= 0"
+    - name: valid_avg_rating
+      sql: "avg_daily_rating IS NULL OR (avg_daily_rating >= 1.0 AND avg_daily_rating <= 5.0)"
 
 downstream:
   - type: table

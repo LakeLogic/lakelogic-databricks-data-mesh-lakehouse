@@ -181,11 +181,6 @@ contracts:
     depends_on: ['silver_rideflow_trips', 'silver_rideflow_trip_requests']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_vehicle_type
-    path: "contracts/{gold_layer}/gold_rideflow_dim_vehicle_type_v1.0.yaml"
-    depends_on: ['silver_rideflow_driver_profiles']
-    enabled: true
-  - layer: gold
     entity: gold_rideflow_fact_driver_telemetry
     path: "contracts/{gold_layer}/gold_rideflow_fact_driver_telemetry_v1.0.yaml"
     depends_on: ['silver_rideflow_driver_telemetry', 'gold_rideflow_dim_driver_profiles']
@@ -209,6 +204,34 @@ contracts:
     entity: gold_rideflow_fact_trip_requests
     path: "contracts/{gold_layer}/gold_rideflow_fact_trip_requests_v1.0.yaml"
     depends_on: ['silver_rideflow_trip_requests', 'gold_rideflow_dim_rider_profiles']
+    enabled: true
+
+# Hand-authored gold (not Build Centre): the conformed SCD2 rider/driver dims, the driver
+# scorecard and the two daily aggregates. Same table names as the Fabric demo.
+  - layer: gold
+    entity: gold_rideflow_dim_rider
+    path: "contracts/{gold_layer}/gold_rideflow_dim_rider_v1.0.yaml"
+    depends_on: ['silver_rideflow_rider_profiles']
+    enabled: true
+  - layer: gold
+    entity: gold_rideflow_dim_driver
+    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_v1.0.yaml"
+    depends_on: ['silver_rideflow_driver_profiles']
+    enabled: true
+  - layer: gold
+    entity: gold_rideflow_dim_driver_scorecard
+    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_scorecard_v1.0.yaml"
+    depends_on: ['silver_rideflow_trips', 'gold_rideflow_dim_driver']
+    enabled: true
+  - layer: gold
+    entity: gold_rideflow_fact_rider_daily_metrics
+    path: "contracts/{gold_layer}/gold_rideflow_fact_rider_daily_metrics_v1.0.yaml"
+    depends_on: ['silver_rideflow_trips', 'gold_rideflow_dim_rider']
+    enabled: true
+  - layer: gold
+    entity: gold_rideflow_fact_trip_daily_kpis
+    path: "contracts/{gold_layer}/gold_rideflow_fact_trip_daily_kpis_v1.0.yaml"
+    depends_on: ['silver_rideflow_trips']
     enabled: true
 
 # ── Lineage (inherited by all contracts) ────────────────────────────────────

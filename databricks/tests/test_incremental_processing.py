@@ -40,6 +40,9 @@ GOLD_FULL = {
     "gold_fact_revenue_daily": "aggregate (GROUP BY kpi_date, city_code, vehicle_type)",
     "gold_mart_acquisition_cost": "aggregate (GROUP BY kpi_date, channel, campaign_id)",
     "gold_mart_marketplace_health": "aggregate (GROUP BY kpi_date, city_code)",
+    "gold_rideflow_fact_trip_daily_kpis": "aggregate (GROUP BY kpi_date, city_code)",
+    "gold_rideflow_fact_rider_daily_metrics": "aggregate (GROUP BY rider_id, activity_date)",
+    "gold_rideflow_dim_driver_scorecard": "per-driver lifetime aggregates (GROUP BY driver_id)",
 }
 
 

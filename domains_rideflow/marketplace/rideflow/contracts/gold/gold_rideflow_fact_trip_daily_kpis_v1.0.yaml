@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Trip Daily KPIs"
-  table_name: "{gold_layer}_fact_trip_daily_kpis"
+  table_name: "{gold_layer}_rideflow_fact_trip_daily_kpis"
   description: "Daily revenue, volume, and distance KPIs aggregated from completed trips."
   target_layer: gold
   domain: marketplace
@@ -13,6 +13,8 @@ info:
 source:
   type: table
   path: "table:{domain_catalog}.silver_rideflow_trips"
+  # full: GROUP BY (kpi_date, city_code); the `source IN` guard limits which dates are
+  # recomputed (listed in GOLD_FULL, test_incremental_processing.py).
   load_mode: full
 
 primary_key: [kpi_date, city_code]
@@ -70,6 +72,23 @@ transformations:
       AND CAST(requested_at AS DATE) IN (SELECT DISTINCT CAST(requested_at AS DATE) FROM source)
       -- country_code is determined by city_code, so grouping by it keeps the grain (kpi_date, city_code).
       GROUP BY CAST(requested_at AS DATE), city_code, country_code
+
+materialization:
+  strategy: merge
+  # Gold facts declare their own partition (the event date), overriding _all.
+  partition_by:
+    - kpi_date
+
+quality:
+  row_rules:
+    - name: non_negative_trips
+      sql: "total_trips IS NULL OR total_trips >= 0"
+    - name: non_negative_revenue
+      sql: "total_revenue IS NULL OR total_revenue >= 0"
+    - name: non_negative_distance
+      sql: "total_distance_km IS NULL OR total_distance_km >= 0"
+    - name: valid_avg_surge
+      sql: "avg_surge IS NULL OR avg_surge > 0"
 
 downstream:
   - name: "Executive Daily KPI Dashboard"
