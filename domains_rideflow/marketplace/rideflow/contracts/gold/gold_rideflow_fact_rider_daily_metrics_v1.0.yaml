@@ -8,7 +8,7 @@ info:
   domain: marketplace
   system: rideflow
   data_product: trip_performance
-  data_product_output: rider_daily_metrics
+  data_product_output: fact_rider_daily_metrics
 
 source:
   type: table

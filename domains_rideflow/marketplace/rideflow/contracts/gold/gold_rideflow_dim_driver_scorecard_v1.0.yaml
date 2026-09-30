@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: rider_and_driver_profiles
+  data_product_output: dim_driver_scorecard
   title: "Gold — Dim Driver Scorecard"
   table_name: "{gold_layer}_rideflow_dim_driver_scorecard"
   description: "Per-driver performance scorecard with trip counts, earnings, and ratings."

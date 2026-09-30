@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: driver_360
+  data_product_output: dim_driver_360
   title: "Gold — Dim Driver 360 (cross-domain)"
   table_name: '{gold_layer}_dim_driver_360'
   description: >

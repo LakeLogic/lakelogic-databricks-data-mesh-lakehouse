@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: reference_data
+  data_product_output: dim_vehicle_type
   title: "Gold — Dim Vehicle Type"
   table_name: "{gold_layer}_dim_vehicle_type"
   description: >

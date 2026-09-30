@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: rider_and_driver_profiles
+  data_product_output: dim_driver
   title: "Gold — Dim Driver (SCD2)"
   table_name: "{gold_layer}_rideflow_dim_driver"
   description: >

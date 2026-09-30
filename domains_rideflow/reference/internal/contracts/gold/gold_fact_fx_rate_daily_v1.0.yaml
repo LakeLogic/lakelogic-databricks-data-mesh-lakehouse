@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: fx_rates
+  data_product_output: fact_fx_rate_daily
   title: "Gold — Fact FX Rate Daily"
   table_name: "{gold_layer}_fact_fx_rate_daily"
   description: >

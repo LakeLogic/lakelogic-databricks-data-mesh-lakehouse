@@ -1,6 +1,8 @@
 version: 1.0.0
 
 info:
+  data_product: acquisition_performance
+  data_product_output: agg_acquisition_roi
   title: "Gold — Agg Google Ads Acquisition ROI"
   table_name: '{gold_layer}_agg_acquisition_roi'
   description: >

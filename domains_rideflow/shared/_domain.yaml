@@ -102,3 +102,38 @@ retention:
 bronze_layer: bronze
 silver_layer: silver
 gold_layer: gold
+
+# ── Data Products ──────────────────────────────────────────────────────────
+products:
+  - id: marketplace_health
+    name: Marketplace Health
+    description: Cross-domain view of supply, demand, reliability and support load.
+    lifecycle: active
+    expected_outputs:
+    - id: mart_marketplace_health
+      name: Marketplace Health
+      kind: table
+  - id: revenue_reporting
+    name: Revenue Reporting
+    description: Daily revenue across trips and payments.
+    lifecycle: active
+    expected_outputs:
+    - id: fact_revenue_daily
+      name: Revenue Daily
+      kind: table
+  - id: acquisition_cost
+    name: Acquisition Cost
+    description: Cost to acquire riders and drivers across channels.
+    lifecycle: active
+    expected_outputs:
+    - id: mart_acquisition_cost
+      name: Acquisition Cost
+      kind: table
+  - id: driver_360
+    name: Driver 360
+    description: One view of each driver across trips, payments, checks and support.
+    lifecycle: active
+    expected_outputs:
+    - id: dim_driver_360
+      name: Driver 360
+      kind: table
