@@ -15,7 +15,7 @@ It does **not** deploy the schedulable jobs that come with the Databricks Asset 
 3. Open `databricks/notebooks/_ops/provision_all`.
 4. Attach the notebook to serverless compute or another Unity Catalog-enabled cluster.
 5. Review the widgets:
-   - `catalog` defaults to `rideflow_dev_demo`.
+   - `catalog` defaults to `governed_rideflow_lakehouse_demo`.
    - Table creation can be disabled when you only want schemas and Volumes.
 6. Select **Run All**.
 
@@ -25,10 +25,10 @@ The notebook is idempotent, so it is safe to run again.
 
 After provisioning, use the notebooks described in [Run the demo step by step](manual-run.md):
 
-1. Run `test_data_driver.py` to generate synthetic landing data.
-2. Run `pipeline_driver.py` to process Bronze, Silver, and Gold.
+1. Run `nb_test_data_driver.py` to generate synthetic landing data.
+2. Run `nb_pipeline_driver.py` to process Bronze, Silver, and Gold.
 
-Alternatively, deploy the Asset Bundle later and run one of its domain orchestrator jobs.
+Alternatively, deploy the Asset Bundle later and run one of its per-system jobs (pl_data_<domain>_<system>).
 
 ## Which setup path should you choose?
 
@@ -43,7 +43,7 @@ Alternatively, deploy the Asset Bundle later and run one of its domain orchestra
 The notebook creates Unity Catalog objects at runtime. Remove them when finished:
 
 ```bash
-databricks catalogs delete rideflow_dev_demo --force -p rideflow_dev
+databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 
 If you later deployed the Asset Bundle, also run `databricks bundle destroy` from the `databricks/` directory to remove its jobs and synced workspace files.

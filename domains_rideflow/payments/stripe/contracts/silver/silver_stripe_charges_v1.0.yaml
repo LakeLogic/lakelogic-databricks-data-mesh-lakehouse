@@ -26,7 +26,7 @@ model:
     type: string
   - name: card_last_four
     type: string
-    pii: true
+    sensitive: true
     masking: hash
   - name: billing_email
     type: string
@@ -54,4 +54,5 @@ transformations:
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_charges'
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at

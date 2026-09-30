@@ -47,7 +47,7 @@ Pass the profile to every command:
 
 ```bash
 databricks bundle deploy -t dev -p rideflow_dev
-databricks bundle run rideflow_demo_bootstrap -t dev -p rideflow_dev
+databricks bundle run setup -t dev -p rideflow_dev
 ```
 
 You can instead set `DATABRICKS_CONFIG_PROFILE=rideflow_dev` in the shell running the commands.
@@ -83,7 +83,7 @@ Typical causes are missing `CREATE CATALOG` permission or a workspace using Defa
 
 Use one of these approaches:
 
-1. In Databricks, open **Catalog > Create catalog**, create `rideflow_dev_demo` with Default Storage, and rerun setup.
+1. In Databricks, open **Catalog > Create catalog**, create `governed_rideflow_lakehouse_demo` with Default Storage, and rerun setup.
 2. Reuse a writable existing catalog such as `workspace` and update the repository configuration as described in [Catalog configuration](catalog-configuration.md).
 3. Ask an administrator to create the catalog and grant the required permissions.
 
@@ -119,7 +119,7 @@ Remove both resource groups:
 
 ```bash
 databricks bundle destroy -t dev -p rideflow_dev
-databricks catalogs delete rideflow_dev_demo --force -p rideflow_dev
+databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 
 If jobs or files remain because the bundle state was reset or provisioning used the notebook path, remove them explicitly.

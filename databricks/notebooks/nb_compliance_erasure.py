@@ -1,9 +1,16 @@
 # Databricks notebook source
 # ═══════════════════════════════════════════════════════════════════════════════
-# Notebook  : Right-to-Delete Driver — GDPR / HIPAA Erasure Workflows
+# Notebook  : nb_compliance_erasure — GDPR / HIPAA Erasure Workflows
 # Purpose   : Executes privacy erasure (nullify, hash, or redact) on
 #             materialized tables for specified data subjects. Generates
 #             audit-ready erasure reports.
+#
+# Two modes:
+#   * Queue (default) — GDPR IDs and HIPAA IDs both blank: erase every open
+#     request in <catalog>.<domain>._lakelogic_erasure_requests for this
+#     system, then mark each completed / failed. A dry run marks them
+#     dry_run and leaves them open for the next real run.
+#   * Explicit — GDPR/HIPAA column + IDs set: erase exactly those IDs.
 #
 # Called by:
 #   Databricks workflow or run interactively for compliance operations.
@@ -63,12 +70,12 @@ dbutils.widgets.removeAll()
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 dbutils.widgets.text("registry_path",
-    "/Volumes/rideflow_dev_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
+    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
     "Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Env")
 dbutils.widgets.text("entity_filter", "", "Entities")
-dbutils.widgets.dropdown("dry_run", "false", ["false", "true"], "Dry Run")
+dbutils.widgets.dropdown("dry_run", "true", ["true", "false"], "Dry Run")
 dbutils.widgets.dropdown("engine", "spark", ["polars", "spark", "pandas"], "Engine")
 
 # ── GDPR Erasure ──────────────────────────────────────────────────────────────
@@ -145,20 +152,52 @@ HIPAA_PARTITION_VAL = dbutils.widgets.get("hipaa_partition_val").strip()
 from lakelogic.core.registry import DomainRegistry
 from lakelogic.pipeline import LakehousePipeline
 
+# Explicit IDs win; with none given, the request table is the source.
+QUEUE_MODE = not GDPR_IDS and not HIPAA_IDS
+
 try:
-    if not GDPR_COLUMN and not HIPAA_COLUMN:
-        print("⚠️ No GDPR column or HIPAA column specified — nothing to erase.")
+    if not QUEUE_MODE and not GDPR_COLUMN and not HIPAA_COLUMN:
+        print("⚠️ IDs given but no GDPR column or HIPAA column — nothing to erase.")
         print("   Set 'GDPR Column' + 'GDPR IDs' or 'HIPAA Col' + 'HIPAA IDs' to proceed.")
     else:
         print(f"Loading Registry: {REGISTRY_PATH} (env: {ENVIRONMENT})")
-        registry = DomainRegistry.from_yaml(REGISTRY_PATH, environment=ENVIRONMENT)
+        # Catalog derived from the registry Volume path — the same derivation the
+        # pipeline driver uses, so `{catalog}` resolves to the tables it wrote.
+        import os
+        _derived_catalog = "governed_rideflow_lakehouse_demo"
+        if REGISTRY_PATH.startswith("/Volumes/"):
+            _parts = REGISTRY_PATH.split("/")
+            if len(_parts) > 2 and _parts[2]:
+                _derived_catalog = _parts[2]
+        os.environ.setdefault(f"RIDEFLOW_{ENVIRONMENT.upper()}_CATALOG", _derived_catalog)
+        print(f"Catalog: {_derived_catalog}")
+        registry = DomainRegistry.from_yaml(REGISTRY_PATH, environment=ENVIRONMENT, storage_mode="uc")
 
         pipeline = LakehousePipeline(registry, engine=ENGINE, spark=spark)
 
-        if GDPR_COLUMN and GDPR_IDS:
+        if QUEUE_MODE:
+            # Requests are rows in _lakelogic_erasure_requests (see README → Privacy).
+            # Subject ids are never printed: the request id is the reference.
+            print(f"\n📥 Erasure requests (dry run: {DRY_RUN})")
+            outcomes = pipeline.process_erasure_requests(
+                dry_run=DRY_RUN,
+                entity_filter=ENTITY_FILTER,
+                gdpr_strategy=GDPR_STRATEGY,
+                gdpr_salt=GDPR_SALT,
+                hipaa_strategy=HIPAA_STRATEGY,
+                hipaa_salt=HIPAA_SALT,
+            )
+            if not outcomes:
+                print("   No open requests for this system.")
+            for request_id, status in outcomes.items():
+                print(f"   {request_id}: {status}")
+            if any(s == "failed" for s in outcomes.values()):
+                raise RuntimeError("One or more erasure requests failed — see the statuses above.")
+
+        if not QUEUE_MODE and GDPR_COLUMN and GDPR_IDS:
             print(f"\n🔒 GDPR Erasure")
             print(f"   Column   : {GDPR_COLUMN}")
-            print(f"   IDs      : {GDPR_IDS}")
+            print(f"   IDs      : {len(GDPR_IDS)} subject(s)")
             print(f"   Strategy : {GDPR_STRATEGY}")
             print(f"   Dry run  : {DRY_RUN}")
 
@@ -183,10 +222,10 @@ try:
             )
             print("   ✅ GDPR erasure complete.")
 
-        if HIPAA_COLUMN and HIPAA_IDS:
+        if not QUEUE_MODE and HIPAA_COLUMN and HIPAA_IDS:
             print(f"\n🏥 HIPAA Erasure")
             print(f"   Column   : {HIPAA_COLUMN}")
-            print(f"   IDs      : {HIPAA_IDS}")
+            print(f"   IDs      : {len(HIPAA_IDS)} subject(s)")
             print(f"   Strategy : {HIPAA_STRATEGY}")
             print(f"   Dry run  : {DRY_RUN}")
 

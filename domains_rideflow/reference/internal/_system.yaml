@@ -5,12 +5,15 @@ domain: reference
 system: internal
 
 metadata:
-  run_log_table: "{domain_catalog}._pipeline_run_log"
+  run_log_table: "{domain_catalog}._lakelogic_run_log"
   run_log_backend: "spark"
+  slo_checks_table: "{domain_catalog}._lakelogic_slo_checks"
+  slo_checks_backend: "spark"
 
 storage:
   domain_catalog: "`{catalog}`.reference"
-  quarantine_root: "`{catalog}`.quarantine"
+  quarantine_root: "`{catalog}`.{domain}"
+  quarantine_table_name: "quarantine_{table}"
   contract_root: "/Workspace/Shared/data_platform/domains/{domain}/{system}"
   # UC-mode operational paths (were missing → {landing_root} stayed a literal
   # 'dbfs:/{landing_root}/...' and every bronze read failed PATH_NOT_FOUND).
@@ -130,11 +133,11 @@ environments:
     storage_account: "${RIDEFLOW_DEV_STORAGE_ACCOUNT}"
     <<: *azure_storage
   staging:
-    catalog: "rideflow_demo_staging"
+    catalog: "governed_rideflow_lakehouse_demo_staging"
     storage_account: "${RIDEFLOW_STG_STORAGE_ACCOUNT}"
     <<: *azure_storage
   prod:
-    catalog: "rideflow_demo_prod"
+    catalog: "governed_rideflow_lakehouse_demo_prod"
     storage_account: "${RIDEFLOW_PROD_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:

@@ -1,0 +1,273 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# pl_privacy_erasure — Right-to-erasure (GDPR / HIPAA) across every system
+# ══════════════════════════════════════════════════════════════════════════════
+# Runs nb_compliance_erasure once per domain / system.
+# With gdpr_ids and hipaa_ids blank (the default) each task erases the open rows of
+# <catalog>.<domain>._lakelogic_erasure_requests for its system; with IDs set it
+# erases exactly those IDs instead.
+# DRY RUN BY DEFAULT: set dry_run=false to erase. No schedule — run on request.
+# A system whose tables lack the subject column erases nothing.
+
+resources:
+  jobs:
+    erasure:
+      name: "[${bundle.target}] pl_privacy_erasure"
+      description: "Erase queued requests (or explicit IDs) across every system. Runs dry by default; erasing needs dry_run=false."
+
+      tags:
+        group: privacy
+        managed_by: lakelogic
+
+      parameters:
+        - name: gdpr_column
+          default: ""
+        - name: gdpr_ids
+          default: ""
+        - name: gdpr_strategy
+          default: "nullify"
+        - name: gdpr_salt
+          default: ""
+        - name: hipaa_column
+          default: ""
+        - name: hipaa_ids
+          default: ""
+        - name: hipaa_strategy
+          default: "nullify"
+        - name: hipaa_salt
+          default: ""
+        - name: entity_filter
+          default: ""
+        - name: dry_run
+          default: "true"
+
+      tasks:
+        - task_key: marketing_google_ads
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_ads/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: marketing_google_analytics
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: marketing_hubspot
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/hubspot/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: marketing_meta_ads
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/meta_ads/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: marketplace_rideflow
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketplace/rideflow/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: operations_checkr
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/checkr/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: operations_twilio
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/twilio/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: operations_zendesk
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/zendesk/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: payments_stripe
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/payments/stripe/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: reference_internal
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/reference/internal/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"
+
+        - task_key: shared_shared
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../../notebooks/nb_compliance_erasure.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/shared/shared/_system.yaml"
+              environment: "${bundle.target}"
+              engine: "spark"
+              entity_filter: "{{job.parameters.entity_filter}}"
+              dry_run: "{{job.parameters.dry_run}}"
+              gdpr_column: "{{job.parameters.gdpr_column}}"
+              gdpr_ids: "{{job.parameters.gdpr_ids}}"
+              gdpr_strategy: "{{job.parameters.gdpr_strategy}}"
+              gdpr_salt: "{{job.parameters.gdpr_salt}}"
+              hipaa_column: "{{job.parameters.hipaa_column}}"
+              hipaa_ids: "{{job.parameters.hipaa_ids}}"
+              hipaa_strategy: "{{job.parameters.hipaa_strategy}}"
+              hipaa_salt: "{{job.parameters.hipaa_salt}}"

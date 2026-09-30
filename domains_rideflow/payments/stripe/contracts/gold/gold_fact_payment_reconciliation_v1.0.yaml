@@ -44,6 +44,9 @@ primary_key: [created_date, currency]
 source:
   type: table
   path: "table:{domain_catalog}.silver_stripe_charges"
+  # Stays full (deliberate): an aggregate over its sources. An incremental batch
+  # holds only new rows, so re-grouping it would overwrite a complete aggregate
+  # with a partial one; the engine has no recompute-affected-keys mode.
   load_mode: full
 
 transformations:

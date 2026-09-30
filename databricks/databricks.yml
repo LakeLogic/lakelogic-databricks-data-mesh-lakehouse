@@ -24,16 +24,21 @@ targets:
       # root_path: ~/.bundle/${bundle.name}/${bundle.target}
       root_path: /Workspace/Shared/${var.deployment_folder}
     variables:
-      catalog: "rideflow_dev_demo"
+      catalog: "governed_rideflow_lakehouse_demo"
+      # Ships its own wheel until the engine fixes reach PyPI; blank = latest PyPI release.
+      # Workspace file, not the catalog's _wheels Volume: a catalog reset drops the Volume.
+      lakelogic_wheel: "/Workspace/Shared/lakelogic_wheels/lakelogic-1.66.3-py3-none-any.whl"
+      # Workspace default storage (AWS); the Azure abfss default does not exist here.
+      catalog_storage_root: ""
 
   stage:
     variables:
-      catalog: "rideflow_demo_staging"
+      catalog: "governed_rideflow_lakehouse_demo_staging"
 
   prod:
     mode: production
     variables:
-      catalog: "rideflow_demo_prod"
+      catalog: "governed_rideflow_lakehouse_demo_prod"
     permissions:
       - group_name: "data-team"
         level: CAN_VIEW

@@ -5,7 +5,7 @@
 # domains / eleven systems, respecting cross-domain dependencies.
 #
 #   1. setup            — catalog / schemas / landing Volumes / contracts
-#   2. seed_all_domains — FK-consistent landing + bronze + silver for EVERY domain
+#   2. synthetic_seed — FK-consistent landing + bronze + silver for EVERY domain
 #                         (topo-sorted by cross-domain foreign-key edges, so
 #                          downstream domains read REAL upstream ids)
 #   3. per-system gold  — fans out to each "Full Pipeline Orchestrator" with
@@ -23,48 +23,52 @@
 resources:
   jobs:
     mesh_orchestrator:
-      name: "[${bundle.target}] RideFlow Demo — 🕸️ Data Mesh Orchestrator (whole mesh, by dependency)"
+      name: "[${bundle.target}] pl_data_00_mesh_orchestrator"
       description: "Provision → FK-consistent seed (all domains, bronze+silver) → gold for every system in cross-domain dependency order. One click runs the entire mesh."
 
+      # Hourly, PAUSED by default: unpause in the Jobs UI to run the mesh every hour.
+      # Each run extends the synthetic data by the hours since the last run (resume=True).
+      schedule:
+        quartz_cron_expression: "0 0 * * * ?"
+        timezone_id: UTC
+        pause_status: PAUSED
+
       tags:
+        group: data
         managed_by: lakelogic
         layer: mesh
 
       # NOTE: gold-only per-system parameters (test_data/bronze/silver=false,
       # gold=true) are defined once as the &gold_only anchor on the first
       # per-system task below, then aliased (*gold_only) by every other. Bronze+
-      # silver come from seed_all_domains (FK-consistent); regenerating test data
+      # silver come from synthetic_seed (FK-consistent); regenerating test data
       # per-system here would break cross-domain foreign keys.
 
       tasks:
         # ── Step 1: Provision catalog / schemas / volumes / contracts ─────────
         - task_key: setup
-          notebook_task:
-            notebook_path: ../../notebooks/_ops/00_setup.py
-            base_parameters:
-              lakelogic_wheel: "${var.lakelogic_wheel}"
-              lakelogic_version: "${var.lakelogic_version}"
-              catalog: "${var.catalog}"
-              contracts_src: "${workspace.file_path}/domains_rideflow"
-
-        # ── Step 2: FK-consistent landing + bronze + silver for ALL domains ───
-        - task_key: seed_all_domains
+          # The SETUP WORKFLOW itself (pl_admin_setup), not a copy of its notebook task:
+          # one definition, and reset/storage_root reach it (the notebook copy never
+          # passed them, so a reset deploy did not reset).
+          run_job_task:
+            job_id: ${resources.jobs.setup.id}
+        - task_key: synthetic_seed
           depends_on:
             - task_key: setup
           run_job_task:
-            job_id: ${resources.jobs.seed_all_domains.id}
+            job_id: ${resources.jobs.synthetic_seed.id}
 
         # ── Step 3: Gold materialisation, in cross-domain dependency order ────
         # Roots — depend only on the seed.
         - task_key: marketplace_rideflow
           depends_on:
-            - task_key: seed_all_domains
+            - task_key: synthetic_seed
           run_job_task:
-            job_id: ${resources.jobs.marketplace_orchestrator_rideflow.id}
+            job_id: ${resources.jobs.marketplace_rideflow.id}
             # Every stage runs, so each per-system job shows real run history rather
             # than an empty "Recent runs" column.
             #
-            # test_data stays FALSE deliberately: `seed_all_domains` generates the
+            # test_data stays FALSE deliberately: `synthetic_seed` generates the
             # landing data for the WHOLE mesh in FK dependency order, so payments reads
             # rider_ids that marketplace actually produced. If each system regenerated
             # its own test data here, those ids would be independently random and every
@@ -77,68 +81,104 @@ resources:
 
         - task_key: reference_internal
           depends_on:
-            - task_key: seed_all_domains
+            - task_key: synthetic_seed
           run_job_task:
-            job_id: ${resources.jobs.reference_orchestrator_internal.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.reference_internal.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "true"
 
         # After marketplace — payments, marketing (×4), operations/checkr, /twilio.
         - task_key: payments_stripe
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
-            job_id: ${resources.jobs.payments_orchestrator_stripe.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.payments_stripe.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "true"
 
         - task_key: marketing_google_ads
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
-            job_id: ${resources.jobs.marketing_orchestrator_google_ads.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.marketing_google_ads.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "true"
 
         - task_key: marketing_google_analytics
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
-            job_id: ${resources.jobs.marketing_orchestrator_google_analytics.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.marketing_google_analytics.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "false"
 
         - task_key: marketing_hubspot
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
-            job_id: ${resources.jobs.marketing_orchestrator_hubspot.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.marketing_hubspot.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "false"
 
         - task_key: marketing_meta_ads
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
-            job_id: ${resources.jobs.marketing_orchestrator_meta_ads.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.marketing_meta_ads.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "false"
 
         - task_key: operations_checkr
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
-            job_id: ${resources.jobs.operations_orchestrator_checkr.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.operations_checkr.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "false"
 
         - task_key: operations_twilio
           depends_on:
             - task_key: marketplace_rideflow
           run_job_task:
-            job_id: ${resources.jobs.operations_orchestrator_twilio.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.operations_twilio.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "false"
 
         # zendesk enriches payments charges → after payments.
         - task_key: operations_zendesk
           depends_on:
             - task_key: payments_stripe
           run_job_task:
-            job_id: ${resources.jobs.operations_orchestrator_zendesk.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.operations_zendesk.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "true"
+              enable_silver: "true"
+              enable_gold: "true"
 
         # shared marts join across every domain → run last.
         - task_key: shared_shared
@@ -154,18 +194,32 @@ resources:
             - task_key: operations_zendesk
           run_if: ALL_SUCCESS
           run_job_task:
-            job_id: ${resources.jobs.shared_orchestrator_shared.id}
-            job_parameters: *all_stages
+            job_id: ${resources.jobs.shared_shared.id}
+            job_parameters:
+              enable_test_data: "false"
+              enable_bronze: "false"
+              enable_silver: "false"
+              enable_gold: "true"
 
         # ── Final gate: a green run must mean the work happened ───────────────
         # Skipped tasks do not fail a run, so a broken condition gate can skip every
         # gold stage and still finish SUCCESS. This asserts the estate actually holds
         # the gold it claims to have built, turning a silent no-op into a failure.
-        - task_key: assert_mesh_complete
+        - task_key: verify_marketplace_outputs
+          depends_on:
+            - task_key: marketplace_rideflow
+          notebook_task:
+            notebook_path: ../../notebooks/_ops/nb_release_smoke_test.py
+            base_parameters:
+              lakelogic_wheel: "${var.lakelogic_wheel}"
+              lakelogic_version: "${var.lakelogic_version}"
+              catalog: "${var.catalog}"
+
+        - task_key: nb_assert_mesh_complete
           depends_on:
             - task_key: shared_shared
           notebook_task:
-            notebook_path: ../../notebooks/_ops/assert_mesh_complete.py
+            notebook_path: ../../notebooks/_ops/nb_assert_mesh_complete.py
             base_parameters:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"

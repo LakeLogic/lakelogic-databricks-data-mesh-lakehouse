@@ -7,7 +7,7 @@
 # "Not evaluated".
 #
 # WHY THIS JOB EXISTS
-# `service_level_checks.py` and the SLOValidator behind it were already written,
+# `nb_slo_checks.py` and the SLOValidator behind it were already written,
 # and the domains already declare objectives. Nothing scheduled the notebook, so
 # across 2,082 recorded runs not one carried an SLO result and every product read
 # "Not evaluated" — the objectives were promised and never measured.
@@ -18,11 +18,12 @@
 
 resources:
   jobs:
-    marketplace_service_level_checks_rideflow:
-      name: "[${bundle.target}] marketplace / rideflow — Service Level Checks"
+    slo_checks_marketplace_rideflow:
+      name: "[${bundle.target}] pl_monitor_slo_marketplace_rideflow"
       description: "Evaluates declared freshness + row-count objectives and reports them to LakeLogic."
 
       tags:
+        group: monitor
         domain: marketplace
         system: rideflow
         layer: service_levels
@@ -40,7 +41,7 @@ resources:
       tasks:
         - task_key: check_service_levels
           notebook_task:
-            notebook_path: ../../notebooks/service_level_checks.py
+            notebook_path: ../../notebooks/nb_slo_checks.py
             base_parameters:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"

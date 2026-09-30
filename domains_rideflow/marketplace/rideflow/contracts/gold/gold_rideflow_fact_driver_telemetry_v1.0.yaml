@@ -1,0 +1,101 @@
+version: 1.0.0
+info:
+  title: Gold — Fact Driver Telemetry
+  target_layer: gold
+  description: 'grain: one row per driver telemetry reading'
+  table_name: '{gold_layer}_rideflow_fact_driver_telemetry'
+  system: rideflow
+  domain: marketplace
+model:
+  fields:
+  - name: telemetry_id
+    type: string
+    required: true
+    description: Grain key of the 'driver_telemetry' fact.
+  - name: speed_kmh
+    type: float
+    required: false
+    description: 'Measure candidate: avg of ''speed_kmh'' (needs confirmation).'
+  - name: trip_id
+    type: string
+    required: false
+    description: Column 'trip_id' of the 'driver_telemetry' fact.
+  - name: timestamp
+    type: timestamp
+    required: false
+    description: Column 'timestamp' of the 'driver_telemetry' fact.
+  - name: heading
+    type: string
+    required: false
+    description: Column 'heading' of the 'driver_telemetry' fact.
+  - name: accuracy_meters
+    type: string
+    required: false
+    description: Column 'accuracy_meters' of the 'driver_telemetry' fact.
+  - name: driver_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_rideflow_dim_driver_profiles
+      column: driver_profiles_sk
+    description: Surrogate key of gold_rideflow_dim_driver_profiles, looked up as
+      of timestamp; '-1' when the dimension does not know the row.
+  - name: timestamp_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `timestamp`.'
+dataset: gold_rideflow_fact_driver_telemetry
+primary_key:
+- telemetry_id
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - telemetry_id
+      name: telemetry_id_unique
+      category: uniqueness
+      description: No two rows share the same telemetry_id.
+  - name: driver_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE driver_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose driver_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.telemetry_id,
+      r.trip_id,
+      r.timestamp,
+      r.heading,
+      r.accuracy_meters,
+      r.speed_kmh AS speed_kmh,
+      COALESCE(d1.driver_profiles_sk, '-1') AS driver_sk,
+      CAST(r.timestamp AS DATE) AS timestamp_date
+    FROM source r
+    LEFT JOIN gold_rideflow_dim_driver_profiles d1
+      ON  r.driver_id = d1.driver_id
+      AND r.timestamp >= d1.effective_from
+      AND r.timestamp < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+links:
+- name: gold_rideflow_dim_driver_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_rideflow_dim_driver_profiles
+upstream:
+- gold_rideflow_dim_driver_profiles
+materialization:
+  # Transaction facts are immutable events: the engine requires append for them.
+  strategy: append
+  fact:
+    type: transaction
+  partition_by:
+  - timestamp_date
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_driver_telemetry
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

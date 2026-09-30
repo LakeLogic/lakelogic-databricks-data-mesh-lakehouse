@@ -1,13 +1,12 @@
 # Databricks notebook source
 # ═══════════════════════════════════════════════════════════════════════════════
-# Notebook  : 00_setup — Provision the RideFlow demo on Unity Catalog
+# Notebook  : nb_00_setup — Provision the RideFlow demo on Unity Catalog
 # Purpose   : One-shot, idempotent bootstrap so a tester can stand up the whole
 #             demo on Databricks with NO Azure ADLS and NO external storage.
 #
 # Creates, from the contract registry (domains_rideflow/):
-#   • the Unity Catalog            (default: rideflow_dev_demo)
+#   • the Unity Catalog            (default: governed_rideflow_lakehouse_demo)
 #   • one schema per domain        (marketing, marketplace, operations, ...)
-#   • a `quarantine` schema        (where contract-failing rows are held)
 #   • a `nondelta` schema with UC Volumes:
 #         _contracts               (the staged contract registry the driver reads)
 #         _logs                    (pipeline run logs)
@@ -33,7 +32,7 @@
 # back their DEFAULTS instead. That is invisible for `catalog` (the default happens to equal
 # what the job passes) but silently disabled `reset`, so the purge never ran and the job
 # failed on the orphaned volume it was meant to rebuild.
-dbutils.widgets.text("catalog", "rideflow_dev_demo", "Config - Unity Catalog name")
+dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Config - Unity Catalog name")
 # Where the synced contract registry lives in the workspace. Leave blank to
 # auto-detect relative to this notebook. The bootstrap job passes it explicitly.
 dbutils.widgets.text("contracts_src", "", "Config - Contracts source dir (workspace)")
@@ -61,7 +60,7 @@ dbutils.widgets.text("storage_root", "", "Config - MANAGED LOCATION for a new ca
 import os
 import shutil
 
-CATALOG = dbutils.widgets.get("catalog").strip() or "rideflow_dev_demo"
+CATALOG = dbutils.widgets.get("catalog").strip() or "governed_rideflow_lakehouse_demo"
 RESET = dbutils.widgets.get("reset").strip().lower() == "true"
 STORAGE_ROOT = dbutils.widgets.get("storage_root").strip()
 contracts_src = dbutils.widgets.get("contracts_src").strip()
@@ -69,7 +68,7 @@ contracts_src = dbutils.widgets.get("contracts_src").strip()
 # Auto-detect the synced contract registry by walking UP from this notebook's own
 # location and checking each ancestor for a `domains_rideflow` child. Robust to how
 # deep the bundle nests the notebook (e.g. .../files/domains_rideflow while the
-# notebook is at .../files/databricks/notebooks/_ops/00_setup).
+# notebook is at .../files/databricks/notebooks/nb_00_setup).
 if not contracts_src:
     try:
         ctx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()
@@ -104,11 +103,11 @@ print(f"🌐 Domains        : {', '.join(domains)}")
 
 # MAGIC %md
 # MAGIC ## 🏗️ Create catalog, schemas & volumes
-# MAGIC All statements are `IF NOT EXISTS` — safe to re-run.
+# MAGIC All statements are <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">IF NOT EXISTS</span> — safe to re-run.
 # MAGIC
-# MAGIC > **Permissions:** creating a catalog needs the metastore `CREATE CATALOG`
+# MAGIC > **Permissions:** creating a catalog needs the metastore <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">CREATE CATALOG</span>
 # MAGIC > privilege. If you don't have it, ask an admin to create an empty catalog
-# MAGIC > and set the `catalog` widget to it — this notebook then just adds the
+# MAGIC > and set the <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">catalog</span> widget to it — this notebook then just adds the
 # MAGIC > schemas and volumes inside it.
 
 # COMMAND ----------
@@ -205,9 +204,11 @@ if not _catalog_exists(CATALOG):
 sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`nondelta`")
 sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`_contracts`")
 sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`_logs`")
+sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`_wheels`")  # lakelogic wheels shipped before a PyPI release
 
 # ── Quarantine schema (contract-failing rows land here) ───────────────────────
-sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`quarantine`")
+# Quarantine lives in each domain schema as quarantine_<table> (Build Centre layout),
+# so there is no separate `quarantine` schema to create.
 
 # ── Per-domain schema (delta tables) + landing Volume ─────────────────────────
 # We also PRE-CREATE the run-log + SLO Delta tables per domain. The LakeLogic
@@ -229,20 +230,34 @@ _RUN_LOG_COLS = """(
   dlt_state_json STRING, slo_json STRING, report_json STRING
 )"""
 
+# The erasure queue: people / DSR tools INSERT rows, the erasure job erases them and
+# sets status. Pre-created so a request can be filed before the first erasure run.
+# Schema mirrors lakelogic.core.erasure_requests.REQUEST_COLUMNS (the engine's own
+# CREATE IF NOT EXISTS is the same table, so either may create it first).
+_ERASURE_REQUEST_COLS = """(
+  request_id STRING, framework STRING, subject_column STRING, subject_id STRING,
+  requested_at TIMESTAMP, requested_by STRING, reason STRING, status STRING,
+  processed_at TIMESTAMP, run_id STRING, system STRING
+)"""
+
 for domain in domains:
     sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
     sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`landing_{domain}`")
-    # Managed Delta run-log table (matches metadata.run_log_table = {domain_catalog}._pipeline_run_log).
-    # _slo_checks is intentionally NOT pre-created: the demo produces no SLO checks,
+    # Managed Delta run-log table (matches metadata.run_log_table = {domain_catalog}._lakelogic_run_log).
+    # _lakelogic_slo_checks is intentionally NOT pre-created: the demo produces no SLO checks,
     # so it never races; the engine will create it with its own schema if needed.
-    sql(f"CREATE TABLE IF NOT EXISTS `{CATALOG}`.`{domain}`.`_pipeline_run_log` {_RUN_LOG_COLS} USING DELTA")
+    sql(f"CREATE TABLE IF NOT EXISTS `{CATALOG}`.`{domain}`.`_lakelogic_run_log` {_RUN_LOG_COLS} USING DELTA")
+    sql(
+        f"CREATE TABLE IF NOT EXISTS `{CATALOG}`.`{domain}`.`_lakelogic_erasure_requests` "
+        f"{_ERASURE_REQUEST_COLS} USING DELTA"
+    )
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 📦 Stage the contract registry into the `_contracts` Volume
+# MAGIC ## 📦 Stage the contract registry into the <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">_contracts</span> Volume
 # MAGIC The pipeline driver reads contracts from
-# MAGIC `/Volumes/<catalog>/nondelta/_contracts/<domain>/<system>/_system.yaml`,
+# MAGIC <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">/Volumes/&lt;catalog&gt;/nondelta/_contracts/&lt;domain&gt;/&lt;system&gt;/_system.yaml</span>,
 # MAGIC so we copy the synced registry into that Volume.
 
 # COMMAND ----------
@@ -304,7 +319,7 @@ print(f"\n📦 Staged {copied} contract files into {contracts_vol}")
 print("═" * 70)
 print(f"  RideFlow demo provisioned on Unity Catalog: {CATALOG}")
 print("═" * 70)
-print(f"  Schemas   : nondelta, quarantine, {', '.join(domains)}")
+print(f"  Schemas   : nondelta, {', '.join(domains)}")
 print(f"  Volumes   : nondelta/_contracts, nondelta/_logs,")
 for domain in domains:
     print(f"              nondelta/landing_{domain}")

@@ -39,5 +39,10 @@ source:
   format: csv
   options:
     header: "true"
-  load_mode: full
-  watermark_strategy: none
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+# Incremental source → upsert on primary_key (SCD1) so a re-read or
+# updated row replaces its previous version instead of duplicating.
+materialization:
+  strategy: merge

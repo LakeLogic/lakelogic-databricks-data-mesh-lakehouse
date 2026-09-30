@@ -8,7 +8,7 @@
 # Volume, so the same notebooks can run against it first.
 #
 # Usage:  ./upload_lakelogic_wheel.sh [profile] [catalog] [lakelogic_repo]
-# Default: rideflow_dev  rideflow_dev_demo  ../../lakelogic
+# Default: rideflow_dev  governed_rideflow_lakehouse_demo  ../../lakelogic
 #
 # Then run a notebook with the `lakelogic_wheel` widget set to the printed path.
 # Leave that widget blank and the notebook installs from PyPI exactly as before.
@@ -16,7 +16,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 PROFILE="${1:-rideflow_dev}"
-CATALOG="${2:-rideflow_dev_demo}"
+CATALOG="${2:-governed_rideflow_lakehouse_demo}"
 REPO="${3:-$(cd .. && pwd)/../lakelogic}"
 VOLUME="/Volumes/${CATALOG}/nondelta/_wheels"
 

@@ -47,8 +47,8 @@ source:
   format: csv
   options:
     header: "true"
-  load_mode: full     # full reload each time — small static file
-  watermark_strategy: none
+  load_mode: incremental
+  watermark_strategy: pipeline_log
 lineage:
   enabled: true
   capture_timestamp: true

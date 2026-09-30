@@ -31,8 +31,8 @@
 #      pulls the scope into `os.environ` below.
 #
 # See also:
-#   test_data_driver.py      — Generate test landing-zone data
-#   right_to_delete_driver.py — GDPR/HIPAA erasure workflows
+#   nb_test_data_driver.py      — Generate test landing-zone data
+#   nb_compliance_erasure.py — GDPR/HIPAA erasure workflows
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # COMMAND ----------
@@ -62,7 +62,7 @@ _version = dbutils.widgets.get("lakelogic_version").strip()
 # An explicit `==` is unsatisfied by an older pre-install, so pip must act;
 # `--upgrade` covers the unpinned case.
 if _wheel:
-    lakelogic_pkg = f"{_wheel} --force-reinstall"
+    lakelogic_pkg = f"{_wheel}[pdf] --force-reinstall"  # same extras as the PyPI install (pdfplumber for checkr licences)
 elif _version:
     lakelogic_pkg = f"lakelogic[pdf]=={_version}"
 else:
@@ -89,7 +89,7 @@ dbutils.widgets.removeAll()
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 dbutils.widgets.text("registry_path",
-    "/Volumes/rideflow_dev_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
+    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
     "Config - Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Config - Environment")
@@ -179,8 +179,8 @@ RESUME_FROM_RUN = dbutils.widgets.get("resil_resume_run").strip() or None
 
 # MAGIC %md
 # MAGIC ## 🔐 Inject Domain Secrets (Interactive Fallback)
-# MAGIC When running interactively outside of a Databricks Job, `spark_env_vars` are not automatically injected.
-# MAGIC This cell manually pulls the secret scope and maps them to environment variables (e.g., `rideflow-dev-catalog` → `RIDEFLOW_DEV_CATALOG`).
+# MAGIC When running interactively outside of a Databricks Job, <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">spark_env_vars</span> are not automatically injected.
+# MAGIC This cell manually pulls the secret scope and maps them to environment variables (e.g., <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">rideflow-dev-catalog</span> → <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">RIDEFLOW_DEV_CATALOG</span>).
 
 # COMMAND ----------
 
@@ -210,7 +210,7 @@ import os
 # straight from the registry path (/Volumes/<catalog>/nondelta/_contracts/...) so
 # table names always match the catalog this pipeline is deployed against — one
 # source of truth. Set it by pointing registry_path at /Volumes/<your-catalog>/…
-_derived_catalog = "rideflow_dev_demo"
+_derived_catalog = "governed_rideflow_lakehouse_demo"
 if REGISTRY_PATH.startswith("/Volumes/"):
     _parts = REGISTRY_PATH.split("/")
     if len(_parts) > 2 and _parts[2]:
@@ -230,7 +230,7 @@ os.environ.setdefault(f"RIDEFLOW_{ENVIRONMENT.upper()}_CATALOG", _derived_catalo
 # MAGIC ## 1️⃣  Initialize Pipeline & Visualize DAG
 # MAGIC
 # MAGIC With LakeLogic 0.3.0, orchestration logic (DAG resolution, 
-# MAGIC reset workflows) has moved into the `lakelogic.pipeline` 
+# MAGIC reset workflows) has moved into the <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">lakelogic.pipeline</span> 
 # MAGIC package so that logic can be unit tested and run locally.
 # MAGIC
 # MAGIC This notebook is a thin, declarative runner.

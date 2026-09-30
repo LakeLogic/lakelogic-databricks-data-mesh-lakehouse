@@ -40,7 +40,7 @@ model:
     description: "card, apple_pay, google_pay"
   - name: card_last_four
     type: string
-    pii: true
+    sensitive: true
     description: "Last 4 digits of card"
   - name: billing_email
     type: string

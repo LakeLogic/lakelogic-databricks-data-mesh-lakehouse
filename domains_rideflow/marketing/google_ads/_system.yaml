@@ -3,8 +3,10 @@ domain: marketing
 system: google_ads
 
 metadata:
-  run_log_table: "{domain_catalog}._pipeline_run_log"
+  run_log_table: "{domain_catalog}._lakelogic_run_log"
   run_log_backend: "spark"
+  slo_checks_table: "{domain_catalog}._lakelogic_slo_checks"
+  slo_checks_backend: "spark"
 
 quarantine:
   enabled: true
@@ -15,7 +17,8 @@ quarantine:
 
 storage:
   domain_catalog: "`{catalog}`.{domain}"
-  quarantine_root: "`{catalog}`.quarantine"
+  quarantine_root: "`{catalog}`.{domain}"
+  quarantine_table_name: "quarantine_{table}"
   contract_root: "/Workspace/Shared/data_platform/domains/{domain}/{system}"
   landing_root: "/Volumes/{catalog}/nondelta/landing_{domain}/{system}"
   log_root: "/Volumes/{catalog}/nondelta/_logs"
@@ -106,11 +109,11 @@ environments:
     storage_account: "${RIDEFLOW_DEV_STORAGE_ACCOUNT}"
     <<: *azure_storage
   staging:
-    catalog: "rideflow_demo_staging"
+    catalog: "governed_rideflow_lakehouse_demo_staging"
     storage_account: "${RIDEFLOW_STG_STORAGE_ACCOUNT}"
     <<: *azure_storage
   prod:
-    catalog: "rideflow_demo_prod"
+    catalog: "governed_rideflow_lakehouse_demo_prod"
     storage_account: "${RIDEFLOW_PROD_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:

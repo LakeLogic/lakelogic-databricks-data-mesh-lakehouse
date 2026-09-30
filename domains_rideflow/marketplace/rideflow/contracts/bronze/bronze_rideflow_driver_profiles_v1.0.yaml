@@ -48,6 +48,7 @@ model:
     description: "sedan, suv, van, motorcycle, bicycle"
   - name: bank_account_last_four
     type: string
+    sensitive: true
     description: "Last 4 digits of bank account"
   - name: city_code
     type: string

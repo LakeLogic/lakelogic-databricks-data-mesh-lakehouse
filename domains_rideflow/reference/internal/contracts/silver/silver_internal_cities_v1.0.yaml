@@ -39,10 +39,13 @@ quality:
   dataset_rules:
   - unique: city_code
 
+primary_key: [city_code]
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_city_master'
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
 transformations:
 - deduplicate:
     "on":
@@ -50,3 +53,8 @@ transformations:
     sort_by:
     - _lakelogic_processed_at
     order: desc
+
+# Incremental source → upsert on primary_key (SCD1) so a re-read or
+# updated row replaces its previous version instead of duplicating.
+materialization:
+  strategy: merge

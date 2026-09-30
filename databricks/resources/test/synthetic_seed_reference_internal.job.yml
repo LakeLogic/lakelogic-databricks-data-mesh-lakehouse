@@ -7,11 +7,12 @@
 
 resources:
   jobs:
-    reference_test_data_internal:
-      name: "[${bundle.target}] reference / internal — 0 Test Data Generation"
+    synthetic_seed_reference_internal:
+      name: "[${bundle.target}] pl_test_synthetic_seed_reference_internal"
       description: "Generate realistic streaming data + deterministic edge cases into the landing zone."
 
       tags:
+        group: test
         domain: reference
         system: internal
         layer: test
@@ -45,12 +46,13 @@ resources:
       tasks:
         - task_key: generate_test_data
           notebook_task:
-            notebook_path: ../../notebooks/test_data_driver.py
+            notebook_path: ../../notebooks/nb_test_data_driver.py
             base_parameters:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/reference/internal/_system.yaml"
               environment: "${bundle.target}"
-              num_windows: "24"
+              num_windows: "48"
               inject_edge_cases: "true"
+              build_bronze_silver: "true"
 

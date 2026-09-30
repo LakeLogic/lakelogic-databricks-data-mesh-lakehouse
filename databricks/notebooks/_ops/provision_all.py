@@ -6,7 +6,7 @@
 # Asset Bundle deploy, no Terraform state. It provisions the full demo from the
 # contracts:
 #
-#     Unity Catalog                    (default: rideflow_dev_demo)
+#     Unity Catalog                    (default: governed_rideflow_lakehouse_demo)
 #       ├── nondelta  (schema)         UC Volumes: _contracts, _logs, landing_<domain>
 #       │     └── landing_<domain>/<system>/   (landing folders)
 #       ├── quarantine (schema)
@@ -20,7 +20,7 @@
 #
 # Idempotent — every statement is IF NOT EXISTS / ddl_only; safe to re-run.
 # To also GENERATE + PROCESS data afterwards, run a domain orchestrator job, or
-# run test_data_driver.py then pipeline_driver.py.
+# run nb_test_data_driver.py then nb_pipeline_driver.py.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # COMMAND ----------
@@ -73,7 +73,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 dbutils.widgets.removeAll()
-dbutils.widgets.text("catalog", "rideflow_dev_demo", "Unity Catalog name")
+dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Unity Catalog name")
 dbutils.widgets.text("contracts_root", "", "Contracts dir (blank = auto-detect)")
 dbutils.widgets.dropdown("create_tables", "true", ["true", "false"], "Create empty tables?")
 dbutils.widgets.dropdown("engine", "spark", ["spark", "polars"], "Engine (spark for UC)")
@@ -89,7 +89,7 @@ import os
 import glob
 import shutil
 
-CATALOG        = dbutils.widgets.get("catalog").strip() or "rideflow_dev_demo"
+CATALOG        = dbutils.widgets.get("catalog").strip() or "governed_rideflow_lakehouse_demo"
 CREATE_TABLES  = dbutils.widgets.get("create_tables") == "true"
 ENGINE         = dbutils.widgets.get("engine").strip() or "spark"
 contracts_root = dbutils.widgets.get("contracts_root").strip()
@@ -136,8 +136,8 @@ print(f"🏗  Create tables  : {CREATE_TABLES} (engine={ENGINE})")
 
 # MAGIC %md
 # MAGIC ## 1️⃣ Catalog, schemas & UC Volumes
-# MAGIC > Creating a catalog needs the metastore `CREATE CATALOG` privilege. Without
-# MAGIC > it, ask an admin for an empty catalog and set the `catalog` widget to it —
+# MAGIC > Creating a catalog needs the metastore <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">CREATE CATALOG</span> privilege. Without
+# MAGIC > it, ask an admin for an empty catalog and set the <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">catalog</span> widget to it —
 # MAGIC > this notebook then just adds the schemas, volumes and tables inside it.
 
 # COMMAND ----------
@@ -176,7 +176,8 @@ if not _catalog_exists(CATALOG):
 sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`nondelta`")
 sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`_contracts`")
 sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`_logs`")
-sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`quarantine`")
+# Quarantine lives in each domain schema as quarantine_<table> (Build Centre layout),
+# so there is no separate `quarantine` schema to create.
 
 for domain in domains:
     sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
@@ -185,7 +186,7 @@ for domain in domains:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 2️⃣ Landing folders + stage contracts into the `_contracts` Volume
+# MAGIC ## 2️⃣ Landing folders + stage contracts into the <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">_contracts</span> Volume
 
 # COMMAND ----------
 
@@ -213,7 +214,7 @@ print(f"\n  📦 staged {staged} contract files into {contracts_vol}")
 
 # MAGIC %md
 # MAGIC ## 3️⃣ Create the tables (empty — DDL only)
-# MAGIC Uses the LakeLogic engine in `ddl_only` mode: it creates the bronze/silver/gold
+# MAGIC Uses the LakeLogic engine in <span style="background:#7f1d1d;color:#ffffff;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">ddl_only</span> mode: it creates the bronze/silver/gold
 # MAGIC Delta tables from each contract but does **not** read or write any data.
 
 # COMMAND ----------
@@ -263,14 +264,14 @@ else:
 print("═" * 70)
 print(f"  Provisioned Unity Catalog: {CATALOG}")
 print("═" * 70)
-print(f"  Schemas : nondelta, quarantine, {', '.join(domains)}")
+print(f"  Schemas : nondelta, {', '.join(domains)}")
 print(f"  Volumes : nondelta/_contracts, nondelta/_logs, "
       + ", ".join(f"nondelta/landing_{d}" for d in domains))
 print(f"  Tables  : {'created (empty)' if CREATE_TABLES else 'skipped'}")
 print()
 print("  Next — generate + process data:")
 print("    • run a domain orchestrator job, OR")
-print("    • run test_data_driver.py then pipeline_driver.py for a system")
+print("    • run nb_test_data_driver.py then nb_pipeline_driver.py for a system")
 print()
 print(f"  Teardown: DROP CATALOG `{CATALOG}` CASCADE;")
 print("═" * 70)

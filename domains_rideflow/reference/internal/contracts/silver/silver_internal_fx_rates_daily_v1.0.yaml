@@ -39,7 +39,8 @@ primary_key: [rate_date, base_currency, quote_currency]
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_fx_rates_daily'
-  load_mode: full
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
 transformations:
 - deduplicate:
     "on":
@@ -49,3 +50,8 @@ transformations:
     sort_by:
     - _lakelogic_processed_at
     order: desc
+
+# Incremental source → upsert on primary_key (SCD1) so a re-read or
+# updated row replaces its previous version instead of duplicating.
+materialization:
+  strategy: merge

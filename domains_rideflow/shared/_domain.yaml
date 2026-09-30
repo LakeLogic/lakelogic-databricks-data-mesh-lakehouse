@@ -30,13 +30,6 @@ slo:
   quality:
     min_good_ratio: 0.99
     max_quarantine_ratio: 0.01
-  schedule:
-    environments: [dev, prod, staging]
-    expected_start_utc: "05:30"
-    expected_completion_utc: "06:00"
-    expected_duration_minutes: 30
-    warn_if_duration_exceeds_minutes: 60
-    timezone: UTC
 
 # ── Cost Governance ──────────────────────────────────────────────────────────
 cost:
@@ -62,7 +55,7 @@ notifications:
 
 # ── Observatory Telemetry ────────────────────────────────────────────────────
 observatory:
-  enabled: false
+  enabled: true
   environments: [dev, prod, staging, local, local_polars]
   endpoint: "${LAKELOGIC_OBSERVATORY_ENDPOINT}"
   api_key: "${LAKELOGIC_API_KEY}"

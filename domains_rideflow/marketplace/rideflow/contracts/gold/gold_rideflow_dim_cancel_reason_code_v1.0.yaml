@@ -1,0 +1,54 @@
+version: 1.0.0
+info:
+  title: Gold — Dim Cancel Reason Code
+  target_layer: gold
+  description: 'grain: one row per cancel_reason_code'
+  table_name: '{gold_layer}_rideflow_dim_cancel_reason_code'
+  system: rideflow
+  domain: marketplace
+model:
+  fields:
+  - name: cancel_reason_code_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: cancel_reason_code
+    type: string
+    required: true
+    description: Dimension attribute 'cancel_reason_code', projected from the 'cancel_reason_code'
+      entity.
+dataset: gold_rideflow_dim_cancel_reason_code
+primary_key:
+- cancel_reason_code
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - cancel_reason_code
+      name: cancel_reason_code_unique
+      category: uniqueness
+      description: No two rows share the same cancel_reason_code.
+natural_key:
+- cancel_reason_code
+materialization:
+  strategy: merge
+  scd1:
+    surrogate_key: cancel_reason_code_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+transformations:
+- phase: pre
+  sql: |-
+    SELECT DISTINCT cancel_reason_code
+    FROM source
+    WHERE cancel_reason_code IS NOT NULL
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_cancellations
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
