@@ -146,3 +146,23 @@ retention:
 bronze_layer: bronze
 silver_layer: silver
 gold_layer: gold
+
+# ── Data Products ──────────────────────────────────────────────────────────
+products:
+  - id: trip_performance
+    name: Trip Performance
+    description: Daily trip and rider performance for the marketplace, built from completed trips and rider activity.
+    lifecycle: proposed
+    expected_outputs:
+      - id: trip_daily_kpis
+        name: Fact Trip Daily KPIs
+        kind: table
+        required: true
+      - id: rider_daily_metrics
+        name: Fact Rider Daily Metrics
+        kind: table
+        required: true
+      - id: surge_pricing_inference
+        name: Fact Surge Pricing Inference
+        kind: table
+        required: false
