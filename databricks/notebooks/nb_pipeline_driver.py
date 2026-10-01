@@ -19,11 +19,10 @@
 #
 #
 # Secrets & Configuration:
-#   1. Direct Secret References (Recommended):
-#      Use `{{secrets/scope/key}}` in your YAML (e.g. _domain.yaml).
-#      Example: `endpoint: "{{secrets/rideflow/LAKELOGIC_OBSERVATORY_ENDPOINT}}"`
-#      The framework natively fetches from Databricks Secrets, or dynamically 
-#      falls back to direct Azure Key Vault API calls when running locally.
+#   1. Direct Secret References:
+#      Use `{{secrets/scope/key}}` in your YAML for storage/source settings.
+#      NOT for the observatory block: it resolves only `${ENV_VAR}`. Telemetry
+#      is set by the telemetry_scope parameter below (default scope "rideflow").
 #
 #   2. Environment Variables (Legacy/DAB mapping):
 #      Use `${VAR_NAME}` in your YAML. Databricks Asset Bundles inject these
@@ -146,6 +145,40 @@ except NameError:
 
 # ── Resolve widget values ──────────────────────────────────────────────────────
 REGISTRY_PATH = dbutils.widgets.get("registry_path").strip()
+
+# ── LakeLogic telemetry: where run logs go (optional) ─────────────────────────
+# Two job/notebook parameters, the same in every pipeline notebook:
+#   telemetry_scope      Databricks secret scope holding `lakelogic-observatory-endpoint`
+#                        and `lakelogic-api-key` (default "rideflow"). Point a quick test at
+#                        another workspace by passing another scope, e.g. "rideflow-stage".
+#   observatory_endpoint Optional URL override (not secret). The API KEY is never a
+#                        parameter: parameters show in the run UI, so it comes from the scope.
+# The _domain.yaml observatory block reads ${LAKELOGIC_OBSERVATORY_ENDPOINT} and
+# ${LAKELOGIC_API_KEY}; this sets them. No scope/keys -> the pipeline runs without telemetry.
+import os as _os
+
+def _param(name, default, label):
+    try:
+        return dbutils.widgets.get(name).strip()
+    except Exception:
+        dbutils.widgets.text(name, default, label)
+        return dbutils.widgets.get(name).strip()
+
+_TELEMETRY_SCOPE = _param("telemetry_scope", "rideflow", "Telemetry - secret scope")
+_ENDPOINT_OVERRIDE = _param("observatory_endpoint", "", "Telemetry - endpoint override (optional)")
+for _env, _key in (("LAKELOGIC_OBSERVATORY_ENDPOINT", "lakelogic-observatory-endpoint"),
+                   ("LAKELOGIC_API_KEY", "lakelogic-api-key")):
+    if _os.environ.get(_env):
+        continue  # a job's spark_env_vars wins
+    try:
+        _os.environ[_env] = dbutils.secrets.get(_TELEMETRY_SCOPE, _key)
+    except Exception:
+        pass
+if _ENDPOINT_OVERRIDE:
+    _os.environ["LAKELOGIC_OBSERVATORY_ENDPOINT"] = _ENDPOINT_OVERRIDE
+print("LakeLogic telemetry:", "ON -> " + _os.environ["LAKELOGIC_OBSERVATORY_ENDPOINT"]
+      if _os.environ.get("LAKELOGIC_OBSERVATORY_ENDPOINT") and _os.environ.get("LAKELOGIC_API_KEY")
+      else f"off (no keys in secret scope '{_TELEMETRY_SCOPE}')")
 ENVIRONMENT = dbutils.widgets.get("environment").strip() or "dev"
 
 TARGET_LAYERS = dbutils.widgets.get("target_layers").strip() or "bronze,silver,gold"
@@ -217,12 +250,6 @@ if REGISTRY_PATH.startswith("/Volumes/"):
         _derived_catalog = _parts[2]
 os.environ.setdefault(f"RIDEFLOW_{ENVIRONMENT.upper()}_CATALOG", _derived_catalog)
 
-# ── Optional: LakeLogic Cloud telemetry (live trust score + Zeus diagnosis) ───
-# LakeLogic OSS is free; telemetry is NOT required for the pipeline to run.
-# To enable it, store your keys in a Databricks secret scope — NEVER hardcode
-# them — and uncomment (using a scope named "rideflow"):
-#   os.environ["LAKELOGIC_OBSERVATORY_ENDPOINT"] = dbutils.secrets.get("rideflow", "lakelogic-observatory-endpoint")
-#   os.environ["LAKELOGIC_API_KEY"]              = dbutils.secrets.get("rideflow", "lakelogic-api-key")
 
 # COMMAND ----------
 

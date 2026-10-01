@@ -58,6 +58,13 @@ slo:
         min_good_ratio: 0.95
 
 
+# What Contract Health scores declared checks against (OLC quality_coverage).
+quality_coverage:
+  silver:
+    field_check_target: 0.7
+  gold:
+    require: [grain_unique, referential_integrity]
+
 # ── Cost Governance ──────────────────────────────────────────────────────────
 cost:
   currency: "GBP"

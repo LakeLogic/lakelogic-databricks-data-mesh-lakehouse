@@ -35,7 +35,10 @@ contracts:
     entity: bronze_twilio_sms_logs
     path: "contracts/{bronze_layer}/{bronze_layer}_{system}_sms_logs_v1.0.yaml"
     enabled: true
-
+  - layer: silver
+    entity: silver_twilio_sms_logs
+    path: "contracts/{silver_layer}/silver_twilio_sms_logs_v1.0.yaml"
+    enabled: true
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

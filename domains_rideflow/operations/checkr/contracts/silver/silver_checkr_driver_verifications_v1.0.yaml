@@ -21,7 +21,6 @@ model:
     type: string
     required: true
     pii: true
-    masking: hash
   - name: full_name
     type: string
     pii: true

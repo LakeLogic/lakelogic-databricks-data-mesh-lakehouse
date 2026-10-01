@@ -326,3 +326,28 @@ def test_every_data_product_tag_names_a_declared_output():
         info = (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("info") or {}
         if info.get("data_product"):
             assert (info["data_product"], info.get("data_product_output")) in declared, f.name
+
+
+def test_every_contract_file_is_registered_in_its_system():
+    """A contract file its _system.yaml does not list never runs: silver_twilio_sms_logs,
+    silver_google_analytics_app_events and silver_hubspot_push_notifications had contracts
+    (so LakeLogic counted them) but no table - 9 contracts over 8 tables (2026-09-30)."""
+    from pathlib import Path
+
+    import yaml
+
+    domains = Path(__file__).resolve().parents[2] / "domains_rideflow"
+    missing = []
+    for sysf in domains.glob("*/*/_system.yaml"):
+        reg = yaml.safe_load(sysf.read_text(encoding="utf-8")) or {}
+        system = reg.get("system") or sysf.parent.name
+        paths = set()
+        for c in reg.get("contracts") or []:
+            p = str(c.get("path") or "")
+            for layer in ("bronze", "silver", "gold"):
+                p = p.replace("{%s_layer}" % layer, layer)
+            paths.add(p.replace("{system}", system))
+        for f in sysf.parent.glob("contracts/*/*.yaml"):
+            if f.relative_to(sysf.parent).as_posix() not in paths:
+                missing.append(f.relative_to(domains).as_posix())
+    assert not missing, missing

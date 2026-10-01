@@ -117,6 +117,40 @@ except NameError:
 
 # Resolve widgets
 REGISTRY_PATH = dbutils.widgets.get("registry_path").strip()
+
+# ── LakeLogic telemetry: where run logs go (optional) ─────────────────────────
+# Two job/notebook parameters, the same in every pipeline notebook:
+#   telemetry_scope      Databricks secret scope holding `lakelogic-observatory-endpoint`
+#                        and `lakelogic-api-key` (default "rideflow"). Point a quick test at
+#                        another workspace by passing another scope, e.g. "rideflow-stage".
+#   observatory_endpoint Optional URL override (not secret). The API KEY is never a
+#                        parameter: parameters show in the run UI, so it comes from the scope.
+# The _domain.yaml observatory block reads ${LAKELOGIC_OBSERVATORY_ENDPOINT} and
+# ${LAKELOGIC_API_KEY}; this sets them. No scope/keys -> the pipeline runs without telemetry.
+import os as _os
+
+def _param(name, default, label):
+    try:
+        return dbutils.widgets.get(name).strip()
+    except Exception:
+        dbutils.widgets.text(name, default, label)
+        return dbutils.widgets.get(name).strip()
+
+_TELEMETRY_SCOPE = _param("telemetry_scope", "rideflow", "Telemetry - secret scope")
+_ENDPOINT_OVERRIDE = _param("observatory_endpoint", "", "Telemetry - endpoint override (optional)")
+for _env, _key in (("LAKELOGIC_OBSERVATORY_ENDPOINT", "lakelogic-observatory-endpoint"),
+                   ("LAKELOGIC_API_KEY", "lakelogic-api-key")):
+    if _os.environ.get(_env):
+        continue  # a job's spark_env_vars wins
+    try:
+        _os.environ[_env] = dbutils.secrets.get(_TELEMETRY_SCOPE, _key)
+    except Exception:
+        pass
+if _ENDPOINT_OVERRIDE:
+    _os.environ["LAKELOGIC_OBSERVATORY_ENDPOINT"] = _ENDPOINT_OVERRIDE
+print("LakeLogic telemetry:", "ON -> " + _os.environ["LAKELOGIC_OBSERVATORY_ENDPOINT"]
+      if _os.environ.get("LAKELOGIC_OBSERVATORY_ENDPOINT") and _os.environ.get("LAKELOGIC_API_KEY")
+      else f"off (no keys in secret scope '{_TELEMETRY_SCOPE}')")
 ENVIRONMENT = dbutils.widgets.get("environment").strip() or "dev"
 ENGINE = dbutils.widgets.get("engine").strip() or "polars"
 STORAGE_MODE = dbutils.widgets.get("storage_mode").strip() or "uc"

@@ -23,14 +23,12 @@ model:
     type: string
     required: true
     pii: true
-    masking: hash
     foreign_key:
       contract: "{silver_layer}_rideflow_rider_profiles"
       column: rider_id
   - name: driver_id
     type: string
     pii: true
-    masking: hash
     foreign_key:
       contract: "{silver_layer}_rideflow_driver_profiles"
       column: driver_id

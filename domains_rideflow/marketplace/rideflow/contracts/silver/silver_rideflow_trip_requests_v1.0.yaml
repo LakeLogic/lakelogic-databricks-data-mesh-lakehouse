@@ -20,7 +20,6 @@ model:
       type: string
       required: true
       pii: true
-      masking: hash
       foreign_key:
         contract: "{silver_layer}_rideflow_rider_profiles"
         column: rider_id
