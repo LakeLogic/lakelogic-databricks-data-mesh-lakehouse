@@ -30,6 +30,18 @@ variables:
   deployment_folder:
     description: "Deployment folder"
     default: "_data_platform_rideflow_demo"
+  telemetry_scope:
+    description: >-
+      Databricks secret scope holding `lakelogic-observatory-endpoint` and `lakelogic-api-key`.
+      Every pipeline notebook reads it, so all jobs send LakeLogic telemetry when the keys are
+      there and run without it when they are not. For a quick test against another workspace,
+      deploy or run with another scope (e.g. rideflow-stage).
+    default: "rideflow"
+  observatory_endpoint:
+    description: >-
+      Optional override of the telemetry URL (not secret). Blank uses the endpoint in the
+      secret scope. The API key is never a variable: it always comes from the scope.
+    default: ""
   serverless_env_version:
     description: "Serverless environment (client) version for pre-provisioned job deps. Bump if `bundle deploy` rejects it (see the value in a serverless notebook's Environment panel)."
     default: "3"

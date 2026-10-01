@@ -54,6 +54,8 @@ resources:
         notebook_task:
           notebook_path: ../../notebooks/nb_pipeline_driver.py
           base_parameters:
+            telemetry_scope: "${var.telemetry_scope}"
+            observatory_endpoint: "${var.observatory_endpoint}"
             lakelogic_wheel: ${var.lakelogic_wheel}
             lakelogic_version: ${var.lakelogic_version}
             registry_path: /Volumes/${var.catalog}/nondelta/_contracts/operations/checkr/_system.yaml
@@ -96,6 +98,8 @@ resources:
         notebook_task:
           notebook_path: ../../notebooks/nb_pipeline_driver.py
           base_parameters:
+            telemetry_scope: "${var.telemetry_scope}"
+            observatory_endpoint: "${var.observatory_endpoint}"
             lakelogic_wheel: ${var.lakelogic_wheel}
             lakelogic_version: ${var.lakelogic_version}
             registry_path: /Volumes/${var.catalog}/nondelta/_contracts/operations/checkr/_system.yaml
@@ -138,6 +142,8 @@ resources:
         notebook_task:
           notebook_path: ../../notebooks/nb_pipeline_driver.py
           base_parameters:
+            telemetry_scope: "${var.telemetry_scope}"
+            observatory_endpoint: "${var.observatory_endpoint}"
             lakelogic_wheel: ${var.lakelogic_wheel}
             lakelogic_version: ${var.lakelogic_version}
             registry_path: /Volumes/${var.catalog}/nondelta/_contracts/operations/checkr/_system.yaml

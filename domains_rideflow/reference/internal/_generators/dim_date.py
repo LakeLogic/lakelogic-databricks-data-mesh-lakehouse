@@ -22,9 +22,19 @@ def run(good_df=None, contract=None, **kwargs):
     polars.DataFrame
         Fully populated date dimension.
     """
-    return generate_date_dimension(
-        start_date=kwargs.get("start_date", "2020-01-01"),
-        end_date=kwargs.get("end_date", "2030-12-31"),
-        fiscal_year_start_month=kwargs.get("fiscal_year_start_month", 4),
-        engine="polars",
-    )
+    import polars as pl
+
+    def calendar(holidays: str):
+        return generate_date_dimension(
+            start_date=kwargs.get("start_date", "2020-01-01"),
+            end_date=kwargs.get("end_date", "2030-12-31"),
+            fiscal_year_start_month=kwargs.get("fiscal_year_start_month", 4),
+            holiday_calendar=holidays,
+            engine="polars",
+        )
+
+    # The contract declares a holiday flag per market (is_holiday_us, is_holiday_uk); the
+    # calendar flags one calendar at a time, so build each and join them on the date.
+    frame = calendar("us").with_columns(pl.col("is_holiday").alias("is_holiday_us"))
+    return frame.join(
+        calendar("uk").select("date_key", pl.col("is_holiday").alias("is_holiday_uk")), on="date_key")

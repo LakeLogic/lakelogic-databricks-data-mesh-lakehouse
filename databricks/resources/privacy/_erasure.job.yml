@@ -46,6 +46,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_ads/_system.yaml"
@@ -67,6 +69,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml"
@@ -88,6 +92,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/hubspot/_system.yaml"
@@ -109,6 +115,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/meta_ads/_system.yaml"
@@ -130,6 +138,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketplace/rideflow/_system.yaml"
@@ -151,6 +161,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/checkr/_system.yaml"
@@ -172,6 +184,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/twilio/_system.yaml"
@@ -193,6 +207,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/zendesk/_system.yaml"
@@ -214,6 +230,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/payments/stripe/_system.yaml"
@@ -235,6 +253,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/reference/internal/_system.yaml"
@@ -256,6 +276,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_compliance_erasure.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/shared/shared/_system.yaml"

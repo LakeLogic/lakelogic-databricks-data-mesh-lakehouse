@@ -43,6 +43,8 @@ resources:
           notebook_task:
             notebook_path: ../../notebooks/nb_slo_checks.py
             base_parameters:
+              telemetry_scope: "${var.telemetry_scope}"
+              observatory_endpoint: "${var.observatory_endpoint}"
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/meta_ads/_system.yaml"
