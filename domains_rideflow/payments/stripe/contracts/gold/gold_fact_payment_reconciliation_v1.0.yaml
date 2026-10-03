@@ -3,7 +3,7 @@ version: 1.0.0
 info:
   data_product: payment_reconciliation
   data_product_output: fact_payment_reconciliation
-  title: "Gold — Fact Stripe Payment Reconciliation"
+  title: "Gold — Fact Payment Reconciliation"
   table_name: '{gold_layer}_fact_payment_reconciliation'
   description: >
     Daily charge volume + status mix per currency. Primary source is
@@ -40,6 +40,10 @@ model:
     - name: success_rate
       type: float
       description: "succeeded_count / total_charges"
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 primary_key: [created_date, currency]
 
@@ -70,7 +74,8 @@ transformations:
         CASE WHEN COUNT(*) > 0
              THEN CAST(SUM(CASE WHEN status = 'succeeded' THEN 1 ELSE 0 END) AS DOUBLE)
                   / COUNT(*)
-             ELSE NULL END                                     AS success_rate
+             ELSE NULL END                                     AS success_rate,
+             'stripe'                                               AS system
       FROM pay_charges
       GROUP BY 1, 2
 

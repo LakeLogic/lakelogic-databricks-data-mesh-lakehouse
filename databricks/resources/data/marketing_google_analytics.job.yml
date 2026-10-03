@@ -59,7 +59,7 @@ resources:
             lakelogic_wheel: ${var.lakelogic_wheel}
             lakelogic_version: ${var.lakelogic_version}
             registry_path: /Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml
-            environment: ${bundle.target}
+            environment: ${var.environment}
             engine: spark
             storage_mode: uc
             target_layers: bronze
@@ -103,7 +103,7 @@ resources:
             lakelogic_wheel: ${var.lakelogic_wheel}
             lakelogic_version: ${var.lakelogic_version}
             registry_path: /Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml
-            environment: ${bundle.target}
+            environment: ${var.environment}
             engine: spark
             storage_mode: uc
             target_layers: silver
@@ -147,7 +147,7 @@ resources:
             lakelogic_wheel: ${var.lakelogic_wheel}
             lakelogic_version: ${var.lakelogic_version}
             registry_path: /Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml
-            environment: ${bundle.target}
+            environment: ${var.environment}
             engine: spark
             storage_mode: uc
             target_layers: gold

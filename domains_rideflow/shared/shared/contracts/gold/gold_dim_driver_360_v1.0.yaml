@@ -45,6 +45,10 @@ model:
       description: "Sum of stripe_payouts.amount for this driver"
     - name: last_payout_date
       type: string
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 primary_key: [driver_id]
 
@@ -87,7 +91,8 @@ transformations:
              COALESCE(cv.status, 'unverified')        AS verification_status,
              cv.completed_at                          AS verification_completed_at,
              COALESCE(pd.lifetime_payout_amount, 0.0) AS lifetime_payout_amount,
-             CAST(pd.last_payout_date AS string)      AS last_payout_date
+             CAST(pd.last_payout_date AS string)      AS last_payout_date,
+             'rideflow'                               AS system
       FROM mp_drivers d
       LEFT JOIN (SELECT * FROM cv WHERE rn = 1) cv ON cv.driver_id = d.driver_id
       LEFT JOIN pd ON pd.driver_id = d.driver_id

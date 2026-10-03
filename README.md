@@ -85,7 +85,7 @@ SHOW TABLES IN marketplace;
 SHOW TABLES IN quarantine;
 
 SELECT *
-FROM marketplace.gold_rideflow_fact_trip_completed
+FROM marketplace.gold_fact_trip_completed
 LIMIT 20;
 ```
 
@@ -106,7 +106,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Trip Completed"
-  table_name: "{gold_layer}_rideflow_fact_trip_completed"
+  table_name: "{gold_layer}_fact_trip_completed"
   description: "grain: one row per completed trip"
   target_layer: gold
   domain: marketplace
@@ -121,7 +121,7 @@ source:
 primary_key: [trip_id]
 ```
 
-The [complete contract](domains_rideflow/marketplace/rideflow/contracts/gold/gold_rideflow_fact_trip_completed_v1.0.yaml)
+The [complete contract](domains_rideflow/marketplace/rideflow/contracts/gold/gold_fact_trip_completed_v1.0.yaml)
 also defines fields, the as-of lookups of `rider_sk` / `driver_sk` against the SCD2
 rider and driver dimensions, and quality rules. Trip revenue is a business metric;
 quality checks and freshness measures tell you whether the data supporting it

@@ -1,39 +1,44 @@
 version: 1.0.0
 info:
-  title: Gold — Dim Platform
+  title: Gold — Dim Cancelled By
   target_layer: gold
-  description: 'grain: one row per platform'
-  table_name: '{gold_layer}_rideflow_dim_platform'
+  description: 'grain: one row per cancelled_by'
+  table_name: '{gold_layer}_dim_cancelled_by'
   system: rideflow
   domain: marketplace
 model:
   fields:
-  - name: platform_sk
+  - name: cancelled_by_sk
     type: string
     required: false
     description: 'Surrogate key: sha256 of the business key, written by the materializer;
       ''-1'' is the unknown member.'
-  - name: platform
+  - name: cancelled_by
     type: string
     required: true
-    description: Dimension attribute 'platform', projected from the 'platform' entity.
-dataset: gold_rideflow_dim_platform
+    description: Dimension attribute 'cancelled_by', projected from the 'cancelled_by'
+      entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+dataset: gold_dim_cancelled_by
 primary_key:
-- platform
+- cancelled_by
 quality:
   dataset_rules:
   - unique:
       columns:
-      - platform
-      name: platform_unique
+      - cancelled_by
+      name: cancelled_by_unique
       category: uniqueness
-      description: No two rows share the same platform.
+      description: No two rows share the same cancelled_by.
 natural_key:
-- platform
+- cancelled_by
 materialization:
   strategy: merge
   scd1:
-    surrogate_key: platform_sk
+    surrogate_key: cancelled_by_sk
     surrogate_key_strategy: hash
     unknown_member:
       enabled: true
@@ -41,12 +46,12 @@ materialization:
 transformations:
 - phase: pre
   sql: |-
-    SELECT DISTINCT platform
+    SELECT DISTINCT cancelled_by, 'rideflow' AS system
     FROM source
-    WHERE platform IS NOT NULL
+    WHERE cancelled_by IS NOT NULL
 source:
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_app_events
+  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_cancellations
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 metadata:

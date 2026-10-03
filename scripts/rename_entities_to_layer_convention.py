@@ -229,8 +229,8 @@ def main():
     #
     # CONTRACT FILES ARE INCLUDED, and they are the ones that actually break: a
     # gold contract joins another gold table by NAME —
-    #     path: "table:{domain_catalog}.gold_rideflow_dim_driver"
-    #     contract: gold_rideflow_dim_rider
+    #     path: "table:{domain_catalog}.gold_dim_driver"
+    #     contract: gold_dim_rider
     # — and a fact whose dimension has been renamed out from under it resolves
     # every surrogate key to the unknown member instead of failing loudly.
     #

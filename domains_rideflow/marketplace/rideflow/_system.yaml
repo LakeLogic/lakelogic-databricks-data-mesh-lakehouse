@@ -131,106 +131,106 @@ contracts:
 # City and payment-method dims are NOT built here - conform to reference.gold_dim_city and
 # reference.gold_dim_payment_method (join on city_code / payment_method_code).
   - layer: gold
-    entity: gold_rideflow_dim_cancel_reason_code
-    path: "contracts/{gold_layer}/gold_rideflow_dim_cancel_reason_code_v1.0.yaml"
+    entity: gold_dim_cancel_reason_code
+    path: "contracts/{gold_layer}/gold_dim_cancel_reason_code_v1.0.yaml"
     depends_on: ['silver_rideflow_trip_cancellations']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_cancelled_by
-    path: "contracts/{gold_layer}/gold_rideflow_dim_cancelled_by_v1.0.yaml"
+    entity: gold_dim_cancelled_by
+    path: "contracts/{gold_layer}/gold_dim_cancelled_by_v1.0.yaml"
     depends_on: ['silver_rideflow_trip_cancellations']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_driver_profiles
-    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_profiles_v1.0.yaml"
+    entity: gold_dim_driver_profiles
+    path: "contracts/{gold_layer}/gold_dim_driver_profiles_v1.0.yaml"
     depends_on: ['silver_rideflow_driver_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_driver_telemetry_status
-    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_telemetry_status_v1.0.yaml"
+    entity: gold_dim_driver_telemetry_status
+    path: "contracts/{gold_layer}/gold_dim_driver_telemetry_status_v1.0.yaml"
     depends_on: ['silver_rideflow_driver_telemetry']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_event_name
-    path: "contracts/{gold_layer}/gold_rideflow_dim_event_name_v1.0.yaml"
+    entity: gold_dim_event_name
+    path: "contracts/{gold_layer}/gold_dim_event_name_v1.0.yaml"
     depends_on: ['silver_rideflow_rider_app_events']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_platform
-    path: "contracts/{gold_layer}/gold_rideflow_dim_platform_v1.0.yaml"
+    entity: gold_dim_platform
+    path: "contracts/{gold_layer}/gold_dim_platform_v1.0.yaml"
     depends_on: ['silver_rideflow_rider_app_events']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_preferred_payment_method
-    path: "contracts/{gold_layer}/gold_rideflow_dim_preferred_payment_method_v1.0.yaml"
+    entity: gold_dim_preferred_payment_method
+    path: "contracts/{gold_layer}/gold_dim_preferred_payment_method_v1.0.yaml"
     depends_on: ['silver_rideflow_rider_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_rider_profiles
-    path: "contracts/{gold_layer}/gold_rideflow_dim_rider_profiles_v1.0.yaml"
+    entity: gold_dim_rider_profiles
+    path: "contracts/{gold_layer}/gold_dim_rider_profiles_v1.0.yaml"
     depends_on: ['silver_rideflow_rider_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_rider_profiles_status
-    path: "contracts/{gold_layer}/gold_rideflow_dim_rider_profiles_status_v1.0.yaml"
+    entity: gold_dim_rider_profiles_status
+    path: "contracts/{gold_layer}/gold_dim_rider_profiles_status_v1.0.yaml"
     depends_on: ['silver_rideflow_rider_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_trip_type
-    path: "contracts/{gold_layer}/gold_rideflow_dim_trip_type_v1.0.yaml"
+    entity: gold_dim_trip_type
+    path: "contracts/{gold_layer}/gold_dim_trip_type_v1.0.yaml"
     depends_on: ['silver_rideflow_trips', 'silver_rideflow_trip_requests']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_driver_telemetry
-    path: "contracts/{gold_layer}/gold_rideflow_fact_driver_telemetry_v1.0.yaml"
-    depends_on: ['silver_rideflow_driver_telemetry', 'gold_rideflow_dim_driver_profiles']
+    entity: gold_fact_driver_telemetry
+    path: "contracts/{gold_layer}/gold_fact_driver_telemetry_v1.0.yaml"
+    depends_on: ['silver_rideflow_driver_telemetry', 'gold_dim_driver_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_rider_app_events
-    path: "contracts/{gold_layer}/gold_rideflow_fact_rider_app_events_v1.0.yaml"
-    depends_on: ['silver_rideflow_rider_app_events', 'gold_rideflow_dim_rider_profiles']
+    entity: gold_fact_rider_app_events
+    path: "contracts/{gold_layer}/gold_fact_rider_app_events_v1.0.yaml"
+    depends_on: ['silver_rideflow_rider_app_events', 'gold_dim_rider_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_trip_cancellations
-    path: "contracts/{gold_layer}/gold_rideflow_fact_trip_cancellations_v1.0.yaml"
-    depends_on: ['silver_rideflow_trip_cancellations', 'gold_rideflow_dim_driver_profiles', 'gold_rideflow_dim_rider_profiles']
+    entity: gold_fact_trip_cancellations
+    path: "contracts/{gold_layer}/gold_fact_trip_cancellations_v1.0.yaml"
+    depends_on: ['silver_rideflow_trip_cancellations', 'gold_dim_driver_profiles', 'gold_dim_rider_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_trip_completed
-    path: "contracts/{gold_layer}/gold_rideflow_fact_trip_completed_v1.0.yaml"
-    depends_on: ['silver_rideflow_trips', 'gold_rideflow_dim_driver_profiles', 'gold_rideflow_dim_rider_profiles']
+    entity: gold_fact_trip_completed
+    path: "contracts/{gold_layer}/gold_fact_trip_completed_v1.0.yaml"
+    depends_on: ['silver_rideflow_trips', 'gold_dim_driver_profiles', 'gold_dim_rider_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_trip_requests
-    path: "contracts/{gold_layer}/gold_rideflow_fact_trip_requests_v1.0.yaml"
-    depends_on: ['silver_rideflow_trip_requests', 'gold_rideflow_dim_rider_profiles']
+    entity: gold_fact_trip_requests
+    path: "contracts/{gold_layer}/gold_fact_trip_requests_v1.0.yaml"
+    depends_on: ['silver_rideflow_trip_requests', 'gold_dim_rider_profiles']
     enabled: true
 
 # Hand-authored gold (not Build Centre): the conformed SCD2 rider/driver dims, the driver
 # scorecard and the two daily aggregates. Same table names as the Fabric demo.
   - layer: gold
-    entity: gold_rideflow_dim_rider
-    path: "contracts/{gold_layer}/gold_rideflow_dim_rider_v1.0.yaml"
+    entity: gold_dim_rider
+    path: "contracts/{gold_layer}/gold_dim_rider_v1.0.yaml"
     depends_on: ['silver_rideflow_rider_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_driver
-    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_v1.0.yaml"
+    entity: gold_dim_driver
+    path: "contracts/{gold_layer}/gold_dim_driver_v1.0.yaml"
     depends_on: ['silver_rideflow_driver_profiles']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_dim_driver_scorecard
-    path: "contracts/{gold_layer}/gold_rideflow_dim_driver_scorecard_v1.0.yaml"
-    depends_on: ['silver_rideflow_trips', 'gold_rideflow_dim_driver']
+    entity: gold_dim_driver_scorecard
+    path: "contracts/{gold_layer}/gold_dim_driver_scorecard_v1.0.yaml"
+    depends_on: ['silver_rideflow_trips', 'gold_dim_driver']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_rider_daily_metrics
-    path: "contracts/{gold_layer}/gold_rideflow_fact_rider_daily_metrics_v1.0.yaml"
-    depends_on: ['silver_rideflow_trips', 'gold_rideflow_dim_rider']
+    entity: gold_fact_rider_daily_metrics
+    path: "contracts/{gold_layer}/gold_fact_rider_daily_metrics_v1.0.yaml"
+    depends_on: ['silver_rideflow_trips', 'gold_dim_rider']
     enabled: true
   - layer: gold
-    entity: gold_rideflow_fact_trip_daily_kpis
-    path: "contracts/{gold_layer}/gold_rideflow_fact_trip_daily_kpis_v1.0.yaml"
+    entity: gold_fact_trip_daily_kpis
+    path: "contracts/{gold_layer}/gold_fact_trip_daily_kpis_v1.0.yaml"
     depends_on: ['silver_rideflow_trips']
     enabled: true
 

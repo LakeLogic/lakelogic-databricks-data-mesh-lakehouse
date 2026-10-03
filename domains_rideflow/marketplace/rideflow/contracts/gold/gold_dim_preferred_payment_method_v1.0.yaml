@@ -3,7 +3,7 @@ info:
   title: Gold — Dim Preferred Payment Method
   target_layer: gold
   description: 'grain: one row per preferred_payment_method'
-  table_name: '{gold_layer}_rideflow_dim_preferred_payment_method'
+  table_name: '{gold_layer}_dim_preferred_payment_method'
   system: rideflow
   domain: marketplace
 model:
@@ -18,7 +18,11 @@ model:
     required: true
     description: Dimension attribute 'preferred_payment_method', projected from the
       'preferred_payment_method' entity.
-dataset: gold_rideflow_dim_preferred_payment_method
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+dataset: gold_dim_preferred_payment_method
 primary_key:
 - preferred_payment_method
 quality:
@@ -42,7 +46,7 @@ materialization:
 transformations:
 - phase: pre
   sql: |-
-    SELECT DISTINCT preferred_payment_method
+    SELECT DISTINCT preferred_payment_method, 'rideflow' AS system
     FROM source
     WHERE preferred_payment_method IS NOT NULL
 source:

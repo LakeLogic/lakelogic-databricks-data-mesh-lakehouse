@@ -49,6 +49,10 @@ model:
     - name: conversion_rate
       type: float
       description: "attributed_new_riders ÷ NULLIF(clicks, 0)."
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 source:
   type: table
@@ -67,23 +71,23 @@ transformations:
   - phase: pre
     sql: |
       WITH g AS (
-        SELECT to_date(date) AS kpi_date, 'google_ads' AS channel, campaign_id, campaign_name,
+        SELECT to_date(date) AS kpi_date, 'google_ads' AS channel, 'google_ads' AS system, campaign_id, campaign_name,
                CAST(cost AS double) AS spend, CAST(impressions AS int) AS impressions, CAST(clicks AS int) AS clicks
         FROM mkt_google
       ),
       m AS (
-        SELECT to_date(date) AS kpi_date, 'meta_ads' AS channel, campaign_id, campaign_name,
+        SELECT to_date(date) AS kpi_date, 'meta_ads' AS channel, 'meta_ads' AS system, campaign_id, campaign_name,
                CAST(spend AS double) AS spend, CAST(impressions AS int) AS impressions, CAST(clicks AS int) AS clicks
         FROM silver_meta_ads_campaigns
       ),
       h AS (
-        SELECT to_date(sent_at) AS kpi_date, 'hubspot_email' AS channel, campaign_id, campaign_name,
+        SELECT to_date(sent_at) AS kpi_date, 'hubspot_email' AS channel, 'hubspot' AS system, campaign_id, campaign_name,
                0.0 AS spend, 1 AS impressions,
                CASE WHEN clicked_at IS NOT NULL THEN 1 ELSE 0 END AS clicks
         FROM silver_hubspot_email_campaigns
       ),
       u AS (SELECT * FROM g UNION ALL SELECT * FROM m UNION ALL SELECT * FROM h)
-      SELECT kpi_date, channel, campaign_id,
+      SELECT kpi_date, channel, campaign_id, system,
              MAX(campaign_name)            AS campaign_name,
              SUM(spend)                    AS spend_amount,
              CAST(SUM(impressions) AS int) AS impressions,
@@ -92,7 +96,7 @@ transformations:
              CAST(NULL AS double)          AS cost_per_acquisition,
              CAST(NULL AS double)          AS conversion_rate
       FROM u
-      GROUP BY kpi_date, channel, campaign_id
+      GROUP BY kpi_date, channel, campaign_id, system
 
 quality:
   row_rules:

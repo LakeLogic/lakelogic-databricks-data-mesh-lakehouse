@@ -2,7 +2,7 @@ version: 1.0.0
 
 info:
   title: "Gold — Fact Trip Daily KPIs"
-  table_name: "{gold_layer}_rideflow_fact_trip_daily_kpis"
+  table_name: "{gold_layer}_fact_trip_daily_kpis"
   description: "Daily revenue, volume, and distance KPIs aggregated from completed trips."
   target_layer: gold
   domain: marketplace
@@ -44,6 +44,10 @@ model:
       type: float
     - name: avg_surge
       type: float
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 transformations:
   # phase: pre — this SQL PRODUCES the model's required columns (kpi_date, …).
@@ -61,7 +65,8 @@ transformations:
           SUM(fare_amount)           AS total_revenue,
           SUM(distance_km)           AS total_distance_km,
           AVG(fare_amount)           AS avg_fare,
-          AVG(surge_multiplier)      AS avg_surge
+          AVG(surge_multiplier)      AS avg_surge,
+          'rideflow'                 AS system
       -- Read the FULL Silver table (via link) so aggregates
       -- (COUNT, SUM, AVG) include ALL rows for each date —
       -- not just the incremental slice.

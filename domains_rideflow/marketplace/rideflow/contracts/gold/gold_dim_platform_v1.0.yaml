@@ -1,40 +1,43 @@
 version: 1.0.0
 info:
-  title: Gold — Dim Cancelled By
+  title: Gold — Dim Platform
   target_layer: gold
-  description: 'grain: one row per cancelled_by'
-  table_name: '{gold_layer}_rideflow_dim_cancelled_by'
+  description: 'grain: one row per platform'
+  table_name: '{gold_layer}_dim_platform'
   system: rideflow
   domain: marketplace
 model:
   fields:
-  - name: cancelled_by_sk
+  - name: platform_sk
     type: string
     required: false
     description: 'Surrogate key: sha256 of the business key, written by the materializer;
       ''-1'' is the unknown member.'
-  - name: cancelled_by
+  - name: platform
     type: string
     required: true
-    description: Dimension attribute 'cancelled_by', projected from the 'cancelled_by'
-      entity.
-dataset: gold_rideflow_dim_cancelled_by
+    description: Dimension attribute 'platform', projected from the 'platform' entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+dataset: gold_dim_platform
 primary_key:
-- cancelled_by
+- platform
 quality:
   dataset_rules:
   - unique:
       columns:
-      - cancelled_by
-      name: cancelled_by_unique
+      - platform
+      name: platform_unique
       category: uniqueness
-      description: No two rows share the same cancelled_by.
+      description: No two rows share the same platform.
 natural_key:
-- cancelled_by
+- platform
 materialization:
   strategy: merge
   scd1:
-    surrogate_key: cancelled_by_sk
+    surrogate_key: platform_sk
     surrogate_key_strategy: hash
     unknown_member:
       enabled: true
@@ -42,12 +45,12 @@ materialization:
 transformations:
 - phase: pre
   sql: |-
-    SELECT DISTINCT cancelled_by
+    SELECT DISTINCT platform, 'rideflow' AS system
     FROM source
-    WHERE cancelled_by IS NOT NULL
+    WHERE platform IS NOT NULL
 source:
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_cancellations
+  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_app_events
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 metadata:

@@ -1,40 +1,44 @@
 version: 1.0.0
 info:
-  title: Gold — Dim Rider Profiles Status
+  title: Gold — Dim Event Name
   target_layer: gold
-  description: 'grain: one row per status'
-  table_name: '{gold_layer}_rideflow_dim_rider_profiles_status'
+  description: 'grain: one row per event_name'
+  table_name: '{gold_layer}_dim_event_name'
   system: rideflow
   domain: marketplace
 model:
   fields:
-  - name: status_sk
+  - name: event_name_sk
     type: string
     required: false
     description: 'Surrogate key: sha256 of the business key, written by the materializer;
       ''-1'' is the unknown member.'
-  - name: status
+  - name: event_name
     type: string
     required: true
-    description: Dimension attribute 'status', projected from the 'rider_profiles_status'
+    description: Dimension attribute 'event_name', projected from the 'event_name'
       entity.
-dataset: gold_rideflow_dim_rider_profiles_status
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+dataset: gold_dim_event_name
 primary_key:
-- status
+- event_name
 quality:
   dataset_rules:
   - unique:
       columns:
-      - status
-      name: status_unique
+      - event_name
+      name: event_name_unique
       category: uniqueness
-      description: No two rows share the same status.
+      description: No two rows share the same event_name.
 natural_key:
-- status
+- event_name
 materialization:
   strategy: merge
   scd1:
-    surrogate_key: status_sk
+    surrogate_key: event_name_sk
     surrogate_key_strategy: hash
     unknown_member:
       enabled: true
@@ -42,12 +46,12 @@ materialization:
 transformations:
 - phase: pre
   sql: |-
-    SELECT DISTINCT status
+    SELECT DISTINCT event_name, 'rideflow' AS system
     FROM source
-    WHERE status IS NOT NULL
+    WHERE event_name IS NOT NULL
 source:
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_profiles
+  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_app_events
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 metadata:

@@ -21,24 +21,29 @@ targets:
     mode: production #development
     default: true
     workspace:
-      # root_path: ~/.bundle/${bundle.name}/${bundle.target}
+      # Azure workspace (2026-10-02); the AWS dev deployment was destroyed.
+      host: https://adb-7405615991211788.8.azuredatabricks.net
       root_path: /Workspace/Shared/${var.deployment_folder}
     variables:
       catalog: "governed_rideflow_lakehouse_demo"
-      # Ships its own wheel until the engine fixes reach PyPI; blank = latest PyPI release.
-      # Workspace file, not the catalog's _wheels Volume: a catalog reset drops the Volume.
-      lakelogic_wheel: "/Workspace/Shared/lakelogic_wheels/lakelogic-1.66.3-py3-none-any.whl"
-      # Workspace default storage (AWS); the Azure abfss default does not exist here.
+      # The engine comes from PyPI, pinned: Databricks pre-installs an older lakelogic, and a
+      # blank version can leave that one in place. 1.68.0 (OLC 0.19) carries the gold `system`
+      # derive and blank-key dedup the contracts use.
+      lakelogic_wheel: ""
+      lakelogic_version: "1.68.0"
+      # Blank = the catalog was created in the UI on the metastore's storage.
       catalog_storage_root: ""
 
   stage:
     variables:
       catalog: "governed_rideflow_lakehouse_demo_staging"
+      environment: "stage"
 
   prod:
     mode: production
     variables:
       catalog: "governed_rideflow_lakehouse_demo_prod"
+      environment: "prod"
     permissions:
       - group_name: "data-team"
         level: CAN_VIEW

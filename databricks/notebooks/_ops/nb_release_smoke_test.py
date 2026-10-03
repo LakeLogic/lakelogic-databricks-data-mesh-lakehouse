@@ -7,8 +7,8 @@ CATALOG = dbutils.widgets.get("catalog").strip()
 required_tables = [
     ("marketplace", "bronze_rideflow_trip_completed"),
     ("marketplace", "silver_rideflow_trips"),
-    ("marketplace", "gold_rideflow_fact_trip_completed"),
-    ("marketplace", "gold_rideflow_dim_rider_profiles"),
+    ("marketplace", "gold_fact_trip_completed"),
+    ("marketplace", "gold_dim_rider_profiles"),
 ]
 
 available = {
@@ -21,7 +21,7 @@ missing = [f"{schema}.{table}" for schema, table in required_tables if (schema, 
 if missing:
     raise AssertionError(f"Missing expected tables: {', '.join(missing)}")
 
-gold_rows = spark.table(f"`{CATALOG}`.marketplace.gold_rideflow_fact_trip_completed").count()
+gold_rows = spark.table(f"`{CATALOG}`.marketplace.gold_fact_trip_completed").count()
 if gold_rows < 1:
     raise AssertionError("Gold trip fact table exists but contains no rows")
 
@@ -39,7 +39,7 @@ scd2_columns = {
         SELECT column_name
         FROM `{CATALOG}`.information_schema.columns
         WHERE table_schema = 'marketplace'
-          AND table_name = 'gold_rideflow_dim_rider_profiles'
+          AND table_name = 'gold_dim_rider_profiles'
         """
     ).collect()
 }
