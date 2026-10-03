@@ -59,7 +59,7 @@ SHOW TABLES IN marketplace;
 SHOW TABLES IN quarantine;
 
 SELECT *
-FROM marketplace.gold_rideflow_fact_trip_completed
+FROM marketplace.gold_fact_trip_completed
 LIMIT 20;
 ```
 

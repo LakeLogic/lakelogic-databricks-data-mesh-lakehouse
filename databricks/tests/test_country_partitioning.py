@@ -25,12 +25,12 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 SYSTEM = ROOT / "domains_rideflow" / "marketplace" / "rideflow"
 
-#: Gold is the Build Centre-generated star (gold_rideflow_*). Its facts declare their own
+#: Gold (gold_<name>, curated at domain level). Its facts declare their own
 #: `materialization.partition_by` (the event date), which overrides `_all`; its dims are keyed
 #: per rider / driver / code, with no single country to carry, so they are written
 #: unpartitioned (with a warning). Bronze and silver still carry country_code end to end.
 def _gold_partitions_itself(contract: Path) -> bool:
-    return contract.parent.name == "gold" and contract.name.startswith("gold_rideflow_")
+    return contract.parent.name == "gold"
 
 
 def _load(path: Path) -> dict:
@@ -53,12 +53,12 @@ def test_every_marketplace_layer_partitions_by_country():
 )
 def test_every_contract_carries_the_partition_column(contract: Path):
     if _gold_partitions_itself(contract):
-        pytest.skip("BC gold: facts partition by event date, dims are per-entity")
+        pytest.skip("gold: facts partition by event date, dims are per-entity")
     assert "country_code" in _fields(contract), f"{contract.name} would write unpartitioned"
 
 
 def test_gold_facts_declare_their_own_partition():
-    facts = sorted((SYSTEM / "contracts" / "gold").glob("gold_rideflow_fact_*.yaml"))
+    facts = sorted((SYSTEM / "contracts" / "gold").glob("gold_fact_*.yaml"))
     assert facts, "no BC gold facts found"
     unpartitioned = [
         f.name for f in facts

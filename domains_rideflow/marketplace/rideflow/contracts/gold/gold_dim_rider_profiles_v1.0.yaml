@@ -1,53 +1,43 @@
 version: 1.0.0
 info:
-  title: Gold — Dim Driver Profiles (SCD2)
+  title: Gold — Dim Rider Profiles (SCD2)
   target_layer: gold
-  description: 'grain: one row per driver'
-  table_name: '{gold_layer}_rideflow_dim_driver_profiles'
+  description: 'grain: one row per rider'
+  table_name: '{gold_layer}_dim_rider_profiles'
   system: rideflow
   domain: marketplace
 model:
   fields:
-  - name: driver_profiles_sk
+  - name: rider_profiles_sk
     type: string
     required: false
     description: 'Surrogate key: sha256 of the business key and the version start,
       written by the materializer; ''-1'' is the unknown member.'
-  - name: driver_id
+  - name: rider_id
     type: string
     required: true
-    description: Business key 'driver_id', projected from the source; one row per
-      version of it.
-  - name: vehicle_type
-    type: string
-    required: false
-    description: Dimension attribute 'vehicle_type', projected from the 'driver_profiles'
+    description: Dimension attribute 'rider_id', projected from the 'rider_profiles'
       entity.
   - name: city_code
     type: string
     required: false
-    description: Dimension attribute 'city_code', projected from the 'driver_profiles'
+    description: Dimension attribute 'city_code', projected from the 'rider_profiles'
       entity.
   - name: signup_date
     type: date
     required: false
-    description: Dimension attribute 'signup_date', projected from the 'driver_profiles'
+    description: Dimension attribute 'signup_date', projected from the 'rider_profiles'
       entity.
   - name: status
     type: string
     required: false
-    description: Dimension attribute 'status', projected from the 'driver_profiles'
+    description: Dimension attribute 'status', projected from the 'rider_profiles'
       entity.
-  - name: rating
-    type: float
+  - name: preferred_payment_method
+    type: string
     required: false
-    description: Dimension attribute 'rating', projected from the 'driver_profiles'
-      entity.
-  - name: updated_at
-    type: timestamp
-    required: false
-    description: Dimension attribute 'updated_at', projected from the 'driver_profiles'
-      entity.
+    description: Dimension attribute 'preferred_payment_method', projected from the
+      'rider_profiles' entity.
   - name: effective_from
     type: timestamp
     required: false
@@ -64,13 +54,17 @@ model:
     type: long
     required: false
     description: SCD2 version column, written by the materializer.
-dataset: gold_rideflow_dim_driver_profiles
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+dataset: gold_dim_rider_profiles
 primary_key:
-- driver_id
+- rider_id
 materialization:
   strategy: scd2
   scd2:
-    surrogate_key: driver_profiles_sk
+    surrogate_key: rider_profiles_sk
     surrogate_key_strategy: hash
     timestamp_field: updated_at
     effective_from_field: effective_from
@@ -78,10 +72,9 @@ materialization:
     current_flag_field: is_current
     version_column: version_number
     track_columns:
-    - vehicle_type
     - city_code
     - status
-    - rating
+    - preferred_payment_method
     unknown_member:
       enabled: true
       surrogate_key_value: '-1'
@@ -89,18 +82,25 @@ quality:
   dataset_rules:
   - unique:
       columns:
-      - driver_id
+      - rider_id
       - effective_from
-      name: driver_id_effective_from_unique
+      name: rider_id_effective_from_unique
       category: uniqueness
-      description: No two rows share the same driver_id, effective_from.
+      description: No two rows share the same rider_id, effective_from.
 natural_key:
-- driver_id
+- rider_id
 - effective_from
 source:
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_driver_profiles
+  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_profiles
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 metadata:
   run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+# Every gold row names the source system it came from (single-system table).
+transformations:
+  - phase: pre
+    derive:
+      field: system
+      sql: "'rideflow'"

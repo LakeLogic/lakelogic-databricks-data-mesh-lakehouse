@@ -3,7 +3,7 @@ info:
   title: Gold — Dim Trip Type
   target_layer: gold
   description: 'grain: one row per trip_type'
-  table_name: '{gold_layer}_rideflow_dim_trip_type'
+  table_name: '{gold_layer}_dim_trip_type'
   system: rideflow
   domain: marketplace
 model:
@@ -17,7 +17,11 @@ model:
     type: string
     required: true
     description: Dimension attribute 'trip_type', projected from the 'trip_type' entity.
-dataset: gold_rideflow_dim_trip_type
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+dataset: gold_dim_trip_type
 primary_key:
 - trip_type
 quality:
@@ -45,7 +49,7 @@ links:
 transformations:
 - phase: pre
   sql: |-
-    SELECT DISTINCT trip_type
+    SELECT DISTINCT trip_type, 'rideflow' AS system
     FROM (
       SELECT trip_type FROM source
       UNION ALL

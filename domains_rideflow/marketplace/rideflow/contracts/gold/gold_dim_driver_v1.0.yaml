@@ -4,7 +4,7 @@ info:
   data_product: rider_and_driver_profiles
   data_product_output: dim_driver
   title: "Gold — Dim Driver (SCD2)"
-  table_name: "{gold_layer}_rideflow_dim_driver"
+  table_name: "{gold_layer}_dim_driver"
   description: >
     Slowly Changing Dimension (Type 2) for marketplace drivers. Tracks
     history when an attribute that affects analytics changes — status,
@@ -80,6 +80,10 @@ model:
     - name: version_number
       type: long
       description: "1, 2, 3... per driver_id (SCD2 materializer emits bigint)"
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 # SCD2 matches existing↔incoming on the BUSINESS key, so primary_key must be
 # driver_id (stable across versions) — NOT the surrogate driver_sk (generated
@@ -138,3 +142,10 @@ quality:
     sql: "rating IS NULL OR (rating >= 1.0 AND rating <= 5.0)"
   dataset_rules:
     - unique: driver_sk
+
+# Every gold row names the source system it came from (single-system table).
+transformations:
+  - phase: pre
+    derive:
+      field: system
+      sql: "'rideflow'"

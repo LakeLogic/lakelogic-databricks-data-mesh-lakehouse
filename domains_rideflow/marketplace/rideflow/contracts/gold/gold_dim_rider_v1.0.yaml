@@ -4,12 +4,12 @@ info:
   data_product: rider_and_driver_profiles
   data_product_output: dim_rider
   title: "Gold — Dim Rider (SCD2)"
-  table_name: "{gold_layer}_rideflow_dim_rider"
+  table_name: "{gold_layer}_dim_rider"
   description: >
     Slowly Changing Dimension (Type 2) for marketplace riders. Tracks
     history when an attribute that affects analytics changes — status,
     home city, preferred payment method. Point-in-time (as-of) lookup of rider_sk for
-    gold_rideflow_fact_rider_daily_metrics.
+    gold_fact_rider_daily_metrics.
   target_layer: gold
   domain: marketplace
   system: rideflow
@@ -72,6 +72,10 @@ model:
     - name: version_number
       type: long
       description: "1, 2, 3... per rider_id (SCD2 materializer emits bigint)"
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 # SCD2 matches existing↔incoming on the BUSINESS key, so primary_key must be
 # rider_id (stable across versions) — NOT the surrogate rider_sk (generated per
@@ -130,3 +134,10 @@ quality:
   row_rules: []
   dataset_rules:
     - unique: rider_sk
+
+# Every gold row names the source system it came from (single-system table).
+transformations:
+  - phase: pre
+    derive:
+      field: system
+      sql: "'rideflow'"

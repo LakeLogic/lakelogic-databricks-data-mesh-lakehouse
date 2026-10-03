@@ -44,6 +44,10 @@ model:
       type: boolean
     - name: is_holiday_uk
       type: boolean
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 quality:
   row_rules: []
@@ -81,3 +85,10 @@ external_logic:
     start_date: "2020-01-01"
     end_date: "2030-12-31"
     fiscal_year_start_month: 4   # April fiscal year
+
+# Every gold row names the source system it came from (single-system table).
+transformations:
+  - phase: pre
+    derive:
+      field: system
+      sql: "'internal'"

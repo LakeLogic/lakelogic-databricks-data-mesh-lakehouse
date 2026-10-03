@@ -3,7 +3,7 @@ info:
   title: Gold — Dim Cancel Reason Code
   target_layer: gold
   description: 'grain: one row per cancel_reason_code'
-  table_name: '{gold_layer}_rideflow_dim_cancel_reason_code'
+  table_name: '{gold_layer}_dim_cancel_reason_code'
   system: rideflow
   domain: marketplace
 model:
@@ -18,7 +18,11 @@ model:
     required: true
     description: Dimension attribute 'cancel_reason_code', projected from the 'cancel_reason_code'
       entity.
-dataset: gold_rideflow_dim_cancel_reason_code
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+dataset: gold_dim_cancel_reason_code
 primary_key:
 - cancel_reason_code
 quality:
@@ -42,7 +46,7 @@ materialization:
 transformations:
 - phase: pre
   sql: |-
-    SELECT DISTINCT cancel_reason_code
+    SELECT DISTINCT cancel_reason_code, 'rideflow' AS system
     FROM source
     WHERE cancel_reason_code IS NOT NULL
 source:

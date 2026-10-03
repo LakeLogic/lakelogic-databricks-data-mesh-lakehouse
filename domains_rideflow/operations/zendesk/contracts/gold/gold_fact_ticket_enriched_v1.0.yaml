@@ -37,15 +37,15 @@ model:
     - name: rider_id
       type: string
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_rider_profiles"
+        contract: "{gold_layer}_dim_rider_profiles"
         column: rider_id
-    # SCD2 surrogate FK to marketplace.gold_rideflow_dim_rider_profiles — resolved as-of created_at in the
+    # SCD2 surrogate FK to marketplace.gold_dim_rider_profiles — resolved as-of created_at in the
     # phase:post transform below. Unmatched riders → '-1' unknown member.
     - name: rider_sk
       type: string
-      description: "FK to gold_rideflow_dim_rider_profiles (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_dim_rider_profiles (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_rider_profiles"
+        contract: "{gold_layer}_dim_rider_profiles"
         column: rider_profiles_sk
     - name: trip_id
       type: string
@@ -57,14 +57,14 @@ model:
       type: string
       description: "Nullable — present on ~55%"
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_driver_profiles"
+        contract: "{gold_layer}_dim_driver_profiles"
         column: driver_id
-    # SCD2 surrogate FK to marketplace.gold_rideflow_dim_driver_profiles — resolved as-of created_at.
+    # SCD2 surrogate FK to marketplace.gold_dim_driver_profiles — resolved as-of created_at.
     - name: driver_sk
       type: string
-      description: "FK to gold_rideflow_dim_driver_profiles (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_dim_driver_profiles (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_driver_profiles"
+        contract: "{gold_layer}_dim_driver_profiles"
         column: driver_profiles_sk
     - name: charge_id
       type: string
@@ -124,6 +124,10 @@ model:
     - name: urgency_score
       type: float
       description: "Normalized urgency in [0, 1] derived from priority — higher = more urgent"
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 primary_key: [ticket_id]
 
@@ -142,10 +146,10 @@ source:
 links:
   - name: dim_rider
     type: table
-    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_rider_profiles"
+    path: "table:`{catalog}`.marketplace.gold_dim_rider_profiles"
   - name: dim_driver
     type: table
-    path: "table:`{catalog}`.marketplace.gold_rideflow_dim_driver_profiles"
+    path: "table:`{catalog}`.marketplace.gold_dim_driver_profiles"
   # Raw silver ticket text/priority — `source` is projected DOWN to this gold
   # contract's model fields before the transform runs, so subject /
   # ticket_description / priority are not visible on `source`. This link exposes
@@ -244,7 +248,8 @@ transformations:
                                 WHEN 'low'    THEN 0.15
                                 ELSE 0.40 END AS FLOAT)         AS urgency_score,
           COALESCE(dr.rider_profiles_sk, '-1') AS rider_sk,
-          COALESCE(dd.driver_profiles_sk, '-1') AS driver_sk
+          COALESCE(dd.driver_profiles_sk, '-1') AS driver_sk,
+          'zendesk' AS system
       FROM derived d
       LEFT JOIN dim_rider dr
         ON  d.rider_id   =  dr.rider_id

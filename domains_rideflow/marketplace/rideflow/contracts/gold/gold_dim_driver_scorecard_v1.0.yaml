@@ -4,7 +4,7 @@ info:
   data_product: rider_and_driver_profiles
   data_product_output: dim_driver_scorecard
   title: "Gold — Dim Driver Scorecard"
-  table_name: "{gold_layer}_rideflow_dim_driver_scorecard"
+  table_name: "{gold_layer}_dim_driver_scorecard"
   description: "Per-driver performance scorecard with trip counts, earnings, and ratings."
   target_layer: gold
   domain: marketplace
@@ -24,9 +24,9 @@ links:
     path: "table:{domain_catalog}.silver_rideflow_trips"
     type: table
   # Conformed SCD2 driver dimension — used to resolve driver_sk. Same domain, so
-  # the scorecard depends_on gold_rideflow_dim_driver in _system.yaml (dim first).
+  # the scorecard depends_on gold_dim_driver in _system.yaml (dim first).
   - name: dim_driver
-    path: "table:{domain_catalog}.gold_rideflow_dim_driver"
+    path: "table:{domain_catalog}.gold_dim_driver"
     type: table
 
 model:
@@ -39,9 +39,9 @@ model:
     # Drivers absent from the dim (e.g. a leaked/typo id) → '-1' unknown member.
     - name: driver_sk
       type: string
-      description: "FK to gold_rideflow_dim_driver (current version); '-1' = unknown"
+      description: "FK to gold_dim_driver (current version); '-1' = unknown"
       foreign_key:
-        contract: "{gold_layer}_rideflow_dim_driver"
+        contract: "{gold_layer}_dim_driver"
         column: driver_sk
     - name: total_trips
       type: integer
@@ -53,6 +53,10 @@ model:
       type: float
     - name: avg_duration_minutes
       type: float
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 transformations:
   # phase: pre — this SQL PRODUCES the model's columns (total_trips, driver_sk, …); schema
@@ -85,7 +89,8 @@ transformations:
           a.total_earnings,
           a.avg_driver_rating,
           a.avg_distance_km,
-          a.avg_duration_minutes
+          a.avg_duration_minutes,
+          'rideflow' AS system
       FROM agg a
       LEFT JOIN dim_driver d
         ON  a.driver_id = d.driver_id

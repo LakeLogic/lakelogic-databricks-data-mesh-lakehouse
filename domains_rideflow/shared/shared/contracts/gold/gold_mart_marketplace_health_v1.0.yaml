@@ -56,6 +56,10 @@ model:
     - name: active_riders
       type: integer
       description: "Distinct rider_ids requesting at least one trip on kpi_date."
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 source:
   type: table
@@ -108,7 +112,8 @@ transformations:
              CAST(COALESCE(tr.completed_trips,0) AS double)  / NULLIF(tr.active_drivers,0) AS driver_utilization_rate,
              COALESCE(rev.gross_revenue_amount,0.0)        AS gross_revenue_amount,
              COALESCE(rev.gross_revenue_amount,0.0) / NULLIF(req.active_riders,0) AS revenue_per_active_rider,
-             CAST(COALESCE(req.active_riders,0) AS int)    AS active_riders
+             CAST(COALESCE(req.active_riders,0) AS int)    AS active_riders,
+             'rideflow'                                    AS system
       FROM keys k
       LEFT JOIN req ON req.kpi_date=k.kpi_date AND req.city_code=k.city_code
       LEFT JOIN tr  ON tr.kpi_date=k.kpi_date  AND tr.city_code=k.city_code

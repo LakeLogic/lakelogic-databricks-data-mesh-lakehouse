@@ -53,6 +53,10 @@ model:
     - name: currency
       type: string
       description: "Always 'GBP' — multi-currency conversion happens upstream at Silver."
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 source:
   type: table
@@ -114,7 +118,8 @@ transformations:
              CAST(COALESCE(rf.refund_count, 0) AS int)                AS refund_count,
              agg.gross_revenue_amount - COALESCE(rf.refund_amount,0.0) AS net_revenue_amount,
              CAST(agg.trip_count AS int)                              AS trip_count,
-             'GBP'                                                    AS currency
+             'GBP'                                                    AS currency,
+             'stripe'                                                 AS system
       FROM agg
       LEFT JOIN rf ON rf.kpi_date=agg.kpi_date AND rf.city_code=agg.city_code AND rf.vehicle_type=agg.vehicle_type
       LEFT JOIN pg ON pg.kpi_date=agg.kpi_date AND pg.city_code=agg.city_code AND pg.vehicle_type=agg.vehicle_type

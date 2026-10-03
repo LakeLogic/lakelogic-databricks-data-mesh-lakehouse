@@ -27,6 +27,10 @@ model:
       description: "RideFlow product surfaced to riders (Economy, Comfort, XL)"
     - name: requires_inspection
       type: boolean
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 quality:
   row_rules: []
@@ -48,3 +52,10 @@ source:
 # updated row replaces its previous version instead of duplicating.
 materialization:
   strategy: merge
+
+# Every gold row names the source system it came from (single-system table).
+transformations:
+  - phase: pre
+    derive:
+      field: system
+      sql: "'internal'"

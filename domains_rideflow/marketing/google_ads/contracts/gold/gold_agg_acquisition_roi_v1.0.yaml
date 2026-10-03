@@ -3,7 +3,7 @@ version: 1.0.0
 info:
   data_product: acquisition_performance
   data_product_output: agg_acquisition_roi
-  title: "Gold — Agg Google Ads Acquisition ROI"
+  title: "Gold — Agg Acquisition ROI"
   table_name: '{gold_layer}_agg_acquisition_roi'
   description: >
     Daily pre-aggregated Google Ads spend metrics rolled up across all
@@ -41,6 +41,10 @@ model:
     - name: roas
       type: float
       description: "Return on Ad Spend = total_conversion_value / total_cost"
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
 
 primary_key: [date]
 
@@ -74,7 +78,8 @@ transformations:
         CASE WHEN total_conversions > 0 THEN total_cost / total_conversions ELSE NULL END AS cac,
         CASE WHEN total_impressions > 0 THEN CAST(total_clicks AS DOUBLE) / total_impressions ELSE NULL END AS ctr,
         CASE WHEN total_clicks > 0 THEN CAST(total_conversions AS DOUBLE) / total_clicks ELSE NULL END AS conversion_rate,
-        CASE WHEN total_cost > 0 THEN total_conversion_value / total_cost ELSE NULL END AS roas
+        CASE WHEN total_cost > 0 THEN total_conversion_value / total_cost ELSE NULL END AS roas,
+        'google_ads' AS system
       FROM (
         SELECT
           date,
