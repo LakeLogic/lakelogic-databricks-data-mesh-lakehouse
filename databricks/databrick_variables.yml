@@ -27,6 +27,11 @@ variables:
       write fails with `[Errno 22] Invalid argument`. Destructive: drops schemas,
       tables and volumes.
     default: "false"
+  environment:
+    description: >-
+      The environment name the contracts resolve against (_system.yaml `environments:`).
+      Separate from the bundle target, so a second workspace (azure_dev) runs as "dev".
+    default: "dev"
   deployment_folder:
     description: "Deployment folder"
     default: "_data_platform_rideflow_demo"

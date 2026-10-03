@@ -53,7 +53,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/payments/stripe/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               num_windows: "48"
               inject_edge_cases: "true"
               build_bronze_silver: "true"

@@ -51,7 +51,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/shared/shared/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               target_layers: "bronze,silver,gold"
               vacuum_retain_hrs: "168"
               dry_run: "false"

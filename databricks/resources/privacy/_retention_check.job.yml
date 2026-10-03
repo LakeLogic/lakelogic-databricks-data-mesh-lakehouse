@@ -36,7 +36,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_ads/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: marketing_google_analytics
@@ -49,7 +49,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/google_analytics/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: marketing_hubspot
@@ -62,7 +62,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/hubspot/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: marketing_meta_ads
@@ -75,7 +75,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketing/meta_ads/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: marketplace_rideflow
@@ -88,7 +88,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/marketplace/rideflow/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: operations_checkr
@@ -101,7 +101,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/checkr/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: operations_twilio
@@ -114,7 +114,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/twilio/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: operations_zendesk
@@ -127,7 +127,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/operations/zendesk/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: payments_stripe
@@ -140,7 +140,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/payments/stripe/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: reference_internal
@@ -153,7 +153,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/reference/internal/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
 
         - task_key: shared_shared
@@ -166,5 +166,5 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               registry_path: "/Volumes/${var.catalog}/nondelta/_contracts/shared/shared/_system.yaml"
-              environment: "${bundle.target}"
+              environment: "${var.environment}"
               fail_on_breach: "{{job.parameters.fail_on_breach}}"
