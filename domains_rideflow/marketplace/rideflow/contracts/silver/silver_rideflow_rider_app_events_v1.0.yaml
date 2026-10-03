@@ -37,6 +37,7 @@ model:
       description: "Event type (screen_view | button_tap | search | ...)"
     - name: screen_name
       type: string
+      description: "App screen the event fired on (e.g. home, ride_request)."
     - name: event_timestamp
       type: timestamp
       required: true
