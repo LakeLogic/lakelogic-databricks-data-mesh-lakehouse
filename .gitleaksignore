@@ -1,0 +1,3 @@
+# Historical finding only: the value was removed from the file (now ${LAKELOGIC_API_KEY}).
+# Kept in history at 3ca42d0; the key is to be rotated. New secrets are still caught.
+3ca42d0f80a3ef88c171a24c1b46d55de773a600:domains_rideflow/marketplace/_domain.yaml:generic-api-key:96
