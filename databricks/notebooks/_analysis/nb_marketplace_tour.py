@@ -238,3 +238,29 @@ if exists("_lakelogic_erasure_evidence"):
     """)
 else:
     print("No erasure evidence yet — run pl_privacy_erasure.")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Ungoverned table — the Estate view
+# MAGIC
+# MAGIC A table no contract governs. LakeLogic's scan finds it, and **Understand → Estate**
+# MAGIC lists it as ungoverned (no contract, no rules, no owner). **Look for:**
+# MAGIC `bronze_rideflow_taxi_ungoverned` in the Estate view after the next scan.
+# MAGIC Drop it with the last cell when you are done.
+
+# COMMAND ----------
+
+# CREATE OR REPLACE, so re-running the tour does not pile up duplicate rows.
+spark.sql(f"""
+CREATE OR REPLACE TABLE {S}.bronze_rideflow_taxi_ungoverned AS
+SELECT * FROM VALUES
+  (1, 'alpha', current_timestamp()),
+  (2, 'beta',  current_timestamp())
+AS t(id, name, created_at)""")
+q("SELECT * FROM {S}.bronze_rideflow_taxi_ungoverned")
+
+# COMMAND ----------
+
+# Clean-up: uncomment to remove the test table.
+# spark.sql(f"DROP TABLE IF EXISTS {S}.bronze_rideflow_taxi_ungoverned")
