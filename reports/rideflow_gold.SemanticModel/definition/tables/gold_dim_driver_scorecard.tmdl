@@ -1,0 +1,76 @@
+table gold_dim_driver_scorecard
+	lineageTag: dc9d2aea-55e5-51eb-a8bc-2f931eb50abe
+
+	measure 'Total trips (dim driver scorecard)' = SUM('gold_dim_driver_scorecard'[total_trips])
+		formatString: #,0
+		lineageTag: 4edeace0-9680-5152-b759-18a963a07cf8
+
+	measure 'Total earnings' = SUM('gold_dim_driver_scorecard'[total_earnings])
+		formatString: #,0.00
+		lineageTag: ebebc3ae-a380-5098-8fee-924d28e0d2f1
+
+	measure 'Average driver rating' = AVERAGE('gold_dim_driver_scorecard'[avg_driver_rating])
+		formatString: 0.00
+		lineageTag: 68436b7f-6e64-552f-b227-526920214279
+
+	measure 'Average distance km' = AVERAGE('gold_dim_driver_scorecard'[avg_distance_km])
+		formatString: 0.00
+		lineageTag: 74c770e4-02b7-5aa3-8d64-40530391cd5a
+
+	measure 'Average duration minutes' = AVERAGE('gold_dim_driver_scorecard'[avg_duration_minutes])
+		formatString: 0.00
+		lineageTag: 2be76aa3-104a-5c42-8dd2-20c9a28eed3f
+
+	column driver_id
+		dataType: string
+		lineageTag: 483d3012-6a33-58f5-a700-1b71cf02c9f7
+		summarizeBy: none
+		sourceColumn: driver_id
+
+	column driver_sk
+		dataType: string
+		isHidden
+		lineageTag: e991a445-4f03-5214-85b2-fbf1e0731c86
+		summarizeBy: none
+		sourceColumn: driver_sk
+
+	column total_trips
+		dataType: int64
+		lineageTag: 72302c61-0390-54a2-88be-c81e4bad29ae
+		summarizeBy: sum
+		sourceColumn: total_trips
+
+	column total_earnings
+		dataType: double
+		lineageTag: 22a1edcf-5f09-5f33-a9d1-ddc123d9bb91
+		summarizeBy: sum
+		sourceColumn: total_earnings
+
+	column avg_driver_rating
+		dataType: double
+		lineageTag: a1c7ab0c-6fa7-5f43-8fe4-7fa93fe9d690
+		summarizeBy: average
+		sourceColumn: avg_driver_rating
+
+	column avg_distance_km
+		dataType: double
+		lineageTag: 4700b619-0946-5fca-a0f3-eed3e9164a16
+		summarizeBy: average
+		sourceColumn: avg_distance_km
+
+	column avg_duration_minutes
+		dataType: double
+		lineageTag: 7952284e-ae55-5363-b584-20f778e574b3
+		summarizeBy: average
+		sourceColumn: avg_duration_minutes
+
+	partition gold_dim_driver_scorecard = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "marketplace", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_driver_scorecard", Kind = "Table"]}[Data]
+				in
+					Table

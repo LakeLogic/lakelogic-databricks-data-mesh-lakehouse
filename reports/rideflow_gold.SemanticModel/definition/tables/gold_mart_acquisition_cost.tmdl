@@ -1,0 +1,97 @@
+table gold_mart_acquisition_cost
+	lineageTag: 2e300b64-116f-5bae-b09e-7256f98fef5b
+
+	measure 'Total spend amount' = SUM('gold_mart_acquisition_cost'[spend_amount])
+		formatString: #,0.00
+		lineageTag: 8fd49665-5153-56d0-a0c7-109f283c03ec
+
+	measure 'Total impressions (mart acquisition cost)' = SUM('gold_mart_acquisition_cost'[impressions])
+		formatString: #,0
+		lineageTag: 0c409cd3-ca05-5a23-8816-9ec1ba6c4064
+
+	measure 'Total clicks (mart acquisition cost)' = SUM('gold_mart_acquisition_cost'[clicks])
+		formatString: #,0
+		lineageTag: 7e5873e4-771b-5416-b5da-ad5b7a41a074
+
+	measure 'Total attributed new riders' = SUM('gold_mart_acquisition_cost'[attributed_new_riders])
+		formatString: #,0
+		lineageTag: e1a1bdba-142d-5225-b3eb-79688071c958
+
+	measure 'Total cost per acquisition' = SUM('gold_mart_acquisition_cost'[cost_per_acquisition])
+		formatString: #,0.00
+		lineageTag: fe787bf3-dc86-5602-9d9d-aaddf8b86869
+
+	measure 'Average conversion rate (mart acquisition cost)' = AVERAGE('gold_mart_acquisition_cost'[conversion_rate])
+		formatString: 0.00
+		lineageTag: 746fb493-7a7b-52cf-8507-086bbb1caa08
+
+	column kpi_date
+		dataType: dateTime
+		lineageTag: 81e2bb1c-2b0e-5f79-8c77-2de470ea7690
+		summarizeBy: none
+		sourceColumn: kpi_date
+
+	column channel
+		dataType: string
+		lineageTag: a1c6df3d-783f-51f5-82c3-51a1ea526c36
+		summarizeBy: none
+		sourceColumn: channel
+
+	column campaign_id
+		dataType: string
+		lineageTag: cd7723db-c2b8-53b3-842b-fe69acd90ed2
+		summarizeBy: none
+		sourceColumn: campaign_id
+
+	column campaign_name
+		dataType: string
+		lineageTag: 105c2bfd-354e-5a00-b798-eb845925d28f
+		summarizeBy: none
+		sourceColumn: campaign_name
+
+	column spend_amount
+		dataType: double
+		lineageTag: 1dcf0f73-f76b-57a7-ad5a-c96dcec826fa
+		summarizeBy: sum
+		sourceColumn: spend_amount
+
+	column impressions
+		dataType: int64
+		lineageTag: e21ece0a-f247-5324-8653-b72e3381b0ca
+		summarizeBy: sum
+		sourceColumn: impressions
+
+	column clicks
+		dataType: int64
+		lineageTag: 11f3a798-16f2-57a9-ad61-ac765995c101
+		summarizeBy: sum
+		sourceColumn: clicks
+
+	column attributed_new_riders
+		dataType: int64
+		lineageTag: 000427f7-d6fb-5e95-97c4-c1b0747b647e
+		summarizeBy: sum
+		sourceColumn: attributed_new_riders
+
+	column cost_per_acquisition
+		dataType: double
+		lineageTag: 5d1d469c-a35e-583d-b83d-1ed197d79b56
+		summarizeBy: sum
+		sourceColumn: cost_per_acquisition
+
+	column conversion_rate
+		dataType: double
+		lineageTag: ec9159c4-e4cb-5742-9526-355c371de879
+		summarizeBy: average
+		sourceColumn: conversion_rate
+
+	partition gold_mart_acquisition_cost = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "shared", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_mart_acquisition_cost", Kind = "Table"]}[Data]
+				in
+					Table

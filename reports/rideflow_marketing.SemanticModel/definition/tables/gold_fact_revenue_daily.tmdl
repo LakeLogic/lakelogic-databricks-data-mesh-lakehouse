@@ -1,0 +1,108 @@
+table gold_fact_revenue_daily
+	lineageTag: c1820619-e5bf-53cf-9cfb-98cbeb6a63a0
+
+	measure 'Total gross revenue amount (fact revenue daily)' = SUM('gold_fact_revenue_daily'[gross_revenue_amount])
+		formatString: #,0.00
+		lineageTag: 23091002-3c88-5488-9878-c6c1c2d76606
+
+	measure 'Total platform commission amount' = SUM('gold_fact_revenue_daily'[platform_commission_amount])
+		formatString: #,0.00
+		lineageTag: 42cbff97-569a-5678-b040-50196f756d87
+
+	measure 'Total driver payout amount' = SUM('gold_fact_revenue_daily'[driver_payout_amount])
+		formatString: #,0.00
+		lineageTag: b0655aee-a5aa-5dfa-a681-009e627ec6ac
+
+	measure 'Total refund amount' = SUM('gold_fact_revenue_daily'[refund_amount])
+		formatString: #,0.00
+		lineageTag: 8f10751a-08bb-53a6-8529-20fc2ad92c7f
+
+	measure 'Total refund count' = SUM('gold_fact_revenue_daily'[refund_count])
+		formatString: #,0
+		lineageTag: 8390dad5-ef31-56a4-9f2e-cd54b5bcb4c9
+
+	measure 'Total net revenue amount' = SUM('gold_fact_revenue_daily'[net_revenue_amount])
+		formatString: #,0.00
+		lineageTag: 5eee6df8-77f3-5da4-8490-d20110ddd8c3
+
+	measure 'Total trip count' = SUM('gold_fact_revenue_daily'[trip_count])
+		formatString: #,0
+		lineageTag: ac18e5e3-7228-5e14-9c7a-7ebd69f4db2b
+
+	column kpi_date
+		dataType: dateTime
+		lineageTag: a6a7657a-0f93-5eaf-80fc-4f400be2e4fa
+		summarizeBy: none
+		sourceColumn: kpi_date
+
+	column city_code
+		dataType: string
+		isHidden
+		lineageTag: b366d14c-eda5-5e29-8bbb-7bd6aab75f56
+		summarizeBy: none
+		sourceColumn: city_code
+
+	column vehicle_type
+		dataType: string
+		lineageTag: 47c2bf45-2648-5cc4-b24e-dbd04058dd73
+		summarizeBy: none
+		sourceColumn: vehicle_type
+
+	column gross_revenue_amount
+		dataType: double
+		lineageTag: 75e26479-3def-5d09-8689-4dc837c28633
+		summarizeBy: sum
+		sourceColumn: gross_revenue_amount
+
+	column platform_commission_amount
+		dataType: double
+		lineageTag: 115eaeb1-8757-5cc9-b638-ca7b675f93db
+		summarizeBy: sum
+		sourceColumn: platform_commission_amount
+
+	column driver_payout_amount
+		dataType: double
+		lineageTag: cc34c9e2-ce7e-5307-a210-f7f951acc17f
+		summarizeBy: sum
+		sourceColumn: driver_payout_amount
+
+	column refund_amount
+		dataType: double
+		lineageTag: d9a3399b-c6c1-5d35-bd2c-236d7dc5137b
+		summarizeBy: sum
+		sourceColumn: refund_amount
+
+	column refund_count
+		dataType: int64
+		lineageTag: b2fa86ba-e2bd-5565-842f-bcaf41846841
+		summarizeBy: sum
+		sourceColumn: refund_count
+
+	column net_revenue_amount
+		dataType: double
+		lineageTag: 066bc57c-63c9-5d59-a8b9-b5eb5df48127
+		summarizeBy: sum
+		sourceColumn: net_revenue_amount
+
+	column trip_count
+		dataType: int64
+		lineageTag: 8638fdc3-8a00-5b9a-9074-5236ca8f97c8
+		summarizeBy: sum
+		sourceColumn: trip_count
+
+	column currency
+		dataType: string
+		lineageTag: 11779970-1674-55b3-9947-deef8db962d3
+		summarizeBy: none
+		sourceColumn: currency
+
+	partition gold_fact_revenue_daily = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "shared", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_fact_revenue_daily", Kind = "Table"]}[Data]
+				in
+					Table

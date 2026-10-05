@@ -1,0 +1,43 @@
+table gold_dim_vehicle_type
+	lineageTag: 5d0a46c1-737f-5e05-b246-141ec9b14e9a
+
+	column vehicle_type_code
+		dataType: string
+		lineageTag: 013b4a18-8c78-5ca6-a5a8-9478bb43a8cc
+		summarizeBy: none
+		sourceColumn: vehicle_type_code
+
+	column vehicle_type_name
+		dataType: string
+		lineageTag: fad0da3b-35e0-52f3-8c96-71efa8211202
+		summarizeBy: none
+		sourceColumn: vehicle_type_name
+
+	column passenger_capacity
+		dataType: int64
+		lineageTag: 779f7e6b-e378-523f-a012-9541cf8b1f1f
+		summarizeBy: sum
+		sourceColumn: passenger_capacity
+
+	column product_tier
+		dataType: string
+		lineageTag: 85abaff1-a044-5987-a294-b8c896716a0d
+		summarizeBy: none
+		sourceColumn: product_tier
+
+	column requires_inspection
+		dataType: boolean
+		lineageTag: 155149c2-0f8d-5e03-b28a-5758f90a5b4e
+		summarizeBy: none
+		sourceColumn: requires_inspection
+
+	partition gold_dim_vehicle_type = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_vehicle_type", Kind = "Table"]}[Data]
+				in
+					Table

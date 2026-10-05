@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_rideflow_campaign_roi"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "89df5be7-3ccd-5c5f-9f6e-a7afc99aa7fe"
+  }
+}

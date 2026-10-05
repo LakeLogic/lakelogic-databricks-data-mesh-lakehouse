@@ -1,0 +1,67 @@
+version: 1.0.0
+
+info:
+  data_product: reference_data
+  data_product_output: dim_vehicle_type
+  title: "Gold — Dim Vehicle Type"
+  table_name: "{gold_layer}_dim_vehicle_type"
+  description: >
+    Vehicle category dimension (sedan, suv, van, motorcycle, bicycle) with
+    capacity and product-mapping attributes. Joined by trip facts.
+  target_layer: gold
+  domain: reference
+  system: internal
+
+model:
+  fields:
+    - name: vehicle_type_code
+      type: string
+      required: true
+      description: "Internal stable code (e.g. SEDAN, SUV, MOTO)"
+    - name: vehicle_type_name
+      type: string
+    - name: passenger_capacity
+      type: int
+    - name: product_tier
+      type: string
+      description: "RideFlow product surfaced to riders (Economy, Comfort, XL)"
+    - name: requires_inspection
+      type: boolean
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
+
+quality:
+  row_rules: []
+  dataset_rules:
+    - unique: vehicle_type_code
+
+primary_key: [vehicle_type_code]
+
+source:
+  type: landing
+  path: "{landing_root}/dim_vehicle_type_seed"
+  format: csv
+  options:
+    header: "true"
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+# Incremental source → upsert on primary_key (SCD1) so a re-read or
+# updated row replaces its previous version instead of duplicating.
+materialization:
+  strategy: merge
+
+# Every gold row names the source system it came from (single-system table).
+transformations:
+  - phase: pre
+    derive:
+      field: system
+      sql: "'internal'"
+
+downstream:
+  - type: semantic_model
+    name: "sm_rideflow_gold"
+    platform: powerbi
+    managed: false

@@ -1,0 +1,43 @@
+table gold_dim_currency
+	lineageTag: 417b4c0a-1071-53c4-af28-d75904d7fbda
+
+	column currency_code
+		dataType: string
+		lineageTag: c81f331c-6f61-5012-abc7-2285389e886c
+		summarizeBy: none
+		sourceColumn: currency_code
+
+	column currency_numeric
+		dataType: int64
+		lineageTag: 2ca5e9a9-1b94-5565-b13e-2b89043f83c5
+		summarizeBy: sum
+		sourceColumn: currency_numeric
+
+	column currency_name
+		dataType: string
+		lineageTag: b19fb6c3-3917-5066-94ef-32db4094e0ab
+		summarizeBy: none
+		sourceColumn: currency_name
+
+	column symbol
+		dataType: string
+		lineageTag: 07887ccd-5a5c-590f-9e6f-9e67d5cc33ba
+		summarizeBy: none
+		sourceColumn: symbol
+
+	column minor_units
+		dataType: int64
+		lineageTag: e4306ab9-fbd2-5a36-b1cd-866ff8121d99
+		summarizeBy: sum
+		sourceColumn: minor_units
+
+	partition gold_dim_currency = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_currency", Kind = "Table"]}[Data]
+				in
+					Table

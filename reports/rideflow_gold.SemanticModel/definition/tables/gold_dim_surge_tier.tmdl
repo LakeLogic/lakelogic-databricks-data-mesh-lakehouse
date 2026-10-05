@@ -1,0 +1,43 @@
+table gold_dim_surge_tier
+	lineageTag: ccb7e038-87b4-5ba4-b21d-39325ae6f090
+
+	column surge_tier_code
+		dataType: string
+		lineageTag: 5abcbca8-9ce6-519a-a687-bd90b08253c6
+		summarizeBy: none
+		sourceColumn: surge_tier_code
+
+	column multiplier_min
+		dataType: double
+		lineageTag: 6a73804d-fa7d-5185-a422-e6b4316a8c92
+		summarizeBy: sum
+		sourceColumn: multiplier_min
+
+	column multiplier_max
+		dataType: double
+		lineageTag: 0a40b65d-a11f-5a7a-99d1-53d80d633dd4
+		summarizeBy: sum
+		sourceColumn: multiplier_max
+
+	column display_label
+		dataType: string
+		lineageTag: 5ccaa2a1-f2a8-5c8f-91f1-6d8a7b91a6c4
+		summarizeBy: none
+		sourceColumn: display_label
+
+	column notify_rider
+		dataType: boolean
+		lineageTag: 2939b4b0-5a79-5221-a13c-183388bc7e11
+		summarizeBy: none
+		sourceColumn: notify_rider
+
+	partition gold_dim_surge_tier = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_surge_tier", Kind = "Table"]}[Data]
+				in
+					Table

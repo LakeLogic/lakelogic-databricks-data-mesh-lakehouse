@@ -1,0 +1,43 @@
+table gold_dim_payment_method
+	lineageTag: aa9ef44a-902d-59a4-8d04-87404a581ac1
+
+	column payment_method_code
+		dataType: string
+		lineageTag: 9ce09b6f-08c0-5b2f-9254-3b39a53a0802
+		summarizeBy: none
+		sourceColumn: payment_method_code
+
+	column payment_method_name
+		dataType: string
+		lineageTag: b9c583d4-fe2b-542b-bcdd-22912f3ee2dd
+		summarizeBy: none
+		sourceColumn: payment_method_name
+
+	column rail
+		dataType: string
+		lineageTag: 0dfe9dfc-5110-58dc-8b7a-317f969843c4
+		summarizeBy: none
+		sourceColumn: rail
+
+	column requires_strong_auth
+		dataType: boolean
+		lineageTag: 485fd36e-a7e0-5ae4-8652-75bc961bee54
+		summarizeBy: none
+		sourceColumn: requires_strong_auth
+
+	column settles_instantly
+		dataType: boolean
+		lineageTag: af8e5f9f-09ed-5617-add9-be8dea222e12
+		summarizeBy: none
+		sourceColumn: settles_instantly
+
+	partition gold_dim_payment_method = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_payment_method", Kind = "Table"]}[Data]
+				in
+					Table

@@ -1,0 +1,62 @@
+table gold_dim_city
+	lineageTag: a2c90749-0783-522f-947a-a1679f5fa224
+
+	column city_sk
+		dataType: string
+		isHidden
+		lineageTag: 89c600d1-9fd0-5482-a152-1bc78d31b602
+		summarizeBy: none
+		sourceColumn: city_sk
+
+	column city_code
+		dataType: string
+		lineageTag: 2e26c551-1fb4-59cc-97cc-8c11bac6bc1e
+		summarizeBy: none
+		sourceColumn: city_code
+
+	column city_name
+		dataType: string
+		lineageTag: 215e738a-b96f-5b30-af26-06d3a6ffdb3c
+		summarizeBy: none
+		sourceColumn: city_name
+
+	column country_code
+		dataType: string
+		lineageTag: 55a07396-5d63-55e5-af03-74945e800a09
+		summarizeBy: none
+		sourceColumn: country_code
+
+	column timezone
+		dataType: string
+		lineageTag: 5e743083-f5e9-5a0d-a16a-9baaad1e0d71
+		summarizeBy: none
+		sourceColumn: timezone
+
+	column default_currency
+		dataType: string
+		lineageTag: 260ee9ed-8299-53c8-82c1-7a1ce0ef918b
+		summarizeBy: none
+		sourceColumn: default_currency
+
+	column geofence_wkt
+		dataType: string
+		lineageTag: a9755bc7-8560-5401-9e8f-2ff4aaebe0ec
+		summarizeBy: none
+		sourceColumn: geofence_wkt
+
+	column is_active
+		dataType: boolean
+		lineageTag: a1eb451f-6187-5980-b4b2-80eec33b9b70
+		summarizeBy: none
+		sourceColumn: is_active
+
+	partition gold_dim_city = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_city", Kind = "Table"]}[Data]
+				in
+					Table

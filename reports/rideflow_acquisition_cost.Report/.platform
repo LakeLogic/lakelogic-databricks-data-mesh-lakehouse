@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_rideflow_acquisition_cost"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "9b916239-7253-590f-a808-279639798c61"
+  }
+}

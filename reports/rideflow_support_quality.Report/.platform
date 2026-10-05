@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_rideflow_support_quality"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "084623d6-7205-517c-8615-41d88b1bc233"
+  }
+}

@@ -1,0 +1,49 @@
+table gold_dim_country
+	lineageTag: b22f6a70-607e-58e2-ac77-67b4c2f6f46b
+
+	column country_alpha3
+		dataType: string
+		lineageTag: edd3d30b-1e39-57a4-8626-e3435fda93e9
+		summarizeBy: none
+		sourceColumn: country_alpha3
+
+	column country_alpha2
+		dataType: string
+		lineageTag: 81afa17f-e1fe-5e0e-8bd6-57f24b630e93
+		summarizeBy: none
+		sourceColumn: country_alpha2
+
+	column country_name
+		dataType: string
+		lineageTag: c8245ff8-5d89-5a6b-b09c-287f13d2e1a7
+		summarizeBy: none
+		sourceColumn: country_name
+
+	column country_numeric
+		dataType: int64
+		lineageTag: a978baa2-0a3b-5ec7-9378-acd6a18705a5
+		summarizeBy: sum
+		sourceColumn: country_numeric
+
+	column region
+		dataType: string
+		lineageTag: c428b8e8-70cc-5f33-b5ac-7b54cc908d8f
+		summarizeBy: none
+		sourceColumn: region
+
+	column sub_region
+		dataType: string
+		lineageTag: dec046ad-35ce-5c72-b6aa-dc46f723e48b
+		summarizeBy: none
+		sourceColumn: sub_region
+
+	partition gold_dim_country = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_country", Kind = "Table"]}[Data]
+				in
+					Table

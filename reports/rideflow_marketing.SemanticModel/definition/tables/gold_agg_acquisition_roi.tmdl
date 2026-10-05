@@ -1,0 +1,109 @@
+table gold_agg_acquisition_roi
+	lineageTag: c5033981-725f-57de-a7c3-5e8c715c02b2
+
+	measure 'Total cost' = SUM('gold_agg_acquisition_roi'[total_cost])
+		formatString: #,0.00
+		lineageTag: 70d1b77c-3bfd-5752-a722-328468d2b78d
+
+	measure 'Total impressions (agg acquisition roi)' = SUM('gold_agg_acquisition_roi'[total_impressions])
+		formatString: #,0
+		lineageTag: 81287ac1-587c-5aac-b58f-f41ba67d6139
+
+	measure 'Total clicks (agg acquisition roi)' = SUM('gold_agg_acquisition_roi'[total_clicks])
+		formatString: #,0
+		lineageTag: 78437686-8214-5462-b158-c9dfce26073d
+
+	measure 'Total conversions' = SUM('gold_agg_acquisition_roi'[total_conversions])
+		formatString: #,0
+		lineageTag: 196670f2-e235-5b20-bb04-d93ea5c2959e
+
+	measure 'Total conversion value' = SUM('gold_agg_acquisition_roi'[total_conversion_value])
+		formatString: #,0.00
+		lineageTag: 65d05a77-b9b5-5cef-899f-5b0220cd92ef
+
+	measure 'Average cac' = AVERAGE('gold_agg_acquisition_roi'[cac])
+		formatString: 0.00
+		lineageTag: c59c7f97-4e03-566a-be0c-528a9162034f
+
+	measure 'Average ctr' = AVERAGE('gold_agg_acquisition_roi'[ctr])
+		formatString: 0.00
+		lineageTag: 0c3bb094-b299-5bef-886d-b3f9c0292cb6
+
+	measure 'Average conversion rate (agg acquisition roi)' = AVERAGE('gold_agg_acquisition_roi'[conversion_rate])
+		formatString: 0.00
+		lineageTag: 558a48dc-ebda-52f8-9024-62014802f1b8
+
+	measure 'Average roas' = AVERAGE('gold_agg_acquisition_roi'[roas])
+		formatString: 0.00
+		lineageTag: 35861481-7ea2-5dcb-88b5-8f7f34b4ee4c
+
+	column date
+		dataType: string
+		lineageTag: d17f3746-29c5-553d-83fe-3fc79dcfabe3
+		summarizeBy: none
+		sourceColumn: date
+
+	column total_cost
+		dataType: double
+		lineageTag: 3046b765-f899-5b15-9f8b-eae31256aa64
+		summarizeBy: sum
+		sourceColumn: total_cost
+
+	column total_impressions
+		dataType: int64
+		lineageTag: 2bfe81ac-2dcb-583f-bec8-f854391075ad
+		summarizeBy: sum
+		sourceColumn: total_impressions
+
+	column total_clicks
+		dataType: int64
+		lineageTag: 90130de5-076f-525b-a37c-6f27de330d37
+		summarizeBy: sum
+		sourceColumn: total_clicks
+
+	column total_conversions
+		dataType: int64
+		lineageTag: b8880eb8-0130-5845-a698-8738391b0e35
+		summarizeBy: sum
+		sourceColumn: total_conversions
+
+	column total_conversion_value
+		dataType: double
+		lineageTag: d052b214-eb60-5c55-afd8-18c7f45c09cf
+		summarizeBy: sum
+		sourceColumn: total_conversion_value
+
+	column cac
+		dataType: double
+		lineageTag: e73b0d47-17b5-5a7d-8732-96a1c61f1753
+		summarizeBy: average
+		sourceColumn: cac
+
+	column ctr
+		dataType: double
+		lineageTag: 89f47553-7116-556b-9ac1-7f4d7e4012f2
+		summarizeBy: average
+		sourceColumn: ctr
+
+	column conversion_rate
+		dataType: double
+		lineageTag: 60bda46c-7fbf-5007-b6ff-54e724370774
+		summarizeBy: average
+		sourceColumn: conversion_rate
+
+	column roas
+		dataType: double
+		lineageTag: e8504d4e-0b20-5887-9287-3f4c97e0fcbc
+		summarizeBy: average
+		sourceColumn: roas
+
+	partition gold_agg_acquisition_roi = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "marketing", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_agg_acquisition_roi", Kind = "Table"]}[Data]
+				in
+					Table

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_rideflow_payment_reconciliation"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "94a18762-53aa-5acb-b0e3-8befb5fa9f50"
+  }
+}

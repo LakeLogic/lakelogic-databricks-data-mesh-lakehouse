@@ -1,0 +1,104 @@
+table gold_dim_rider
+	lineageTag: 1c4d52e6-f6f6-53e6-ba8b-c0b9855545eb
+
+	column rider_sk
+		dataType: string
+		isHidden
+		lineageTag: c63baf5b-366e-584a-89f1-dfebc9274a6b
+		summarizeBy: none
+		sourceColumn: rider_sk
+
+	column rider_id
+		dataType: string
+		lineageTag: 5e2b466c-3d7a-587b-8d21-c0e2d6baacdd
+		summarizeBy: none
+		sourceColumn: rider_id
+
+	column name
+		dataType: string
+		lineageTag: 9ff6f02f-5779-5a3d-a8c5-25e745b026d1
+		summarizeBy: none
+		sourceColumn: name
+
+	column email
+		dataType: string
+		lineageTag: 8d228904-65dc-5e68-b5a9-b47ae07860c3
+		summarizeBy: none
+		sourceColumn: email
+
+	column phone
+		dataType: string
+		lineageTag: 2b5eda6b-b687-5eb6-8022-9418a9c7bdd4
+		summarizeBy: none
+		sourceColumn: phone
+
+	column home_address
+		dataType: string
+		lineageTag: 5bcbb1af-639a-50f4-9059-985b754a803c
+		summarizeBy: none
+		sourceColumn: home_address
+
+	column city_code
+		dataType: string
+		lineageTag: 8bccb7e7-c12b-58c0-b47b-6d1f830d8e2a
+		summarizeBy: none
+		sourceColumn: city_code
+
+	column status
+		dataType: string
+		lineageTag: 72e97fc0-b827-5b05-88f9-4adc0182ab82
+		summarizeBy: none
+		sourceColumn: status
+
+	column preferred_payment_method
+		dataType: string
+		lineageTag: c05e0c79-3216-55cf-ab17-7c3bf09ab0a2
+		summarizeBy: none
+		sourceColumn: preferred_payment_method
+
+	column signup_date
+		dataType: dateTime
+		lineageTag: a4042608-a727-52cd-a00d-a6adad3f0239
+		summarizeBy: none
+		sourceColumn: signup_date
+
+	column updated_at
+		dataType: dateTime
+		lineageTag: 85c16b5c-110c-5e1b-b019-97b2e322aada
+		summarizeBy: none
+		sourceColumn: updated_at
+
+	column effective_from
+		dataType: dateTime
+		lineageTag: 0e769c89-7d00-5774-b745-c56512be9a23
+		summarizeBy: none
+		sourceColumn: effective_from
+
+	column effective_to
+		dataType: dateTime
+		lineageTag: 96f6a80c-876e-5ff3-a745-2c186e12b5e0
+		summarizeBy: none
+		sourceColumn: effective_to
+
+	column is_current
+		dataType: boolean
+		lineageTag: 17b10583-f5dd-5507-8acf-d155949e5f28
+		summarizeBy: none
+		sourceColumn: is_current
+
+	column version_number
+		dataType: int64
+		lineageTag: 94578c5b-ea71-5b78-80fa-7358436d9734
+		summarizeBy: sum
+		sourceColumn: version_number
+
+	partition gold_dim_rider = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "marketplace", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_rider", Kind = "Table"]}[Data]
+				in
+					Table

@@ -1,0 +1,3 @@
+relationship 97fda28d-1e80-5d64-a694-46705b8c909a
+	fromColumn: gold_fact_revenue_daily.city_code
+	toColumn: gold_dim_city.city_code

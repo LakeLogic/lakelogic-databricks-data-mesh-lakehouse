@@ -1,0 +1,66 @@
+relationship b5a24027-8fd2-5c0f-a9a2-d6bd6c581f8b
+	fromColumn: gold_dim_driver_scorecard.driver_sk
+	toColumn: gold_dim_driver.driver_sk
+
+	annotation LakeLogicSource = declared
+
+relationship 7fbb8449-5fa1-5d78-9e90-aa9a78364f40
+	fromColumn: gold_fact_rider_daily_metrics.rider_sk
+	toColumn: gold_dim_rider.rider_sk
+
+	annotation LakeLogicSource = declared
+
+relationship 51aaf515-5a5a-5bb7-b93a-7291e15a0178
+	fromColumn: gold_fact_ticket_enriched.driver_sk
+	toColumn: gold_dim_driver.driver_sk
+
+	annotation LakeLogicSource = declared
+
+relationship 83d7da16-2cef-52b4-9111-f41d80a64f10
+	fromColumn: gold_fact_ticket_enriched.rider_sk
+	toColumn: gold_dim_rider.rider_sk
+
+	annotation LakeLogicSource = declared
+
+relationship d005a24e-5833-5dac-b281-9516466066de
+	fromColumn: gold_fact_fx_rate_daily.date_key
+	toColumn: gold_dim_date.date_key
+
+	annotation LakeLogicSource = inferred
+
+relationship 6f042143-c643-5901-8792-b352dc166268
+	fromColumn: gold_dim_driver.city_code
+	toColumn: gold_dim_city.city_code
+
+	annotation LakeLogicSource = inferred
+
+relationship 73dc49cd-587e-5410-873e-20a9e29e2ad2
+	isActive: false
+	fromColumn: gold_dim_rider.city_code
+	toColumn: gold_dim_city.city_code
+
+	annotation LakeLogicSource = inferred
+
+relationship c6756dd2-70cd-516a-8600-cb46a76597f9
+	fromColumn: gold_fact_trip_daily_kpis.city_code
+	toColumn: gold_dim_city.city_code
+
+	annotation LakeLogicSource = inferred
+
+relationship eebdf615-0227-5092-9f87-1ae7a854f6aa
+	fromColumn: gold_dim_driver_360.city_code
+	toColumn: gold_dim_city.city_code
+
+	annotation LakeLogicSource = inferred
+
+relationship 97fda28d-1e80-5d64-a694-46705b8c909a
+	fromColumn: gold_fact_revenue_daily.city_code
+	toColumn: gold_dim_city.city_code
+
+	annotation LakeLogicSource = inferred
+
+relationship f18a9a0a-100f-5c42-b32a-6af2492ef4ad
+	fromColumn: gold_mart_marketplace_health.city_code
+	toColumn: gold_dim_city.city_code
+
+	annotation LakeLogicSource = inferred

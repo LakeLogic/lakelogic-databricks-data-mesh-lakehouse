@@ -1,0 +1,32 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/1.0.0/schema.json",
+  "config": "{\"version\": \"5.43\", \"themeCollection\": {\"baseTheme\": {\"name\": \"CY24SU10\"}}}",
+  "layoutOptimization": 0,
+  "sections": [
+    {
+      "name": "page00",
+      "displayName": "Trip operations",
+      "width": 1280,
+      "height": 720,
+      "config": "{\"visibility\": 0}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 220,
+          "height": 120,
+          "config": "{\"name\": \"p0c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 220, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Count(gold_fact_trip_daily_kpis.count)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"t\", \"Entity\": \"gold_fact_trip_daily_kpis\", \"Type\": 0}]}}}"
+        },
+        {
+          "x": 300,
+          "y": 40,
+          "z": 1,
+          "width": 220,
+          "height": 120,
+          "config": "{\"name\": \"p0c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 300, \"y\": 40, \"z\": 1, \"width\": 220, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_trip_daily_kpis.sum)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"t\", \"Entity\": \"gold_fact_trip_daily_kpis\", \"Type\": 0}]}}}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+table gold_mart_marketplace_health
+	lineageTag: 02bc2666-713a-562f-ade7-f6fe25acafa2
+
+	measure 'Total requested trips' = SUM('gold_mart_marketplace_health'[requested_trips])
+		formatString: #,0
+		lineageTag: fb373f83-d843-5734-bed0-11ea0d3a7dce
+
+	measure 'Total completed trips' = SUM('gold_mart_marketplace_health'[completed_trips])
+		formatString: #,0
+		lineageTag: 0eb3df63-e749-5ea6-8609-99b943a0123e
+
+	measure 'Total cancelled trips' = SUM('gold_mart_marketplace_health'[cancelled_trips])
+		formatString: #,0
+		lineageTag: 46e83140-8a03-5dd5-9711-02af00dee1ad
+
+	measure 'Average completion rate' = AVERAGE('gold_mart_marketplace_health'[completion_rate])
+		formatString: 0.00
+		lineageTag: 6361d51e-7ad7-5f57-b94f-31c2704fc5d6
+
+	measure 'Average cancellation rate' = AVERAGE('gold_mart_marketplace_health'[cancellation_rate])
+		formatString: 0.00
+		lineageTag: bb76c0b6-4d62-584f-882b-7e84edecda32
+
+	measure 'Total active drivers' = SUM('gold_mart_marketplace_health'[active_drivers])
+		formatString: #,0
+		lineageTag: 1648bfc2-3b1e-5cca-9364-87c018e32c3c
+
+	measure 'Average driver utilization rate' = AVERAGE('gold_mart_marketplace_health'[driver_utilization_rate])
+		formatString: 0.00
+		lineageTag: a11a838b-3235-5d47-b723-6f72ed3c4e28
+
+	measure 'Total gross revenue amount (mart marketplace health)' = SUM('gold_mart_marketplace_health'[gross_revenue_amount])
+		formatString: #,0.00
+		lineageTag: 82b8ceb9-9779-5c79-b841-20a8c21fa98a
+
+	measure 'Total revenue per active rider' = SUM('gold_mart_marketplace_health'[revenue_per_active_rider])
+		formatString: #,0.00
+		lineageTag: a9bd04cd-6433-57ec-835d-6013eb8323a5
+
+	measure 'Total active riders' = SUM('gold_mart_marketplace_health'[active_riders])
+		formatString: #,0
+		lineageTag: 325d9c01-9f6a-508c-8802-aec9c1d5d57a
+
+	column kpi_date
+		dataType: dateTime
+		lineageTag: 3be2dedc-8785-5324-bd52-faefbf6bdb88
+		summarizeBy: none
+		sourceColumn: kpi_date
+
+	column city_code
+		dataType: string
+		isHidden
+		lineageTag: 262ede81-7f2b-5f80-8f6e-3964e1ca0321
+		summarizeBy: none
+		sourceColumn: city_code
+
+	column requested_trips
+		dataType: int64
+		lineageTag: 64835bbe-57bb-5574-9346-2a793fdf3696
+		summarizeBy: sum
+		sourceColumn: requested_trips
+
+	column completed_trips
+		dataType: int64
+		lineageTag: d4afd51d-acc3-58de-88a0-e611ce4d05be
+		summarizeBy: sum
+		sourceColumn: completed_trips
+
+	column cancelled_trips
+		dataType: int64
+		lineageTag: 56f7e51a-947a-5d8d-a1af-d6d90a455a5a
+		summarizeBy: sum
+		sourceColumn: cancelled_trips
+
+	column completion_rate
+		dataType: double
+		lineageTag: 5d25beaa-32f2-50c7-8bc9-b3f2a1acacd4
+		summarizeBy: average
+		sourceColumn: completion_rate
+
+	column cancellation_rate
+		dataType: double
+		lineageTag: 6277f051-189e-5418-b7f9-84332829b143
+		summarizeBy: average
+		sourceColumn: cancellation_rate
+
+	column active_drivers
+		dataType: int64
+		lineageTag: 2af425f4-4797-5f57-af03-dbb9b0399282
+		summarizeBy: sum
+		sourceColumn: active_drivers
+
+	column driver_utilization_rate
+		dataType: double
+		lineageTag: 04f65775-91a8-56f3-8932-50625d2c1974
+		summarizeBy: average
+		sourceColumn: driver_utilization_rate
+
+	column gross_revenue_amount
+		dataType: double
+		lineageTag: 9ab4f67d-fa2a-56bd-8d9c-592f5d12aeca
+		summarizeBy: sum
+		sourceColumn: gross_revenue_amount
+
+	column revenue_per_active_rider
+		dataType: double
+		lineageTag: 2f485f4a-45a3-5965-95a1-934faa8b1131
+		summarizeBy: sum
+		sourceColumn: revenue_per_active_rider
+
+	column active_riders
+		dataType: int64
+		lineageTag: ce23b21e-6dbc-5fdb-82b2-7e104e5aa412
+		summarizeBy: sum
+		sourceColumn: active_riders
+
+	partition gold_mart_marketplace_health = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "shared", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_mart_marketplace_health", Kind = "Table"]}[Data]
+				in
+					Table
