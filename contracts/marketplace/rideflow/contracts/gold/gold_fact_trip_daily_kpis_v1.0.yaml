@@ -96,11 +96,6 @@ quality:
       sql: "avg_surge IS NULL OR avg_surge > 0"
 
 downstream:
-  - name: "Executive Daily KPI Dashboard"
-    type: "dashboard"
-    platform: "PowerBI"
-    owner: "finance@rideflow.com"
-
   - type: semantic_model
     name: "sm_rideflow_gold"
     platform: powerbi
