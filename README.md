@@ -121,7 +121,7 @@ source:
 primary_key: [trip_id]
 ```
 
-The [complete contract](domains_rideflow/marketplace/rideflow/contracts/gold/gold_fact_trip_completed_v1.0.yaml)
+The [complete contract](contracts/marketplace/rideflow/contracts/gold/gold_fact_trip_completed_v1.0.yaml)
 also defines fields, the as-of lookups of `rider_sk` / `driver_sk` against the SCD2
 rider and driver dimensions, and quality rules. Trip revenue is a business metric;
 quality checks and freshness measures tell you whether the data supporting it
@@ -138,7 +138,7 @@ meets expectations.
 Marketplace, Payments, Operations, Marketing and Reference organise source data.
 Shared products combine outputs across domains without duplicating every layer.
 
-Contracts live in [`domains_rideflow/`](domains_rideflow/); Databricks deployment
+Contracts live in [`contracts/`](contracts/); Databricks deployment
 and execution code lives in [`databricks/`](databricks/). Domain and system
 configuration keeps ownership and shared expectations close to the teams responsible
 for the data. Defaults reduce repeated configuration; declared dependencies support
@@ -146,6 +146,25 @@ data product lineage and execution order.
 
 Databricks provides compute, storage, access control and job orchestration.
 LakeLogic applies the contract-driven processing and checks.
+
+## Power BI consumers
+
+[`reports/`](reports/) holds two semantic models and ten reports, in Power BI project format.
+They read the gold tables through the Databricks connector in DirectQuery mode.
+
+| Semantic model | Gold tables | Reports |
+| --- | --- | --- |
+| `sm_rideflow_gold` | 21 | `rpt_rideflow_executive` (one page per fact, aggregate or mart), plus driver performance, payment reconciliation, rider engagement, support quality and trip operations |
+| `sm_rideflow_marketing` | 7 | acquisition cost, campaign ROI, channel spend and revenue by city |
+
+Each gold contract's `downstream:` block names the models that hold it and, under each
+model, the reports that read it. That is what a lineage view draws: gold table, semantic
+model, report. `python scripts/validate_release.py` fails if a contract names a model or
+report that is not in `reports/`, or a report reads a table its model does not hold.
+
+To open a model in Power BI Desktop, open its folder and set three parameters:
+`DatabricksHost`, `DatabricksHttpPath` (a SQL warehouse) and `DatabricksCatalog`. The models
+hold placeholders for the first two. They read tables the gold jobs have already built.
 
 ## Inspect the evidence
 

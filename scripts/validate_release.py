@@ -63,6 +63,60 @@ def _olc_validation(root: pathlib.Path) -> tuple[list[str], list[str]]:
     return errors, notes
 
 
+def _powerbi_consistency(root: pathlib.Path) -> list[str]:
+    """The Power BI items in reports/ and the gold contracts' `downstream:` blocks must agree.
+
+    Lineage is read from the contracts, so a renamed report or a table dropped from a model
+    would leave a consumer the contract still claims. Checks, both ways:
+    every model table is a gold contract's table, every report entity is in its model, and every
+    semantic_model / report a gold contract names exists under reports/.
+    """
+    import json
+
+    errors: list[str] = []
+    reports = root / "reports"
+    if not reports.is_dir():
+        return errors
+    gold = {}
+    for path in root.glob("contracts/*/*/contracts/gold/*.yaml"):
+        doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        gold[re.sub(r"_v\d.*$", "", path.stem)] = doc
+
+    def display(item: pathlib.Path) -> str:
+        return json.loads((item / ".platform").read_text(encoding="utf-8"))["metadata"]["displayName"]
+
+    model_tables: dict[str, set[str]] = {}
+    model_names: dict[str, str] = {}
+    for model in reports.glob("*.SemanticModel"):
+        model_names[display(model)] = model.name
+        tables = {t.stem for t in (model / "definition" / "tables").glob("*.tmdl")}
+        model_tables[model.name] = tables
+        for table in sorted(tables - gold.keys()):
+            errors.append(f"Power BI: {model.name} has table {table}, which is not a gold contract")
+    report_names: dict[str, set[str]] = {}
+    for rep in reports.glob("*.Report"):
+        bound = re.search(r'\.\./([^"]+\.SemanticModel)', (rep / "definition.pbir").read_text(encoding="utf-8"))
+        if not bound or bound.group(1) not in model_tables:
+            errors.append(f"Power BI: {rep.name} is not bound to a semantic model in reports/")
+            continue
+        report_names[display(rep)] = rep.name
+        for section in json.loads((rep / "report.json").read_text(encoding="utf-8"))["sections"]:
+            for visual in section["visualContainers"]:
+                for source in json.loads(visual["config"])["singleVisual"]["prototypeQuery"]["From"]:
+                    if source["Entity"] not in model_tables[bound.group(1)]:
+                        errors.append(f"Power BI: {rep.name} reads {source['Entity']}, which {bound.group(1)} does not hold")
+    for name, doc in gold.items():
+        for entry in doc.get("downstream") or []:
+            if entry.get("platform", "").lower() != "powerbi":
+                continue
+            if entry.get("type") == "semantic_model" and entry.get("name") not in model_names:
+                errors.append(f"Power BI: {name} names semantic model {entry.get('name')}, not in reports/")
+            for consumer in entry.get("consumers") or []:
+                if consumer.get("type") == "report" and consumer.get("name") not in report_names:
+                    errors.append(f"Power BI: {name} names report {consumer.get('name')}, not in reports/")
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--release", action="store_true")
@@ -92,6 +146,7 @@ def main() -> int:
                 errors.append(f"Placeholder notification recipient: {path.relative_to(ROOT)}")
     olc_errors, olc_notes = _olc_validation(ROOT)
     errors.extend(olc_errors)
+    errors.extend(_powerbi_consistency(ROOT))
 
     print(f"Checked {len(python_files)} Python files and {len(yaml_files)} YAML files")
     for note in olc_notes:

@@ -45,6 +45,21 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
+# Fail loudly if the engine is not the one asked for. A pinned `pip install lakelogic==X`
+# that cannot be satisfied (e.g. Databricks' PyPI index has not picked up a fresh release)
+# prints an ERROR and the notebook CARRIES ON with the pre-installed version - a run that
+# looks fine while executing old code (seen 2026-10-04: 1.69.0 requested, 1.68.0 ran).
+import lakelogic as _ll
+_want = (dbutils.widgets.get("lakelogic_version") or "").strip()
+if _want and _ll.__version__ != _want:
+    raise RuntimeError(
+        f"LakeLogic {_want} was requested but {_ll.__version__} is installed - the pip install "
+        "failed (see the install cell). Re-run once the release is on Databricks' PyPI index."
+    )
+print(f"LakeLogic {_ll.__version__}")
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## ⚙️ Config
 

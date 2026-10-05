@@ -21,6 +21,8 @@ resources:
         default: 'true'
       - name: enable_gold
         default: 'true'
+      - name: reset_layers
+        default: ''
       schedule:
         quartz_cron_expression: 0 0/30 * * * ?
         timezone_id: UTC
@@ -64,7 +66,7 @@ resources:
             storage_mode: uc
             target_layers: bronze
             entity_filter: ''
-            reset_layers: ''
+            reset_layers: '{{job.parameters.reset_layers}}'
             reload_layers: ''
             dry_run: 'false'
             ddl_only: 'false'
@@ -108,7 +110,7 @@ resources:
             storage_mode: uc
             target_layers: silver
             entity_filter: ''
-            reset_layers: ''
+            reset_layers: '{{job.parameters.reset_layers}}'
             reload_layers: ''
             dry_run: 'false'
             ddl_only: 'false'
@@ -152,7 +154,7 @@ resources:
             storage_mode: uc
             target_layers: gold
             entity_filter: ''
-            reset_layers: ''
+            reset_layers: '{{job.parameters.reset_layers}}'
             reload_layers: ''
             dry_run: 'false'
             ddl_only: 'false'

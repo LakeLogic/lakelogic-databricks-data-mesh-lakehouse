@@ -110,7 +110,7 @@ that deploys and runs them on Databricks:
 ```text
 .github/
   workflows/validate.yml      CI validation for contracts and Python files
-domains_rideflow/             Domain-owned contract trees
+contracts/             Domain-owned contract trees
   marketing/                  Google Ads, Google Analytics, HubSpot, and Meta Ads
     <system>/
       _system.yaml             System defaults and contract registry
@@ -151,7 +151,7 @@ README.md                     Public overview and quickstart
 LICENSE                       Apache 2.0 licence
 ```
 
-`domains_rideflow/` contains the portable business definitions. `databricks/`
+`contracts/` contains the portable business definitions. `databricks/`
 contains the platform-specific deployment and execution code. This boundary is
 intentional: a domain team can review its contracts without needing to understand
 the complete Asset Bundle, while the platform team can change deployment code

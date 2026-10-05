@@ -4,7 +4,7 @@
 # Purpose   : One-shot, idempotent bootstrap so a tester can stand up the whole
 #             demo on Databricks with NO Azure ADLS and NO external storage.
 #
-# Creates, from the contract registry (domains_rideflow/):
+# Creates, from the contract registry (contracts/):
 #   • the Unity Catalog            (default: governed_rideflow_lakehouse_demo)
 #   • one schema per domain        (marketing, marketplace, operations, ...)
 #   • a `nondelta` schema with UC Volumes:
@@ -66,8 +66,8 @@ STORAGE_ROOT = dbutils.widgets.get("storage_root").strip()
 contracts_src = dbutils.widgets.get("contracts_src").strip()
 
 # Auto-detect the synced contract registry by walking UP from this notebook's own
-# location and checking each ancestor for a `domains_rideflow` child. Robust to how
-# deep the bundle nests the notebook (e.g. .../files/domains_rideflow while the
+# location and checking each ancestor for a `contracts` child. Robust to how
+# deep the bundle nests the notebook (e.g. .../files/contracts while the
 # notebook is at .../files/databricks/notebooks/nb_00_setup).
 if not contracts_src:
     try:
@@ -75,7 +75,7 @@ if not contracts_src:
         nb_path = ctx.notebookPath().get()
         parts = nb_path.split("/")
         for i in range(len(parts), 0, -1):
-            candidate = "/Workspace" + "/".join(parts[:i]) + "/domains_rideflow"
+            candidate = "/Workspace" + "/".join(parts[:i]) + "/contracts"
             if os.path.isdir(candidate):
                 contracts_src = candidate
                 break
@@ -85,7 +85,7 @@ if not contracts_src:
 if not contracts_src or not os.path.isdir(contracts_src):
     raise FileNotFoundError(
         f"Contracts source not found: {contracts_src}\n"
-        "Deploy the bundle first (`databricks bundle deploy`) so domains_rideflow "
+        "Deploy the bundle first (`databricks bundle deploy`) so contracts "
         "is synced into the workspace, or set the 'contracts_src' widget."
     )
 

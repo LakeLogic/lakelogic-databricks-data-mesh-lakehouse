@@ -24,7 +24,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2] / "domains_rideflow"
+ROOT = Path(__file__).resolve().parents[2] / "contracts"
 WATERMARK = "_lakelogic_processed_at"
 
 #: Bronze exceptions to incremental — none. (PDF extraction and city_master are incremental:

@@ -11,7 +11,7 @@ include:
 sync:
   paths:
     - .
-    - ../domains_rideflow
+    - ../contracts
 
 workspace:
   root_path: /Workspace/Shared/data_platform/domains/${var.domain}/${var.system}
@@ -30,7 +30,7 @@ targets:
       # blank version can leave that one in place. 1.68.0 (OLC 0.19) carries the gold `system`
       # derive and blank-key dedup the contracts use.
       lakelogic_wheel: ""
-      lakelogic_version: "1.68.0"
+      lakelogic_version: "1.70.0"
       # Blank = the catalog was created in the UI on the metastore's storage.
       catalog_storage_root: ""
 

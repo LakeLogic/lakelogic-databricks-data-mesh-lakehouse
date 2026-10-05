@@ -14,8 +14,8 @@
 #
 # How to use:
 #   1. In Databricks: Workspace ▸ Repos ▸ Add Repo → clone this GitHub repo
-#      (this notebook auto-finds domains_rideflow next to itself). Or set the
-#      `contracts_root` widget to the folder that contains domains_rideflow.
+#      (this notebook auto-finds contracts next to itself). Or set the
+#      `contracts_root` widget to the folder that contains contracts.
 #   2. Attach to serverless (or any UC-enabled cluster) and Run All.
 #
 # Idempotent — every statement is IF NOT EXISTS / ddl_only; safe to re-run.
@@ -97,7 +97,7 @@ contracts_root = dbutils.widgets.get("contracts_root").strip()
 # The contract registry resolves {catalog} from this env var in UC mode.
 os.environ["RIDEFLOW_DEV_CATALOG"] = CATALOG
 
-# Auto-detect domains_rideflow by walking up from this notebook's own location
+# Auto-detect contracts by walking up from this notebook's own location
 # (works whether the repo is a Databricks Git folder or bundle-synced).
 if not contracts_root:
     try:
@@ -105,7 +105,7 @@ if not contracts_root:
         nb_path = ctx.notebookPath().get()
         parts = nb_path.split("/")
         for i in range(len(parts), 0, -1):
-            candidate = "/Workspace" + "/".join(parts[:i]) + "/domains_rideflow"
+            candidate = "/Workspace" + "/".join(parts[:i]) + "/contracts"
             if os.path.isdir(candidate):
                 contracts_root = candidate
                 break
@@ -114,9 +114,9 @@ if not contracts_root:
 
 if not contracts_root or not os.path.isdir(contracts_root):
     raise FileNotFoundError(
-        "Could not locate 'domains_rideflow'. Add this repo as a Databricks Git "
+        "Could not locate 'contracts'. Add this repo as a Databricks Git "
         "folder (Repos ▸ Add Repo) and run the notebook from inside it, or set the "
-        "'contracts_root' widget to the folder that contains domains_rideflow."
+        "'contracts_root' widget to the folder that contains contracts."
     )
 
 domains = sorted(

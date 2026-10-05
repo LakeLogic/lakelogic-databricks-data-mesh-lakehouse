@@ -56,6 +56,21 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
+# Fail loudly if the engine is not the one asked for. A pinned `pip install lakelogic==X`
+# that cannot be satisfied (e.g. Databricks' PyPI index has not picked up a fresh release)
+# prints an ERROR and the notebook CARRIES ON with the pre-installed version - a run that
+# looks fine while executing old code (seen 2026-10-04: 1.69.0 requested, 1.68.0 ran).
+import lakelogic as _ll
+_want = (dbutils.widgets.get("lakelogic_version") or "").strip()
+if _want and _ll.__version__ != _want:
+    raise RuntimeError(
+        f"LakeLogic {_want} was requested but {_ll.__version__} is installed - the pip install "
+        "failed (see the install cell). Re-run once the release is on Databricks' PyPI index."
+    )
+print(f"LakeLogic {_ll.__version__}")
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## ⚙️ Widgets
 
@@ -221,9 +236,9 @@ else:
         SYSTEM_YAML = REGISTRY_PATH
     else:
         repo_root = Path(os.getcwd()).resolve()
-        while not (repo_root / "domains_rideflow").exists() and repo_root.parent != repo_root:
+        while not (repo_root / "contracts").exists() and repo_root.parent != repo_root:
             repo_root = repo_root.parent
-        SYSTEM_YAML = str(repo_root / "domains_rideflow" / "marketplace" / "rideflow" / "_system.yaml")
+        SYSTEM_YAML = str(repo_root / "contracts" / "marketplace" / "rideflow" / "_system.yaml")
     mode = "direct"
 
 print(f"📖 Loading DomainRegistry from: {SYSTEM_YAML}")

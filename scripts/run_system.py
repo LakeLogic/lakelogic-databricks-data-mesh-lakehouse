@@ -44,7 +44,7 @@ def main() -> int:
     from lakelogic.core.registry import DomainRegistry
     from lakelogic.pipeline import LakehousePipeline
 
-    system_yaml = ROOT / "domains_rideflow" / args.system / "_system.yaml"
+    system_yaml = ROOT / "contracts" / args.system / "_system.yaml"
     if not system_yaml.exists():
         print(f"No such system: {system_yaml}", file=sys.stderr)
         return 2
