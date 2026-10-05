@@ -124,28 +124,11 @@ quality:
       sql: "avg_daily_rating IS NULL OR (avg_daily_rating >= 1.0 AND avg_daily_rating <= 5.0)"
 
 downstream:
-  - type: table
-    name: "gold_marketing_funnel"
-    platform: databricks
-    owner: "analytics-team"
-    managed: false 
-
   - type: report
     name: "rider_daily_metrics_dashboard"
     platform: powerbi
     owner: "analytics-team"
     managed: false
-
-  - type: report
-    name: "lifetime_value_report"
-    platform: powerbi
-    owner: "analytics-team"
-    managed: false
-    
-  - type: api
-    name: "Rider Daily Metrics API"
-    platform: internal
-    owner: "backend-team"
 
   - type: semantic_model
     name: "sm_rideflow_gold"
