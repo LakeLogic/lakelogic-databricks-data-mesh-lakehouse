@@ -1,0 +1,72 @@
+table gold_fact_rider_daily_metrics
+	lineageTag: f8f8dee5-3cd1-5df9-ad8b-6a1a829ae426
+
+	measure 'Total daily trips' = SUM('gold_fact_rider_daily_metrics'[daily_trips])
+		formatString: #,0
+		lineageTag: 1365eb58-a246-594b-be2a-e7fa8ee4ad8c
+
+	measure 'Total daily spend' = SUM('gold_fact_rider_daily_metrics'[daily_spend])
+		formatString: #,0.00
+		lineageTag: 13d1abfa-3d6c-5553-a64c-fb8514b7bbe7
+
+	measure 'Total daily tips' = SUM('gold_fact_rider_daily_metrics'[daily_tips])
+		formatString: #,0.00
+		lineageTag: 8447a956-9c5e-598b-b340-adb6a15dd7bf
+
+	measure 'Average daily rating' = AVERAGE('gold_fact_rider_daily_metrics'[avg_daily_rating])
+		formatString: 0.00
+		lineageTag: 544e452c-7c53-516d-a5bc-b4c252a748a9
+
+	column rider_sk
+		dataType: string
+		isHidden
+		lineageTag: 3b6ee247-d536-5311-818f-1e335df42a8e
+		summarizeBy: none
+		sourceColumn: rider_sk
+
+	column rider_id
+		dataType: string
+		lineageTag: df39824a-1546-5b50-9f7a-8079e094996c
+		summarizeBy: none
+		sourceColumn: rider_id
+
+	column activity_date
+		dataType: dateTime
+		lineageTag: e3daf4f1-ab7c-5c25-a6e8-bededdbbc2d1
+		summarizeBy: none
+		sourceColumn: activity_date
+
+	column daily_trips
+		dataType: int64
+		lineageTag: bcce8e23-86b2-58db-b19b-be2606458eb5
+		summarizeBy: sum
+		sourceColumn: daily_trips
+
+	column daily_spend
+		dataType: double
+		lineageTag: c2d7d382-ae9f-51d3-a883-f3b0b403a9ab
+		summarizeBy: sum
+		sourceColumn: daily_spend
+
+	column daily_tips
+		dataType: double
+		lineageTag: f14dc73e-f899-5848-b2d7-050ef431e391
+		summarizeBy: sum
+		sourceColumn: daily_tips
+
+	column avg_daily_rating
+		dataType: double
+		lineageTag: 97308e4c-7c82-5588-8b7e-27535b6fa609
+		summarizeBy: average
+		sourceColumn: avg_daily_rating
+
+	partition gold_fact_rider_daily_metrics = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "marketplace", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_fact_rider_daily_metrics", Kind = "Table"]}[Data]
+				in
+					Table

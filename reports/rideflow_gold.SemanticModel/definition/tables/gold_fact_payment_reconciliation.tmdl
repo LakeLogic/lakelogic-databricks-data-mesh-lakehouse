@@ -1,0 +1,95 @@
+table gold_fact_payment_reconciliation
+	lineageTag: 67c7869d-7265-5934-923f-76f4122c80be
+
+	measure 'Total charges' = SUM('gold_fact_payment_reconciliation'[total_charges])
+		formatString: #,0
+		lineageTag: e6ea9562-f1f8-5bec-aa44-647a62d7c913
+
+	measure 'Total succeeded count' = SUM('gold_fact_payment_reconciliation'[succeeded_count])
+		formatString: #,0
+		lineageTag: ffe7e759-be6f-5857-a30d-66883eee6c27
+
+	measure 'Total failed count' = SUM('gold_fact_payment_reconciliation'[failed_count])
+		formatString: #,0
+		lineageTag: ebdfbe0f-396d-5e60-bbc5-e602775f1fe2
+
+	measure 'Total pending count' = SUM('gold_fact_payment_reconciliation'[pending_count])
+		formatString: #,0
+		lineageTag: ddaa70ae-57fa-5425-8bb5-a75cc36491fa
+
+	measure 'Total amount' = SUM('gold_fact_payment_reconciliation'[total_amount])
+		formatString: #,0.00
+		lineageTag: d6c6f266-0095-5954-a9fd-0c4aac6a7e98
+
+	measure 'Total success amount' = SUM('gold_fact_payment_reconciliation'[success_amount])
+		formatString: #,0.00
+		lineageTag: f9a6e539-c8ca-599a-b241-70ded66fb7f5
+
+	measure 'Average success rate' = AVERAGE('gold_fact_payment_reconciliation'[success_rate])
+		formatString: 0.00
+		lineageTag: a93d3b70-2328-5559-91e0-c01fe84386a3
+
+	column created_date
+		dataType: string
+		lineageTag: 7f970f68-1929-5ea9-9265-239a11c1167a
+		summarizeBy: none
+		sourceColumn: created_date
+
+	column currency
+		dataType: string
+		lineageTag: b3b03baf-aeb1-5de6-ab1b-978803c019e1
+		summarizeBy: none
+		sourceColumn: currency
+
+	column total_charges
+		dataType: int64
+		lineageTag: e2c864b4-c1cb-5476-b423-5b768cfef72c
+		summarizeBy: sum
+		sourceColumn: total_charges
+
+	column succeeded_count
+		dataType: int64
+		lineageTag: 4747179c-ddd2-5bff-be8b-941ce813fb8f
+		summarizeBy: sum
+		sourceColumn: succeeded_count
+
+	column failed_count
+		dataType: int64
+		lineageTag: 0f440eb5-85be-546c-8695-6c18ffd09a9c
+		summarizeBy: sum
+		sourceColumn: failed_count
+
+	column pending_count
+		dataType: int64
+		lineageTag: 4b2529e8-0239-59c7-8dc5-371180aa5919
+		summarizeBy: sum
+		sourceColumn: pending_count
+
+	column total_amount
+		dataType: double
+		lineageTag: a5caca49-00f3-529f-8393-6d522f811c86
+		summarizeBy: sum
+		sourceColumn: total_amount
+
+	column success_amount
+		dataType: double
+		lineageTag: 2915c0b4-d657-51ee-b798-7e553d2b58fa
+		summarizeBy: sum
+		sourceColumn: success_amount
+
+	column success_rate
+		dataType: double
+		lineageTag: 58928c28-cabd-5625-bc59-db7ae85279b6
+		summarizeBy: average
+		sourceColumn: success_rate
+
+	partition gold_fact_payment_reconciliation = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "payments", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_fact_payment_reconciliation", Kind = "Table"]}[Data]
+				in
+					Table

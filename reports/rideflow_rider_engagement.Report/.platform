@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_rideflow_rider_engagement"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "787d4dfc-eb62-56d9-88dd-ee173a02f230"
+  }
+}

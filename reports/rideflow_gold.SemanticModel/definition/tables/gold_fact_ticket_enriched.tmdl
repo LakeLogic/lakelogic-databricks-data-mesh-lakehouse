@@ -1,0 +1,125 @@
+table gold_fact_ticket_enriched
+	lineageTag: 5f80307d-4430-501e-95ce-2049d7a4ea36
+
+	measure 'Average sentiment score' = AVERAGE('gold_fact_ticket_enriched'[sentiment_score])
+		formatString: 0.00
+		lineageTag: 22a7d51a-f07f-522e-b0f3-360649791db1
+
+	measure 'Average urgency score' = AVERAGE('gold_fact_ticket_enriched'[urgency_score])
+		formatString: 0.00
+		lineageTag: 3b4458f6-ced7-596d-9659-40e9ac3440d6
+
+	column ticket_id
+		dataType: string
+		lineageTag: 5b96623b-b9c5-5399-a660-f0e4a9e3caff
+		summarizeBy: none
+		sourceColumn: ticket_id
+
+	column entry_point
+		dataType: string
+		lineageTag: 9b65b095-ab30-5c6b-b705-8e2170fb4d51
+		summarizeBy: none
+		sourceColumn: entry_point
+
+	column rider_id
+		dataType: string
+		lineageTag: 8d977417-bdf2-5a91-9ace-37bdd3775a37
+		summarizeBy: none
+		sourceColumn: rider_id
+
+	column rider_sk
+		dataType: string
+		isHidden
+		lineageTag: 06d4536e-3572-505e-986e-44a3436a6495
+		summarizeBy: none
+		sourceColumn: rider_sk
+
+	column trip_id
+		dataType: string
+		lineageTag: 9d1a841f-8799-5003-ac64-c7fcc1fc06f1
+		summarizeBy: none
+		sourceColumn: trip_id
+
+	column driver_id
+		dataType: string
+		lineageTag: 00dc9239-cd09-55c2-b4cb-9b711bb9eee3
+		summarizeBy: none
+		sourceColumn: driver_id
+
+	column driver_sk
+		dataType: string
+		isHidden
+		lineageTag: d98887ae-0653-5c8e-9724-0097684358a4
+		summarizeBy: none
+		sourceColumn: driver_sk
+
+	column charge_id
+		dataType: string
+		lineageTag: 23704253-6588-5781-b991-2bdf462d2be4
+		summarizeBy: none
+		sourceColumn: charge_id
+
+	column created_at
+		dataType: dateTime
+		lineageTag: 99f646a7-9474-59ae-ac44-cc68be6d35d3
+		summarizeBy: none
+		sourceColumn: created_at
+
+	column persons
+		dataType: string
+		lineageTag: 70df279c-aa79-5031-a678-06a0b12d8f4f
+		summarizeBy: none
+		sourceColumn: persons
+
+	column organizations
+		dataType: string
+		lineageTag: ea447251-70b2-5fd4-a758-a2d7b35ff563
+		summarizeBy: none
+		sourceColumn: organizations
+
+	column locations
+		dataType: string
+		lineageTag: 6f7a7e03-671f-544d-87a2-b484a3e138eb
+		summarizeBy: none
+		sourceColumn: locations
+
+	column category
+		dataType: string
+		lineageTag: 197e30a5-330d-5ddd-9275-60b67b365c0a
+		summarizeBy: none
+		sourceColumn: category
+
+	column intent
+		dataType: string
+		lineageTag: 6b23cc0a-d46f-555f-8b63-bcd4d9e86a9a
+		summarizeBy: none
+		sourceColumn: intent
+
+	column sentiment
+		dataType: string
+		lineageTag: 85fc859d-e656-5903-af84-95d7c98138e3
+		summarizeBy: none
+		sourceColumn: sentiment
+
+	column sentiment_score
+		dataType: double
+		lineageTag: 01696bc7-32d8-5469-a27a-0fb4041ce566
+		summarizeBy: average
+		sourceColumn: sentiment_score
+
+	column urgency_score
+		dataType: double
+		lineageTag: 1e56856f-63aa-5623-9772-3139439c34a6
+		summarizeBy: average
+		sourceColumn: urgency_score
+
+	partition gold_fact_ticket_enriched = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "operations", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_fact_ticket_enriched", Kind = "Table"]}[Data]
+				in
+					Table

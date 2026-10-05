@@ -1,0 +1,76 @@
+table gold_fact_trip_daily_kpis
+	lineageTag: a7584626-1d84-5736-aaea-6a41e50d9dcb
+
+	measure 'Total trips (fact trip daily kpis)' = SUM('gold_fact_trip_daily_kpis'[total_trips])
+		formatString: #,0
+		lineageTag: 1ab24170-b904-5441-afce-dd368a12ad41
+
+	measure 'Total revenue' = SUM('gold_fact_trip_daily_kpis'[total_revenue])
+		formatString: #,0.00
+		lineageTag: 7440ef89-c2d0-5dcb-bc0b-f8dabaf60c49
+
+	measure 'Total distance km' = SUM('gold_fact_trip_daily_kpis'[total_distance_km])
+		formatString: #,0.00
+		lineageTag: eb7eed76-8d2c-5935-a336-bc3cb5994b47
+
+	measure 'Average fare' = AVERAGE('gold_fact_trip_daily_kpis'[avg_fare])
+		formatString: 0.00
+		lineageTag: 5423b700-fe92-5405-a664-562bb463b026
+
+	measure 'Average surge' = AVERAGE('gold_fact_trip_daily_kpis'[avg_surge])
+		formatString: 0.00
+		lineageTag: 692a5a5c-0acd-5de2-8eaf-6ee502ee042c
+
+	column kpi_date
+		dataType: dateTime
+		lineageTag: df88aa92-e0ef-52b7-b980-f781679abc0c
+		summarizeBy: none
+		sourceColumn: kpi_date
+
+	column city_code
+		dataType: string
+		isHidden
+		lineageTag: 100e97ac-0afd-5864-9746-1fbd7899dbc8
+		summarizeBy: none
+		sourceColumn: city_code
+
+	column total_trips
+		dataType: int64
+		lineageTag: 8bb544f1-4191-517c-9c64-82303727528d
+		summarizeBy: sum
+		sourceColumn: total_trips
+
+	column total_revenue
+		dataType: double
+		lineageTag: 4135c755-e27b-5e6e-9ead-ae04cbc1dad4
+		summarizeBy: sum
+		sourceColumn: total_revenue
+
+	column total_distance_km
+		dataType: double
+		lineageTag: 1313c7b4-5391-5500-8c1b-d6b608312ed0
+		summarizeBy: sum
+		sourceColumn: total_distance_km
+
+	column avg_fare
+		dataType: double
+		lineageTag: 5c2ffe02-1599-556d-ac94-316e9290e69d
+		summarizeBy: average
+		sourceColumn: avg_fare
+
+	column avg_surge
+		dataType: double
+		lineageTag: 93e4f3b7-239d-5c13-b43d-d2642836bb3e
+		summarizeBy: average
+		sourceColumn: avg_surge
+
+	partition gold_fact_trip_daily_kpis = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "marketplace", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_fact_trip_daily_kpis", Kind = "Table"]}[Data]
+				in
+					Table

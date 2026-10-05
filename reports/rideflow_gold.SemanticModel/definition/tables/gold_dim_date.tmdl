@@ -1,0 +1,93 @@
+table gold_dim_date
+	dataCategory: Time
+	lineageTag: a0b9e32e-51c4-5419-9a20-719de13b712f
+
+	column date_key
+		dataType: int64
+		lineageTag: ffefb4dc-0bbe-5dd2-aa19-6923750a9cab
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column full_date
+		dataType: dateTime
+		isKey
+		lineageTag: 8881c184-4579-5414-a741-2e58dd8b8aa3
+		summarizeBy: none
+		sourceColumn: full_date
+
+	column year
+		dataType: int64
+		lineageTag: 7870a685-38fb-53f3-9f5c-55ffa40d1467
+		summarizeBy: sum
+		sourceColumn: year
+
+	column quarter
+		dataType: int64
+		lineageTag: 38d94a4a-546b-5b24-92b6-da4f9e062a50
+		summarizeBy: sum
+		sourceColumn: quarter
+
+	column month
+		dataType: int64
+		lineageTag: 399ccfe6-7dfe-520c-a697-39d65a46f0be
+		summarizeBy: sum
+		sourceColumn: month
+
+	column month_name
+		dataType: string
+		lineageTag: 09a62d72-1d7a-5dec-b35a-f002c0a845ac
+		summarizeBy: none
+		sourceColumn: month_name
+
+	column day
+		dataType: int64
+		lineageTag: 3543c11c-03f7-536d-9db2-4e97a9196bd6
+		summarizeBy: sum
+		sourceColumn: day
+
+	column day_of_week
+		dataType: int64
+		lineageTag: 7b6f3510-2c0f-5ac6-967b-ed2e74a4f93e
+		summarizeBy: sum
+		sourceColumn: day_of_week
+
+	column day_name
+		dataType: string
+		lineageTag: 4b3ebad8-5aca-515b-859e-ec3d6bad1aa0
+		summarizeBy: none
+		sourceColumn: day_name
+
+	column is_weekend
+		dataType: boolean
+		lineageTag: 8413d599-4a8e-528e-8c62-00e24064f879
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+	column iso_week
+		dataType: int64
+		lineageTag: 93984f03-4527-59c3-93f5-4b199ab34536
+		summarizeBy: sum
+		sourceColumn: iso_week
+
+	column is_holiday_us
+		dataType: boolean
+		lineageTag: 58980819-b959-53b5-8eb1-e1f415fb4990
+		summarizeBy: none
+		sourceColumn: is_holiday_us
+
+	column is_holiday_uk
+		dataType: boolean
+		lineageTag: 49166170-de4d-545f-ad2f-09ab54e94de9
+		summarizeBy: none
+		sourceColumn: is_holiday_uk
+
+	partition gold_dim_date = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_date", Kind = "Table"]}[Data]
+				in
+					Table

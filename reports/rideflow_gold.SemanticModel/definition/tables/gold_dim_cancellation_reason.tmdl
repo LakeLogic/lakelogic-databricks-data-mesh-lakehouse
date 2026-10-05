@@ -1,0 +1,49 @@
+table gold_dim_cancellation_reason
+	lineageTag: 98e3ea07-ba73-544b-ae0f-2eec25b1168f
+
+	column reason_code
+		dataType: string
+		lineageTag: 106ddc02-28e1-561b-95c2-1025c962e8ef
+		summarizeBy: none
+		sourceColumn: reason_code
+
+	column reason_label
+		dataType: string
+		lineageTag: 4f0a91cc-b04f-5076-9467-c8203052a572
+		summarizeBy: none
+		sourceColumn: reason_label
+
+	column actor
+		dataType: string
+		lineageTag: d7c40abe-5cee-59e9-9a52-4766fbdda3d9
+		summarizeBy: none
+		sourceColumn: actor
+
+	column charge_cancellation_fee
+		dataType: boolean
+		lineageTag: a706f740-52ee-5fe2-b810-8f410c823bf4
+		summarizeBy: none
+		sourceColumn: charge_cancellation_fee
+
+	column counts_against_driver_rating
+		dataType: boolean
+		lineageTag: 449a8115-27cf-5f4e-8cbe-b9601ea0cafa
+		summarizeBy: none
+		sourceColumn: counts_against_driver_rating
+
+	column severity
+		dataType: string
+		lineageTag: 55523ca5-6f91-5be6-9f83-bcb777a410a3
+		summarizeBy: none
+		sourceColumn: severity
+
+	partition gold_dim_cancellation_reason = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_cancellation_reason", Kind = "Table"]}[Data]
+				in
+					Table

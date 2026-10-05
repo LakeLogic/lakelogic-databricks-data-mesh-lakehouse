@@ -1,0 +1,60 @@
+table gold_fact_fx_rate_daily
+	lineageTag: 9f4f662b-cb98-5956-89da-a0336eab6eaf
+
+	measure 'Average rate' = AVERAGE('gold_fact_fx_rate_daily'[rate])
+		formatString: 0.00
+		lineageTag: bbe35570-41ed-500b-90c0-af4fdda6555d
+
+	column rate_date
+		dataType: dateTime
+		lineageTag: 1aab2d6d-3658-5e99-b98b-80cf774c1d4e
+		summarizeBy: none
+		sourceColumn: rate_date
+
+	column date_key
+		dataType: int64
+		isHidden
+		lineageTag: 797a4aa8-cf97-50df-bc9e-92ebdfddd9a3
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column base_currency
+		dataType: string
+		lineageTag: 13e1d7b5-a979-503c-9ba1-ecf01d4f4455
+		summarizeBy: none
+		sourceColumn: base_currency
+
+	column quote_currency
+		dataType: string
+		lineageTag: a68e70e0-d11e-56c2-b2c2-cfa093bb9c1f
+		summarizeBy: none
+		sourceColumn: quote_currency
+
+	column rate
+		dataType: double
+		lineageTag: 73bcdefc-73c9-57f1-8c58-a939061ab9e3
+		summarizeBy: average
+		sourceColumn: rate
+
+	column source_feed
+		dataType: string
+		lineageTag: df1f2f03-55c9-5e73-951e-1eaeb8994ff1
+		summarizeBy: none
+		sourceColumn: source_feed
+
+	column ingested_at
+		dataType: dateTime
+		lineageTag: 08571b81-5fa9-5b09-b62b-3b54f1d7618a
+		summarizeBy: none
+		sourceColumn: ingested_at
+
+	partition gold_fact_fx_rate_daily = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "reference", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_fact_fx_rate_daily", Kind = "Table"]}[Data]
+				in
+					Table

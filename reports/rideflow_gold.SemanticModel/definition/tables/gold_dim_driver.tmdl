@@ -1,0 +1,116 @@
+table gold_dim_driver
+	lineageTag: a63ae558-63bd-5625-bc2c-63d4733978f6
+
+	column driver_sk
+		dataType: string
+		isHidden
+		lineageTag: c961b04f-b496-5aa3-9e22-1a1604e56fab
+		summarizeBy: none
+		sourceColumn: driver_sk
+
+	column driver_id
+		dataType: string
+		lineageTag: 5a23c16b-364f-58d1-b32c-889b14be1b3e
+		summarizeBy: none
+		sourceColumn: driver_id
+
+	column name
+		dataType: string
+		lineageTag: 1a243685-7d2f-5ea6-83b2-90e0f1de4ea5
+		summarizeBy: none
+		sourceColumn: name
+
+	column email
+		dataType: string
+		lineageTag: 1f19ead5-4b34-5aaf-a568-dc74c5abded0
+		summarizeBy: none
+		sourceColumn: email
+
+	column phone
+		dataType: string
+		lineageTag: 250c3d02-bda8-579a-8968-ded951348592
+		summarizeBy: none
+		sourceColumn: phone
+
+	column licence_number
+		dataType: string
+		lineageTag: 1c7e050a-b89a-5ab4-996f-ca6104791462
+		summarizeBy: none
+		sourceColumn: licence_number
+
+	column licence_plate
+		dataType: string
+		lineageTag: a13dd6a5-e706-5290-aa09-728a44157cbd
+		summarizeBy: none
+		sourceColumn: licence_plate
+
+	column vehicle_type
+		dataType: string
+		lineageTag: 16e6fea1-95a0-5162-8318-396710e2cbd7
+		summarizeBy: none
+		sourceColumn: vehicle_type
+
+	column city_code
+		dataType: string
+		lineageTag: b5a53ea8-e03f-5b21-86fb-c2e471b7042c
+		summarizeBy: none
+		sourceColumn: city_code
+
+	column status
+		dataType: string
+		lineageTag: 51e44f6b-b8fd-5fd6-8846-8130fb4d0821
+		summarizeBy: none
+		sourceColumn: status
+
+	column rating
+		dataType: double
+		lineageTag: df8a5c50-a013-512c-8748-e53e0cd9afe5
+		summarizeBy: sum
+		sourceColumn: rating
+
+	column signup_date
+		dataType: dateTime
+		lineageTag: 6768abab-da23-5790-abae-0df0859f2b62
+		summarizeBy: none
+		sourceColumn: signup_date
+
+	column updated_at
+		dataType: dateTime
+		lineageTag: 99c3541b-4b23-5399-8b1a-8e1dea3f3ac3
+		summarizeBy: none
+		sourceColumn: updated_at
+
+	column effective_from
+		dataType: dateTime
+		lineageTag: 3a95d355-0663-5822-b033-469be215e5ac
+		summarizeBy: none
+		sourceColumn: effective_from
+
+	column effective_to
+		dataType: dateTime
+		lineageTag: ab352815-3d0b-5422-bddd-ac63e4c88e07
+		summarizeBy: none
+		sourceColumn: effective_to
+
+	column is_current
+		dataType: boolean
+		lineageTag: f52f970f-5456-5b79-a45f-5139a169e602
+		summarizeBy: none
+		sourceColumn: is_current
+
+	column version_number
+		dataType: int64
+		lineageTag: 421915a8-22f9-5fc7-919a-7c133952bf02
+		summarizeBy: sum
+		sourceColumn: version_number
+
+	partition gold_dim_driver = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "marketplace", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_driver", Kind = "Table"]}[Data]
+				in
+					Table

@@ -1,0 +1,393 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/1.0.0/schema.json",
+  "config": "{\"version\": \"5.43\", \"themeCollection\": {\"baseTheme\": {\"name\": \"CY24SU10\"}}}",
+  "layoutOptimization": 0,
+  "sections": [
+    {
+      "name": "page00",
+      "displayName": "marketing · Agg Acquisition Roi",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p0c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_agg_acquisition_roi.total_cost)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_agg_acquisition_roi\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_cost\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_agg_acquisition_roi.total_cost)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p0c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_agg_acquisition_roi.total_impressions)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_agg_acquisition_roi\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_impressions\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_agg_acquisition_roi.total_impressions)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p0c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_agg_acquisition_roi.total_clicks)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_agg_acquisition_roi\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_clicks\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_agg_acquisition_roi.total_clicks)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p0chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_agg_acquisition_roi.date\"}], \"Y\": [{\"queryRef\": \"Sum(gold_agg_acquisition_roi.total_cost)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_agg_acquisition_roi\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"date\"}, \"Name\": \"gold_agg_acquisition_roi.date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_cost\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_agg_acquisition_roi.total_cost)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page01",
+      "displayName": "marketplace · Dim Driver Scorecard",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p1c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_dim_driver_scorecard.total_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_dim_driver_scorecard\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_dim_driver_scorecard.total_trips)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p1c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_dim_driver_scorecard.total_earnings)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_dim_driver_scorecard\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_earnings\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_dim_driver_scorecard.total_earnings)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p1c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Average(gold_dim_driver_scorecard.avg_driver_rating)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_dim_driver_scorecard\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"avg_driver_rating\"}}, \"Function\": 1}, \"Name\": \"Average(gold_dim_driver_scorecard.avg_driver_rating)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p1chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_dim_driver_scorecard.driver_id\"}], \"Y\": [{\"queryRef\": \"Sum(gold_dim_driver_scorecard.total_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_dim_driver_scorecard\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"driver_id\"}, \"Name\": \"gold_dim_driver_scorecard.driver_id\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_dim_driver_scorecard.total_trips)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page02",
+      "displayName": "marketplace · Fact Rider Daily Metrics",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p2c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_rider_daily_metrics.daily_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_rider_daily_metrics\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"daily_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_rider_daily_metrics.daily_trips)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p2c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_rider_daily_metrics.daily_spend)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_rider_daily_metrics\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"daily_spend\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_rider_daily_metrics.daily_spend)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p2c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_rider_daily_metrics.daily_tips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_rider_daily_metrics\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"daily_tips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_rider_daily_metrics.daily_tips)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p2chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_fact_rider_daily_metrics.activity_date\"}], \"Y\": [{\"queryRef\": \"Sum(gold_fact_rider_daily_metrics.daily_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_rider_daily_metrics\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"activity_date\"}, \"Name\": \"gold_fact_rider_daily_metrics.activity_date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"daily_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_rider_daily_metrics.daily_trips)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page03",
+      "displayName": "marketplace · Fact Trip Daily Kpis",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p3c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_trip_daily_kpis.total_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_trip_daily_kpis\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_trip_daily_kpis.total_trips)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p3c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_trip_daily_kpis.total_revenue)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_trip_daily_kpis\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_revenue\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_trip_daily_kpis.total_revenue)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p3c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_trip_daily_kpis.total_distance_km)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_trip_daily_kpis\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_distance_km\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_trip_daily_kpis.total_distance_km)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p3chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_fact_trip_daily_kpis.kpi_date\"}], \"Y\": [{\"queryRef\": \"Sum(gold_fact_trip_daily_kpis.total_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_trip_daily_kpis\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"kpi_date\"}, \"Name\": \"gold_fact_trip_daily_kpis.kpi_date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_trip_daily_kpis.total_trips)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page04",
+      "displayName": "operations · Fact Ticket Enriched",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p4c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Average(gold_fact_ticket_enriched.sentiment_score)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_ticket_enriched\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"sentiment_score\"}}, \"Function\": 1}, \"Name\": \"Average(gold_fact_ticket_enriched.sentiment_score)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p4c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Average(gold_fact_ticket_enriched.urgency_score)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_ticket_enriched\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"urgency_score\"}}, \"Function\": 1}, \"Name\": \"Average(gold_fact_ticket_enriched.urgency_score)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p4chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_fact_ticket_enriched.created_at\"}], \"Y\": [{\"queryRef\": \"Average(gold_fact_ticket_enriched.sentiment_score)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_ticket_enriched\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"created_at\"}, \"Name\": \"gold_fact_ticket_enriched.created_at\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"sentiment_score\"}}, \"Function\": 1}, \"Name\": \"Average(gold_fact_ticket_enriched.sentiment_score)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page05",
+      "displayName": "payments · Fact Payment Reconciliation",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p5c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_payment_reconciliation.total_charges)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_payment_reconciliation\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_charges\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_payment_reconciliation.total_charges)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p5c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_payment_reconciliation.succeeded_count)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_payment_reconciliation\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"succeeded_count\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_payment_reconciliation.succeeded_count)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p5c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_payment_reconciliation.failed_count)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_payment_reconciliation\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"failed_count\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_payment_reconciliation.failed_count)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p5chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_fact_payment_reconciliation.created_date\"}], \"Y\": [{\"queryRef\": \"Sum(gold_fact_payment_reconciliation.total_charges)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_payment_reconciliation\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"created_date\"}, \"Name\": \"gold_fact_payment_reconciliation.created_date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"total_charges\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_payment_reconciliation.total_charges)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page06",
+      "displayName": "reference · Fact Fx Rate Daily",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p6c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Average(gold_fact_fx_rate_daily.rate)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_fx_rate_daily\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"rate\"}}, \"Function\": 1}, \"Name\": \"Average(gold_fact_fx_rate_daily.rate)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p6chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_fact_fx_rate_daily.rate_date\"}], \"Y\": [{\"queryRef\": \"Average(gold_fact_fx_rate_daily.rate)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_fx_rate_daily\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"rate_date\"}, \"Name\": \"gold_fact_fx_rate_daily.rate_date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"rate\"}}, \"Function\": 1}, \"Name\": \"Average(gold_fact_fx_rate_daily.rate)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page07",
+      "displayName": "shared · Fact Revenue Daily",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p7c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_revenue_daily.gross_revenue_amount)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_revenue_daily\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"gross_revenue_amount\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_revenue_daily.gross_revenue_amount)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p7c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_revenue_daily.platform_commission_amount)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_revenue_daily\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"platform_commission_amount\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_revenue_daily.platform_commission_amount)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p7c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_fact_revenue_daily.driver_payout_amount)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_revenue_daily\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"driver_payout_amount\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_revenue_daily.driver_payout_amount)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p7chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_fact_revenue_daily.kpi_date\"}], \"Y\": [{\"queryRef\": \"Sum(gold_fact_revenue_daily.gross_revenue_amount)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_fact_revenue_daily\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"kpi_date\"}, \"Name\": \"gold_fact_revenue_daily.kpi_date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"gross_revenue_amount\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_fact_revenue_daily.gross_revenue_amount)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page08",
+      "displayName": "shared · Mart Acquisition Cost",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p8c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_mart_acquisition_cost.spend_amount)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_acquisition_cost\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"spend_amount\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_acquisition_cost.spend_amount)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p8c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_mart_acquisition_cost.impressions)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_acquisition_cost\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"impressions\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_acquisition_cost.impressions)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p8c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_mart_acquisition_cost.clicks)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_acquisition_cost\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"clicks\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_acquisition_cost.clicks)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p8chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_mart_acquisition_cost.kpi_date\"}], \"Y\": [{\"queryRef\": \"Sum(gold_mart_acquisition_cost.spend_amount)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_acquisition_cost\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"kpi_date\"}, \"Name\": \"gold_mart_acquisition_cost.kpi_date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"spend_amount\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_acquisition_cost.spend_amount)\"}]}}}"
+        }
+      ]
+    },
+    {
+      "name": "page09",
+      "displayName": "shared · Mart Marketplace Health",
+      "width": 1280,
+      "height": 720,
+      "config": "{}",
+      "visualContainers": [
+        {
+          "x": 40,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p9c0\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_mart_marketplace_health.requested_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_marketplace_health\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"requested_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_marketplace_health.requested_trips)\"}]}}}"
+        },
+        {
+          "x": 270,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p9c1\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 270, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_mart_marketplace_health.completed_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_marketplace_health\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"completed_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_marketplace_health.completed_trips)\"}]}}}"
+        },
+        {
+          "x": 500,
+          "y": 40,
+          "z": 0,
+          "width": 210,
+          "height": 120,
+          "config": "{\"name\": \"p9c2\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 500, \"y\": 40, \"z\": 0, \"width\": 210, \"height\": 120}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"Sum(gold_mart_marketplace_health.cancelled_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_marketplace_health\", \"Type\": 0}], \"Select\": [{\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"cancelled_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_marketplace_health.cancelled_trips)\"}]}}}"
+        },
+        {
+          "x": 40,
+          "y": 190,
+          "z": 0,
+          "width": 620,
+          "height": 320,
+          "config": "{\"name\": \"p9chart\", \"layouts\": [{\"id\": 0, \"position\": {\"x\": 40, \"y\": 190, \"z\": 0, \"width\": 620, \"height\": 320}}], \"singleVisual\": {\"visualType\": \"clusteredColumnChart\", \"projections\": {\"Category\": [{\"queryRef\": \"gold_mart_marketplace_health.kpi_date\"}], \"Y\": [{\"queryRef\": \"Sum(gold_mart_marketplace_health.requested_trips)\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"g\", \"Entity\": \"gold_mart_marketplace_health\", \"Type\": 0}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"kpi_date\"}, \"Name\": \"gold_mart_marketplace_health.kpi_date\"}, {\"Aggregation\": {\"Expression\": {\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"g\"}}, \"Property\": \"requested_trips\"}}, \"Function\": 0}, \"Name\": \"Sum(gold_mart_marketplace_health.requested_trips)\"}]}}}"
+        }
+      ]
+    }
+  ]
+}

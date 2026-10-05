@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "sm_rideflow_marketing"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "2cebd514-22ba-5f8f-b060-4d8f57916eab"
+  }
+}

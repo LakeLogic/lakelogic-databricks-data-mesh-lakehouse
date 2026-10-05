@@ -1,0 +1,73 @@
+table gold_dim_driver_360
+	lineageTag: 814daf1c-9170-5751-b118-4805f6fb71a1
+
+	column driver_id
+		dataType: string
+		lineageTag: 9e934b6a-6ea2-5c01-9574-34f8d22a4c01
+		summarizeBy: none
+		sourceColumn: driver_id
+
+	column full_name
+		dataType: string
+		lineageTag: 57940a51-ceb7-59e8-b612-5913347bfa4e
+		summarizeBy: none
+		sourceColumn: full_name
+
+	column email
+		dataType: string
+		lineageTag: 4910d609-cb12-5f1c-868f-2cf743f1904e
+		summarizeBy: none
+		sourceColumn: email
+
+	column city_code
+		dataType: string
+		lineageTag: 9b39a66a-3833-5d2f-a2ed-6c1cb5c2b292
+		summarizeBy: none
+		sourceColumn: city_code
+
+	column status
+		dataType: string
+		lineageTag: 592cd832-7b08-52b7-98df-0408836c0656
+		summarizeBy: none
+		sourceColumn: status
+
+	column rating
+		dataType: double
+		lineageTag: 5a69bba0-e9b5-52c8-aace-b8a0dc16299e
+		summarizeBy: sum
+		sourceColumn: rating
+
+	column verification_status
+		dataType: string
+		lineageTag: 14345427-ca25-5fc4-a841-9b5d99dcc008
+		summarizeBy: none
+		sourceColumn: verification_status
+
+	column verification_completed_at
+		dataType: dateTime
+		lineageTag: 92602ad7-50af-5f97-8b76-346571152a41
+		summarizeBy: none
+		sourceColumn: verification_completed_at
+
+	column lifetime_payout_amount
+		dataType: double
+		lineageTag: 32409aec-f708-5084-aab8-5824ed429fac
+		summarizeBy: sum
+		sourceColumn: lifetime_payout_amount
+
+	column last_payout_date
+		dataType: string
+		lineageTag: 513ee742-e6b5-5200-a1df-20e5c5b52dfd
+		summarizeBy: none
+		sourceColumn: last_payout_date
+
+	partition gold_dim_driver_360 = m
+		mode: directQuery
+		source =
+				let
+					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "shared", Kind = "Schema"]}[Data],
+					Table = Schema{[Name = "gold_dim_driver_360", Kind = "Table"]}[Data]
+				in
+					Table

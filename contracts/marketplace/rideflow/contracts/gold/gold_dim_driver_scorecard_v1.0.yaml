@@ -1,0 +1,123 @@
+version: 1.0.0
+
+info:
+  data_product: rider_and_driver_profiles
+  data_product_output: dim_driver_scorecard
+  title: "Gold — Dim Driver Scorecard"
+  table_name: "{gold_layer}_dim_driver_scorecard"
+  description: "Per-driver performance scorecard with trip counts, earnings, and ratings."
+  target_layer: gold
+  domain: marketplace
+  system: rideflow
+
+source:
+  type: table
+  path: "table:{domain_catalog}.silver_rideflow_trips"
+  # full: GROUP BY driver_id over all trips — a partial batch would overwrite lifetime
+  # totals with the batch's sums (listed in GOLD_FULL, test_incremental_processing.py).
+  load_mode: full
+
+primary_key: [driver_id]
+
+links:
+  - name: silver_trips_full
+    path: "table:{domain_catalog}.silver_rideflow_trips"
+    type: table
+  # Conformed SCD2 driver dimension — used to resolve driver_sk. Same domain, so
+  # the scorecard depends_on gold_dim_driver in _system.yaml (dim first).
+  - name: dim_driver
+    path: "table:{domain_catalog}.gold_dim_driver"
+    type: table
+
+model:
+  fields:
+    - name: driver_id
+      type: string
+      required: true
+    # Kimball surrogate FK to the CURRENT dim_driver version. The scorecard is a
+    # current-state aggregate (no as-of date), so it joins is_current = true.
+    # Drivers absent from the dim (e.g. a leaked/typo id) → '-1' unknown member.
+    - name: driver_sk
+      type: string
+      description: "FK to gold_dim_driver (current version); '-1' = unknown"
+      foreign_key:
+        contract: "{gold_layer}_dim_driver"
+        column: driver_sk
+    - name: total_trips
+      type: integer
+    - name: total_earnings
+      type: float
+    - name: avg_driver_rating
+      type: float
+    - name: avg_distance_km
+      type: float
+    - name: avg_duration_minutes
+      type: float
+    - name: system
+      type: string
+      required: true
+      description: Source system this row came from
+
+transformations:
+  # phase: pre — this SQL PRODUCES the model's columns (total_trips, driver_sk, …); schema
+  # enforcement runs before post-phase transforms and would quarantine every raw trip row.
+  - phase: pre
+    sql: |
+      -- Aggregate all-time per-driver metrics from the FULL Silver table (via
+      -- link), then resolve the Kimball surrogate key against the CURRENT
+      -- dim_driver version. Unmatched drivers → '-1'. Explicit columns + is_current
+      -- boolean predicate keep this portable across Spark and DuckDB.
+      WITH agg AS (
+          SELECT
+              driver_id,
+              COUNT(*)                   AS total_trips,
+              SUM(fare_amount)           AS total_earnings,
+              AVG(driver_rating)         AS avg_driver_rating,
+              AVG(distance_km)           AS avg_distance_km,
+              AVG(duration_minutes)      AS avg_duration_minutes
+          FROM silver_trips_full
+          WHERE driver_id IS NOT NULL
+          -- Only re-aggregate drivers that received new trips. On a full load,
+          -- `source` contains everything, so this safely selects all drivers.
+          AND driver_id IN (SELECT DISTINCT driver_id FROM source)
+          GROUP BY driver_id
+      )
+      SELECT
+          a.driver_id,
+          COALESCE(d.driver_sk, '-1') AS driver_sk,
+          a.total_trips,
+          a.total_earnings,
+          a.avg_driver_rating,
+          a.avg_distance_km,
+          a.avg_duration_minutes,
+          'rideflow' AS system
+      FROM agg a
+      LEFT JOIN dim_driver d
+        ON  a.driver_id = d.driver_id
+        AND d.is_current = true
+
+quality:
+  row_rules:
+    - name: non_negative_trips
+      sql: "total_trips IS NULL OR total_trips >= 0"
+    - name: non_negative_earnings
+      sql: "total_earnings IS NULL OR total_earnings >= 0"
+    - name: valid_avg_rating
+      sql: "avg_driver_rating IS NULL OR (avg_driver_rating >= 1.0 AND avg_driver_rating <= 5.0)"
+  dataset_rules:
+    - unique: driver_id
+
+downstream:
+  - type: semantic_model
+    name: "sm_rideflow_gold"
+    platform: powerbi
+    managed: false
+    consumers:
+      - type: report
+        name: "rpt_rideflow_driver_performance"
+        platform: powerbi
+        managed: false
+      - type: report
+        name: "rpt_rideflow_executive"
+        platform: powerbi
+        managed: false
