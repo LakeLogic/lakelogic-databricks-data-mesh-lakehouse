@@ -73,7 +73,7 @@ Point both drivers at another staged system registry, for example:
 /Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/payments/stripe/_system.yaml
 ```
 
-Run the test-data driver and pipeline driver again. Table names and dependencies are resolved from the contracts under `domains_rideflow/`.
+Run the test-data driver and pipeline driver again. Table names and dependencies are resolved from the contracts under `contracts/`.
 
 If you deployed the Asset Bundle, you can instead run a system job (test data -> bronze -> silver -> gold in one job):
 

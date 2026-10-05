@@ -38,6 +38,6 @@ resources:
               # Storage is enabled and `CREATE CATALOG` demands an explicit location.
               storage_root: "${var.catalog_storage_root}"
               # Exact synced location of the contract registry (DAB syncs
-              # ../domains_rideflow to <file_path>/domains_rideflow).
-              contracts_src: "${workspace.file_path}/domains_rideflow"
+              # ../contracts to <file_path>/contracts).
+              contracts_src: "${workspace.file_path}/contracts"
 

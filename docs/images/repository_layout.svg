@@ -76,7 +76,7 @@
     <rect class="domain" width="1202" height="198" rx="18"/>
     <rect x="0" width="7" height="198" rx="3.5" fill="#159C80"/>
     <circle cx="40" cy="43" r="18" fill="#CDEFE5"/><text x="40" y="48" text-anchor="middle" class="numberAccent">03</text>
-    <text x="76" y="36" class="pathAccent">domains_rideflow/</text>
+    <text x="76" y="36" class="pathAccent">contracts/</text>
     <text x="76" y="62" class="body">The governed data mesh: one contract tree per business domain and source system.</text>
     <g transform="translate(931 25)"><rect width="237" height="32" rx="16" fill="#123F45"/><text x="118.5" y="21" text-anchor="middle" class="chip" fill="#FFFFFF">DOMAIN-OWNED CONTRACTS</text></g>
 

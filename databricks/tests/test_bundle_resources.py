@@ -161,7 +161,7 @@ def test_engine_tables_carry_the_lakelogic_prefix():
 
     import yaml
 
-    domains = Path(__file__).resolve().parents[2] / "domains_rideflow"
+    domains = Path(__file__).resolve().parents[2] / "contracts"
     seen = 0
     for f in domains.rglob("_system.yaml"):
         meta = (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("metadata") or {}
@@ -183,7 +183,7 @@ def test_every_system_enables_exactly_the_layers_it_has_contracts_for():
 
     here = Path(__file__).resolve().parents[1]
     data = here / "resources" / "data"
-    domains = here.parent / "domains_rideflow"
+    domains = here.parent / "contracts"
     mesh = yaml.safe_load((data / "_mesh_orchestrator.job.yml").read_text(encoding="utf-8"))
     passed = {
         t["task_key"]: t["run_job_task"]["job_parameters"]
@@ -214,7 +214,7 @@ def test_every_system_persists_its_slo_results():
 
     import yaml
 
-    domains = Path(__file__).resolve().parents[2] / "domains_rideflow"
+    domains = Path(__file__).resolve().parents[2] / "contracts"
     systems = [f for f in domains.glob("*/*/_system.yaml")]
     assert len(systems) == 11
     for f in systems:
@@ -300,7 +300,7 @@ def test_no_two_contracts_share_a_title_and_version():
     import yaml
 
     seen = defaultdict(list)
-    for f in (Path(__file__).resolve().parents[2] / "domains_rideflow").glob("*/*/contracts/*/*.yaml"):
+    for f in (Path(__file__).resolve().parents[2] / "contracts").glob("*/*/contracts/*/*.yaml"):
         c = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
         seen[((c.get("info") or {}).get("title"), c.get("version"))].append(f.name)
     dupes = {k: v for k, v in seen.items() if len(v) > 1}
@@ -316,7 +316,7 @@ def test_every_data_product_tag_names_a_declared_output():
 
     import yaml
 
-    domains = Path(__file__).resolve().parents[2] / "domains_rideflow"
+    domains = Path(__file__).resolve().parents[2] / "contracts"
     declared = set()
     for f in domains.glob("*/_domain.yaml"):
         for p in (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("products") or []:
@@ -336,7 +336,7 @@ def test_every_contract_file_is_registered_in_its_system():
 
     import yaml
 
-    domains = Path(__file__).resolve().parents[2] / "domains_rideflow"
+    domains = Path(__file__).resolve().parents[2] / "contracts"
     missing = []
     for sysf in domains.glob("*/*/_system.yaml"):
         reg = yaml.safe_load(sysf.read_text(encoding="utf-8")) or {}

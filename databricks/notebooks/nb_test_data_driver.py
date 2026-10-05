@@ -236,9 +236,9 @@ else:
         SYSTEM_YAML = REGISTRY_PATH
     else:
         repo_root = Path(os.getcwd()).resolve()
-        while not (repo_root / "domains_rideflow").exists() and repo_root.parent != repo_root:
+        while not (repo_root / "contracts").exists() and repo_root.parent != repo_root:
             repo_root = repo_root.parent
-        SYSTEM_YAML = str(repo_root / "domains_rideflow" / "marketplace" / "rideflow" / "_system.yaml")
+        SYSTEM_YAML = str(repo_root / "contracts" / "marketplace" / "rideflow" / "_system.yaml")
     mode = "direct"
 
 print(f"📖 Loading DomainRegistry from: {SYSTEM_YAML}")

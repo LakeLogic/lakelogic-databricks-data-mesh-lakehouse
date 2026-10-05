@@ -23,7 +23,7 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-SYSTEM = ROOT / "domains_rideflow" / "marketplace" / "rideflow"
+SYSTEM = ROOT / "contracts" / "marketplace" / "rideflow"
 
 #: Gold (gold_<name>, curated at domain level). Its facts declare their own
 #: `materialization.partition_by` (the event date), which overrides `_all`; its dims are keyed

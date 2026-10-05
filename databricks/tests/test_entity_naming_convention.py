@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pytest
 
-MESH = Path(__file__).resolve().parents[2] / "domains_rideflow"
+MESH = Path(__file__).resolve().parents[2] / "contracts"
 
 #: Systems exempt from the no-system gold rule. Empty: the Build Centre-generated rideflow
 #: gold (formerly gold_rideflow_*) was renamed to gold_<name> on 2026-10-03, so every gold
