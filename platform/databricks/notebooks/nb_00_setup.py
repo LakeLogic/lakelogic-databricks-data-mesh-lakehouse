@@ -271,6 +271,19 @@ def managed_location() -> str:
     return (info.get("Storage Root") or "").rstrip("/")
 
 
+def drop_default_schema(catalog: str) -> None:
+    """Remove the empty `default` schema Databricks adds to every new catalog, so a catalog
+    lists only the schemas the platform uses. No CASCADE: a `default` that holds anything is
+    left alone and reported, never emptied."""
+    try:
+        spark.sql(f"DROP SCHEMA IF EXISTS `{catalog}`.`default`")
+        print(f"  → dropped empty schema `{catalog}`.`default` (if it existed)")
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠ kept `{catalog}`.`default`: it is not empty or cannot be dropped ({str(e).splitlines()[0][:120]})")
+
+
+drop_default_schema(CATALOG)
+
 for domain in domains:
     own = own_catalog(domain)
     if own:
@@ -281,6 +294,7 @@ for domain in domains:
         for schema in ("source", "bronze", "silver", "gold", "quarantine", "lakelogic"):
             sql(f"CREATE SCHEMA IF NOT EXISTS `{own}`.`{schema}`")
         sql(f"CREATE VOLUME IF NOT EXISTS `{own}`.`source`.`landing`")
+        drop_default_schema(own)
         meta = f"`{own}`.`lakelogic`"
     else:
         sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
