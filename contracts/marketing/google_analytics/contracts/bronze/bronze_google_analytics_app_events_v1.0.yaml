@@ -59,8 +59,9 @@ source:
   path: "{landing_root}/app_events"
   format: csv
   options:
-    header: "true"
-    recursiveFileLookup: "true"
+    engine_options:
+      header: "true"
+      recursiveFileLookup: "true"
   load_mode: incremental
   watermark_strategy: pipeline_log
   partition:

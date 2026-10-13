@@ -46,7 +46,8 @@ source:
   path: "{landing_root}/city_master"
   format: csv
   options:
-    header: "true"
+    engine_options:
+      header: "true"
   load_mode: incremental
   watermark_strategy: pipeline_log
 lineage:

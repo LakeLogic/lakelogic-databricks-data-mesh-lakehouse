@@ -58,8 +58,9 @@ source:
   path: "{landing_root}/sessions"
   format: csv
   options:
-    header: "true"
-    recursiveFileLookup: "true"
+    engine_options:
+      header: "true"
+      recursiveFileLookup: "true"
   load_mode: incremental
   watermark_strategy: pipeline_log
   partition:

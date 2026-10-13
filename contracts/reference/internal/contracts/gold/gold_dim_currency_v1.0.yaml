@@ -44,7 +44,8 @@ source:
   path: "{landing_root}/dim_currency_seed"
   format: csv
   options:
-    header: "true"
+    engine_options:
+      header: "true"
   load_mode: incremental
   watermark_strategy: pipeline_log
 

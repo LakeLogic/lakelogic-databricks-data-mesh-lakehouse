@@ -60,8 +60,9 @@ source:
   # checkr PDF extraction: this demo exercises all three bronze modalities.
   format: json
   options:
-    multiLine: "true"
-    recursiveFileLookup: "true"
+    multiline: "true"
+    engine_options:
+      recursiveFileLookup: "true"
   load_mode: incremental
   watermark_strategy: pipeline_log
   partition:
