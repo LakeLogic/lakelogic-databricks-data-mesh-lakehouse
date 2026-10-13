@@ -11,7 +11,7 @@ unable to locate bundle root: databricks.yml not found
 Run every `databricks bundle` command from the repository's `platform/databricks/` directory:
 
 ```bash
-cd lakelogic-databricks-data-mesh/databricks
+cd lakelogic-databricks-lakehouse/platform/databricks
 ls databricks.yml
 ```
 
@@ -119,6 +119,9 @@ Remove both resource groups:
 
 ```bash
 databricks bundle destroy -t dev -p rideflow_dev
+for domain in marketing marketplace operations payments reference shared; do
+  databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
+done
 databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 
@@ -147,4 +150,4 @@ Inspect bundle resources before removal:
 databricks bundle summary -t dev -p rideflow_dev
 ```
 
-The catalog deletion command uses `--force` and removes the catalog's schemas, Volumes, tables, and data. Confirm the catalog name before running it.
+The catalog deletion commands use `--force` and remove each catalog's schemas, Volumes, tables, and data. Confirm the catalog names before running them.

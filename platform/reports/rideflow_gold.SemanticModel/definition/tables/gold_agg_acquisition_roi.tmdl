@@ -102,8 +102,8 @@ table gold_agg_acquisition_roi
 		source =
 				let
 					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
-					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
-					Schema = Catalog{[Name = "marketing", Kind = "Schema"]}[Data],
+					Catalog = Source{[Name = DatabricksCatalogPrefix & "_marketing", Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "gold", Kind = "Schema"]}[Data],
 					Table = Schema{[Name = "gold_agg_acquisition_roi", Kind = "Table"]}[Data]
 				in
 					Table

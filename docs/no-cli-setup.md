@@ -4,7 +4,7 @@ Use this path when you want to inspect the catalog and tables without installing
 
 ## What this path does
 
-The `provision_all` notebook creates the catalog, domain schemas, Unity Catalog Volumes, landing folders, and empty Bronze, Silver, and Gold tables directly from the contracts.
+The `provision_all` notebook creates the platform catalog, one catalog per domain with a schema per layer, Unity Catalog Volumes, landing folders, and empty Bronze, Silver, and Gold tables directly from the contracts.
 
 It does **not** deploy the schedulable jobs that come with the Databricks Asset Bundle. Use the main README Quickstart when you want the complete job-based demo.
 
@@ -15,7 +15,7 @@ It does **not** deploy the schedulable jobs that come with the Databricks Asset 
 3. Open `platform/databricks/notebooks/_ops/provision_all`.
 4. Attach the notebook to serverless compute or another Unity Catalog-enabled cluster.
 5. Review the widgets:
-   - `catalog` defaults to `governed_rideflow_lakehouse_demo`.
+   - `catalog` defaults to `governed_rideflow_lakehouse_demo`. It holds the platform's Volumes; the domain catalogs are named `rideflow_dev_<domain>` by each system registry.
    - Table creation can be disabled when you only want schemas and Volumes.
 6. Select **Run All**.
 
@@ -43,6 +43,9 @@ Alternatively, deploy the Asset Bundle later and run one of its per-system jobs 
 The notebook creates Unity Catalog objects at runtime. Remove them when finished:
 
 ```bash
+for domain in marketing marketplace operations payments reference shared; do
+  databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
+done
 databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 

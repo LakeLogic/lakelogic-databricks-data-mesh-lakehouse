@@ -65,8 +65,8 @@ table gold_fact_rider_daily_metrics
 		source =
 				let
 					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
-					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
-					Schema = Catalog{[Name = "marketplace", Kind = "Schema"]}[Data],
+					Catalog = Source{[Name = DatabricksCatalogPrefix & "_marketplace", Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "gold", Kind = "Schema"]}[Data],
 					Table = Schema{[Name = "gold_fact_rider_daily_metrics", Kind = "Table"]}[Data]
 				in
 					Table

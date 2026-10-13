@@ -6,7 +6,7 @@ expression DatabricksHttpPath = "LAKELOGIC_DATABRICKS_HTTP_PATH" meta [IsParamet
 	lineageTag: 5a5d61d0-6c00-5f09-805a-361746137034
 	annotation PBI_ResultType = Text
 
-expression DatabricksCatalog = "governed_rideflow_lakehouse_demo" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression DatabricksCatalogPrefix = "rideflow_dev" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: a1c50d8e-d6e4-55ad-a3c4-d228e8d4f1bf
 	annotation PBI_ResultType = Text
 

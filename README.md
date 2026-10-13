@@ -191,13 +191,10 @@ model, report. `python platform/scripts/validate_release.py` fails if a contract
 report that is not in `platform/reports/`, or a report reads a table its model does not hold.
 
 To open a model in Power BI Desktop, open its folder and set three parameters:
-`DatabricksHost`, `DatabricksHttpPath` (a SQL warehouse) and `DatabricksCatalog`. The models
-hold placeholders for the first two. They read tables the gold jobs have already built.
-
-> **Not yet moved to a catalog per domain.** The models read every gold table from one
-> catalog with a schema per domain (`<DatabricksCatalog>.marketing.gold_...`). The
-> pipelines now write to `rideflow_dev_<domain>.gold`, so the models will not find
-> their tables until their sources are updated.
+`DatabricksHost`, `DatabricksHttpPath` (a SQL warehouse) and `DatabricksCatalogPrefix`. The
+models hold placeholders for the first two. The prefix defaults to `rideflow_dev`: each table
+is read from `<prefix>_<domain>.gold`, so set it to the `domain_catalog_prefix` of the
+environment you built. The models read tables the gold jobs have already built.
 
 ## Inspect the evidence
 

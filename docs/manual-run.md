@@ -2,7 +2,7 @@
 
 The one-click bootstrap job chains the setup, test-data, and pipeline notebooks together. This guide runs the same flow manually so you can inspect each stage.
 
-The examples use the `marketplace / rideflow` system and the default `governed_rideflow_lakehouse_demo` catalog.
+The examples use the `marketplace / rideflow` system. Its tables are built in the `rideflow_dev_marketplace` catalog; the default `governed_rideflow_lakehouse_demo` catalog holds the platform's own Volumes (staged contracts and logs).
 
 ## 1. Provision the structures
 
@@ -10,9 +10,8 @@ Open `platform/databricks/notebooks/_ops/provision_all`, leave the `catalog` wid
 
 The notebook creates:
 
-- One Unity Catalog schema per domain
-- The `quarantine` schema
-- The `nondelta` schema
+- One catalog per domain (`rideflow_dev_<domain>`), each with `files`, `bronze`, `silver`, `gold`, `quarantine` and `lakelogic` schemas
+- The `nondelta` schema in the platform catalog
 - `_contracts`, `_logs`, and landing Unity Catalog Volumes
 - Empty Bronze, Silver, and Gold tables derived from the contracts
 
@@ -53,13 +52,13 @@ The structured run log records contract status, row counts, engine, and duration
 Run the following in a Databricks SQL editor:
 
 ```sql
-USE CATALOG governed_rideflow_lakehouse_demo;
+USE CATALOG rideflow_dev_marketplace;
 SHOW SCHEMAS;
-SHOW TABLES IN marketplace;
+SHOW TABLES IN gold;
 SHOW TABLES IN quarantine;
 
 SELECT *
-FROM marketplace.gold_fact_trip_completed
+FROM gold.gold_fact_trip_completed
 LIMIT 20;
 ```
 
@@ -88,7 +87,10 @@ If you deployed the bundle, run both commands from `platform/databricks/`:
 
 ```bash
 databricks bundle destroy -t dev -p rideflow_dev
+for domain in marketing marketplace operations payments reference shared; do
+  databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
+done
 databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 
-If you used only the direct notebook path, the catalog deletion is sufficient because no bundle-managed jobs or workspace files were deployed.
+If you used only the direct notebook path, the catalog deletions are sufficient because no bundle-managed jobs or workspace files were deployed.

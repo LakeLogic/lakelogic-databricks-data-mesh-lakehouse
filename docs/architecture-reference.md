@@ -86,18 +86,22 @@ surrogate keys, effective dates, current-version flags, and an unknown member.
 ## What gets created
 
 ```text
-Catalog: governed_rideflow_lakehouse_demo
-├── nondelta
-│   ├── _contracts       Unity Catalog Volume containing the staged registry
-│   ├── _logs            Unity Catalog Volume containing pipeline run logs
-│   └── landing_<domain> Unity Catalog Volume containing source data
+Platform catalog: governed_rideflow_lakehouse_demo
+└── nondelta
+    ├── _contracts       Unity Catalog Volume containing the staged registry
+    └── _logs            Unity Catalog Volume containing pipeline run logs
+
+One catalog per domain: rideflow_dev_<domain>
+├── files                Volumes; `landing` holds the inbound source files
+├── bronze               Bronze Delta tables
+├── silver               Silver Delta tables
+├── gold                 Gold Delta tables
 ├── quarantine           Contract-failing rows
-├── marketplace          Bronze, Silver, and Gold Delta tables
-├── marketing
-├── payments
-├── operations
-├── reference            Shared lookups and conformed dimensions
-└── shared               Cross-domain marts
+└── lakelogic            Run log, SLO results, retention and erasure records
+
+Domains: marketplace, marketing, payments, operations,
+         reference (shared lookups and conformed dimensions),
+         shared (cross-domain marts; gold only)
 ```
 
 ## Repository layout

@@ -1,4 +1,11 @@
-# Use a different Unity Catalog catalog
+# Use different Unity Catalog catalogs
+
+The demo uses two kinds of catalog:
+
+- **The platform catalog** (`governed_rideflow_lakehouse_demo` by default) holds the staged contracts and logs in Volumes. The `catalog` setting below names it.
+- **One catalog per domain** (`rideflow_dev_<domain>`) holds that domain's tables and landing files. The name is `<domain_catalog_prefix>_<domain>`, and the prefix is set per environment under `environments:` in each system's `_system.yaml`. Change the prefix there if the names are taken in your metastore.
+
+## The platform catalog
 
 `governed_rideflow_lakehouse_demo` is the default demo catalog, not a required name. The repository keeps the catalog name as a single configuration value so schemas, Volumes, registry paths, and tables can follow it consistently.
 
