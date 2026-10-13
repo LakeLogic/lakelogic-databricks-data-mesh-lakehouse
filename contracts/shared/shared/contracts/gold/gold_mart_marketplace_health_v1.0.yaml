@@ -149,7 +149,7 @@ links:
     path: "table:`{domain_catalog_prefix}_marketplace`.silver.silver_rideflow_trip_cancellations"
   - name: pay_charges
     type: table
-    path: "table:`{catalog}`.payments.silver_stripe_charges"
+    path: "table:`{domain_catalog_prefix}_payments`.silver.silver_stripe_charges"
 
 downstream:
   - type: semantic_model

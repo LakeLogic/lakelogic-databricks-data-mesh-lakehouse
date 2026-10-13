@@ -114,10 +114,10 @@ links:
     path: "table:`{domain_catalog_prefix}_marketplace`.silver.silver_rideflow_driver_profiles"
   - name: silver_checkr_driver_verifications
     type: table
-    path: "table:`{catalog}`.operations.silver_checkr_driver_verifications"
+    path: "table:`{domain_catalog_prefix}_operations`.silver.silver_checkr_driver_verifications"
   - name: silver_stripe_payouts
     type: table
-    path: "table:`{catalog}`.payments.silver_stripe_payouts"
+    path: "table:`{domain_catalog_prefix}_payments`.silver.silver_stripe_payouts"
 
 downstream:
   - type: semantic_model

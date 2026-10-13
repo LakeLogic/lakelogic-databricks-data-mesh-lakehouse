@@ -65,7 +65,7 @@ primary_key: [city_code]
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_internal_cities"
+  path: "table:{silver_root}.silver_internal_cities"
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 

@@ -59,6 +59,6 @@ transformations:
 
 source:
   type: table
-  path: 'table:{domain_catalog}.{bronze_layer}_{system}_charges'
+  path: 'table:{bronze_root}.{bronze_layer}_{system}_charges'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at

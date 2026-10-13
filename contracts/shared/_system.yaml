@@ -10,8 +10,13 @@ metadata:
   run_log_backend: "delta"
 
 storage:
-  domain_catalog: "`{catalog}`.shared"
-  quarantine_root: "`{catalog}`.shared"
+  # A CATALOG PER DOMAIN, a schema per layer: `rideflow_dev_{domain}`.bronze / .silver / .gold,
+  # .quarantine for rejected rows, .lakelogic for the run log, .files for volumes.
+  bronze_root: "`{domain_catalog_prefix}_{domain}`.{bronze_layer}"
+  silver_root: "`{domain_catalog_prefix}_{domain}`.{silver_layer}"
+  gold_root: "`{domain_catalog_prefix}_{domain}`.{gold_layer}"
+  domain_catalog: "`{domain_catalog_prefix}_{domain}`.lakelogic"
+  quarantine_root: "`{domain_catalog_prefix}_{domain}`.quarantine"
   quarantine_table_name: "quarantine_{table}"
 
 # Cross-domain sources consumed by shared Gold products
@@ -22,7 +27,7 @@ external_sources:
     consumed_by: ["marketplace_health", "revenue_daily"]
 
   - name: "silver_stripe_charges"
-    catalog_path: "{catalog}.payments.silver_stripe_charges"
+    catalog_path: "{domain_catalog_prefix}_payments.silver.silver_stripe_charges"
     source_domain: "payments/stripe"
     consumed_by: ["marketplace_health", "revenue_daily"]
 
@@ -32,17 +37,17 @@ external_sources:
     consumed_by: ["driver_360"]
 
   - name: "silver_checkr_driver_verifications"
-    catalog_path: "{catalog}.operations.silver_checkr_driver_verifications"
+    catalog_path: "{domain_catalog_prefix}_operations.silver.silver_checkr_driver_verifications"
     source_domain: "operations/checkr"
     consumed_by: ["driver_360"]
 
   - name: "silver_google_ads_campaigns"
-    catalog_path: "{catalog}.marketing.silver_google_ads_campaigns"
+    catalog_path: "{domain_catalog_prefix}_marketing.silver.silver_google_ads_campaigns"
     source_domain: "marketing/google_ads"
     consumed_by: ["acquisition_cost"]
 
   - name: "silver_meta_ads_campaigns"
-    catalog_path: "{catalog}.marketing.silver_meta_ads_campaigns"
+    catalog_path: "{domain_catalog_prefix}_marketing.silver.silver_meta_ads_campaigns"
     source_domain: "marketing/meta_ads"
     consumed_by: ["acquisition_cost"]
 

@@ -133,7 +133,7 @@ primary_key: [ticket_id]
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_zendesk_support_tickets"
+  path: "table:{silver_root}.silver_zendesk_support_tickets"
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 
@@ -156,7 +156,7 @@ links:
   # the untouched silver columns; we join it back on ticket_id.
   - name: tickets
     type: table
-    path: "table:{domain_catalog}.silver_zendesk_support_tickets"
+    path: "table:{silver_root}.silver_zendesk_support_tickets"
 
 transformations:
   # phase: pre — this SQL PRODUCES the model's required columns (category,

@@ -17,11 +17,16 @@ quarantine:
   mode: "append"
 
 storage:
-  domain_catalog: "`{catalog}`.{domain}"
-  quarantine_root: "`{catalog}`.{domain}"
+  # A CATALOG PER DOMAIN, a schema per layer: `rideflow_dev_{domain}`.bronze / .silver / .gold,
+  # .quarantine for rejected rows, .lakelogic for the run log, .files for volumes.
+  bronze_root: "`{domain_catalog_prefix}_{domain}`.{bronze_layer}"
+  silver_root: "`{domain_catalog_prefix}_{domain}`.{silver_layer}"
+  gold_root: "`{domain_catalog_prefix}_{domain}`.{gold_layer}"
+  domain_catalog: "`{domain_catalog_prefix}_{domain}`.lakelogic"
+  quarantine_root: "`{domain_catalog_prefix}_{domain}`.quarantine"
   quarantine_table_name: "quarantine_{table}"
   contract_root: "/Workspace/Shared/data_platform/contracts/{domain}/{system}"
-  landing_root: "/Volumes/{catalog}/nondelta/landing_{domain}/{system}"
+  landing_root: "/Volumes/{domain_catalog_prefix}_{domain}/files/landing/{system}"
   log_root: "/Volumes/{catalog}/nondelta/_logs"
 
 external_sources:
