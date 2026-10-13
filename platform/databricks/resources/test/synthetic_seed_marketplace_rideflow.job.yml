@@ -53,6 +53,11 @@ resources:
               - polars
               - deltalake
               - pyyaml
+              # Same cap as the notebooks' own install cell. Unpinned, this resolved
+              # pyarrow 26.0.0 the day it was released (2026-10-09); serverless ships an
+              # older pyarrow as a core package and the kernel would not start
+              # (ERROR_CORE_PACKAGE_VERSION_CHANGE), which failed the whole mesh run.
+              - "pyarrow<25"
 
       tasks:
         - task_key: generate_test_data
