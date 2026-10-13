@@ -132,7 +132,7 @@ LIMIT 5
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 6. SCD2 dimension — `gold_dim_rider_profiles`
+# MAGIC ## 6. SCD2 dimension — `gold_dim_rider`
 # MAGIC History is kept for the tracked columns (`city_code`, `status`,
 # MAGIC `preferred_payment_method`). **Look for:** riders with more than one version —
 # MAGIC one `is_current = true` row, older rows closed with `effective_to` — and the
@@ -141,11 +141,11 @@ LIMIT 5
 # COMMAND ----------
 
 q("""
-SELECT rider_id, rider_profiles_sk, version_number, status, city_code,
+SELECT rider_id, rider_sk, version_number, status, city_code,
        effective_from, effective_to, is_current
-FROM {S}.gold_dim_rider_profiles
+FROM {S}.gold_dim_rider
 WHERE rider_id IN (
-  SELECT rider_id FROM {S}.gold_dim_rider_profiles GROUP BY rider_id HAVING count(*) > 1 LIMIT 5
+  SELECT rider_id FROM {S}.gold_dim_rider GROUP BY rider_id HAVING count(*) > 1 LIMIT 5
 )
 ORDER BY rider_id, version_number
 """)
@@ -156,14 +156,14 @@ q("""
 SELECT count(*)                                   AS versions,
        count_if(is_current)                       AS current_rows,
        count(DISTINCT rider_id)                   AS riders,
-       count_if(rider_profiles_sk = '-1')         AS unknown_member_rows
-FROM {S}.gold_dim_rider_profiles
+       count_if(rider_sk = '-1')         AS unknown_member_rows
+FROM {S}.gold_dim_rider
 """)
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 7. Fact → dimension — `gold_fact_trip_completed` to `gold_dim_rider_profiles`
+# MAGIC ## 7. Fact → dimension — `gold_fact_trip_completed` to `gold_dim_rider`
 # MAGIC Each trip carries the rider version that was current at drop-off (`rider_sk`, resolved
 # MAGIC as-of `dropoff_at`). **Look for:** every fact row finding its rider version (`orphans`
 # MAGIC should be 0; unmatched keys land on the `-1` member).
@@ -174,7 +174,7 @@ q("""
 SELECT f.trip_id, f.dropoff_at, d.rider_id, d.version_number, d.city_code, d.status,
        f.total_fare_amount, f.total_tip_amount
 FROM {S}.gold_fact_trip_completed f
-JOIN {S}.gold_dim_rider_profiles d ON d.rider_profiles_sk = f.rider_sk
+JOIN {S}.gold_dim_rider d ON d.rider_sk = f.rider_sk
 ORDER BY f.dropoff_at DESC
 LIMIT 10
 """)
@@ -183,11 +183,11 @@ LIMIT 10
 
 q("""
 SELECT count(*)                                  AS fact_rows,
-       count_if(d.rider_profiles_sk IS NULL)     AS orphans,
+       count_if(d.rider_sk IS NULL)     AS orphans,
        count_if(f.rider_sk = '-1')               AS on_unknown_member
 FROM {S}.gold_fact_trip_completed f
-LEFT JOIN (SELECT DISTINCT rider_profiles_sk FROM {S}.gold_dim_rider_profiles) d
-  ON d.rider_profiles_sk = f.rider_sk
+LEFT JOIN (SELECT DISTINCT rider_sk FROM {S}.gold_dim_rider) d
+  ON d.rider_sk = f.rider_sk
 """)
 
 # COMMAND ----------
