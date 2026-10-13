@@ -1,0 +1,67 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# LakeLogic — RideFlow Marketplace DAB Bundle Variables
+# ══════════════════════════════════════════════════════════════════════════════
+variables:
+  domain:
+    description: "Data Mesh domain"
+    default: "marketplace"
+  system:
+    description: "Source system"
+    default: "rideflow"
+  catalog:
+    description: "Unity Catalog name (created by nb_00_setup)"
+    default: "governed_rideflow_lakehouse_demo"
+  catalog_storage_root:
+    description: >-
+      MANAGED LOCATION for a newly created catalog, e.g.
+      abfss://uc-assets@<account>.dfs.core.windows.net/catalog . Leave blank when the
+      metastore has its own storage root. The running principal needs CREATE MANAGED
+      STORAGE on the external location covering this path.
+    default: "abfss://uc-assets@sarideflowdevadls001.dfs.core.windows.net/catalog"
+  reset_catalog:
+    description: >-
+      DROP the catalog (CASCADE) before provisioning. Default false. Set true when the
+      catalog is an ORPHAN — created by a workspace that has since been deleted. UC
+      catalogs live in the regional metastore, so they outlive their workspace: the
+      catalog still lists, but its managed storage is unreachable and every Volume
+      write fails with `[Errno 22] Invalid argument`. Destructive: drops schemas,
+      tables and volumes.
+    default: "false"
+  environment:
+    description: >-
+      The environment name the contracts resolve against (_system.yaml `environments:`).
+      Separate from the bundle target, so a second workspace (azure_dev) runs as "dev".
+    default: "dev"
+  deployment_folder:
+    description: "Deployment folder"
+    default: "_data_platform_rideflow_demo"
+  telemetry_scope:
+    description: >-
+      Databricks secret scope holding `lakelogic-observatory-endpoint` and `lakelogic-api-key`.
+      Every pipeline notebook reads it, so all jobs send LakeLogic telemetry when the keys are
+      there and run without it when they are not. For a quick test against another workspace,
+      deploy or run with another scope (e.g. rideflow-stage).
+    default: "rideflow"
+  observatory_endpoint:
+    description: >-
+      Optional override of the telemetry URL (not secret). Blank uses the endpoint in the
+      secret scope. The API key is never a variable: it always comes from the scope.
+    default: ""
+  serverless_env_version:
+    description: "Serverless environment (client) version for pre-provisioned job deps. Bump if `bundle deploy` rejects it (see the value in a serverless notebook's Environment panel)."
+    default: "3"
+  lakelogic_version:
+    description: >-
+      Pin the PyPI version, e.g. "1.51.0". Blank installs the latest with
+      --upgrade. Needed because Databricks pre-installs lakelogic into the
+      notebook environment: a bare `pip install lakelogic` is then "already
+      satisfied" and the run silently executes the pre-installed version.
+    default: ""
+  lakelogic_wheel:
+    description: >-
+      Path to a LakeLogic wheel in the catalog's _wheels Volume, e.g.
+      /Volumes/<catalog>/nondelta/_wheels/lakelogic-<version>-py3-none-any.whl .
+      Blank (the default) installs the published package from PyPI, which is what
+      the demo does. Set it to test an UNRELEASED build before publishing:
+      platform/scripts/upload_lakelogic_wheel.sh builds one and prints the path.
+    default: ""

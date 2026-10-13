@@ -67,7 +67,7 @@
   <g transform="translate(144 327)">
     <rect class="card" width="1202" height="86" rx="16"/>
     <circle cx="40" cy="43" r="18" fill="#EDF3F5"/><text x="40" y="48" text-anchor="middle" class="number">02</text>
-    <text x="76" y="35" class="path">databricks/</text>
+    <text x="76" y="35" class="path">platform/databricks/</text>
     <text x="76" y="60" class="body">Asset Bundle, notebooks, job resources, variables, and deploy scripts. Run bundle commands here.</text>
     <g transform="translate(976 28)"><rect width="192" height="30" rx="15" fill="#FFF3D8" stroke="#E6B553"/><text x="96" y="20" text-anchor="middle" class="chip" fill="#865B08">DEPLOYMENT CODE</text></g>
   </g>
@@ -101,7 +101,7 @@
   <g transform="translate(144 754)">
     <rect class="card" width="1202" height="54" rx="16"/>
     <circle cx="40" cy="27" r="18" fill="#EDF3F5"/><text x="40" y="32" text-anchor="middle" class="number">05</text>
-    <text x="76" y="23" class="path" style="font-size:16px">scripts/ · README.md · LICENSE</text>
+    <text x="76" y="23" class="path" style="font-size:16px">platform/scripts/ · README.md · LICENSE</text>
     <text x="76" y="43" class="body" style="font-size:13px">Release validation, quickstart, repository guidance, and Apache 2.0 licence.</text>
   </g>
 </svg>

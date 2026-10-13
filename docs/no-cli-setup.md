@@ -12,7 +12,7 @@ It does **not** deploy the schedulable jobs that come with the Databricks Asset 
 
 1. In Databricks, open **Workspace > Repos > Add Repo**.
 2. Clone this GitHub repository.
-3. Open `databricks/notebooks/_ops/provision_all`.
+3. Open `platform/databricks/notebooks/_ops/provision_all`.
 4. Attach the notebook to serverless compute or another Unity Catalog-enabled cluster.
 5. Review the widgets:
    - `catalog` defaults to `governed_rideflow_lakehouse_demo`.
@@ -46,4 +46,4 @@ The notebook creates Unity Catalog objects at runtime. Remove them when finished
 databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 
-If you later deployed the Asset Bundle, also run `databricks bundle destroy` from the `databricks/` directory to remove its jobs and synced workspace files.
+If you later deployed the Asset Bundle, also run `databricks bundle destroy` from the `platform/databricks/` directory to remove its jobs and synced workspace files.

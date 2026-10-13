@@ -37,16 +37,16 @@ model:
     - name: rider_id
       type: string
       foreign_key:
-        contract: "{gold_layer}_dim_rider_profiles"
+        contract: "{gold_layer}_dim_rider"
         column: rider_id
-    # SCD2 surrogate FK to marketplace.gold_dim_rider_profiles — resolved as-of created_at in the
+    # SCD2 surrogate FK to marketplace.gold_dim_rider — resolved as-of created_at in the
     # phase:post transform below. Unmatched riders → '-1' unknown member.
     - name: rider_sk
       type: string
-      description: "FK to gold_dim_rider_profiles (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_dim_rider (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
-        contract: "{gold_layer}_dim_rider_profiles"
-        column: rider_profiles_sk
+        contract: "{gold_layer}_dim_rider"
+        column: rider_sk
     - name: trip_id
       type: string
       description: "Nullable — present on ~75% of tickets"
@@ -57,15 +57,15 @@ model:
       type: string
       description: "Nullable — present on ~55%"
       foreign_key:
-        contract: "{gold_layer}_dim_driver_profiles"
+        contract: "{gold_layer}_dim_driver"
         column: driver_id
-    # SCD2 surrogate FK to marketplace.gold_dim_driver_profiles — resolved as-of created_at.
+    # SCD2 surrogate FK to marketplace.gold_dim_driver — resolved as-of created_at.
     - name: driver_sk
       type: string
-      description: "FK to gold_dim_driver_profiles (SCD2 as-of created_at); '-1' = unknown"
+      description: "FK to gold_dim_driver (SCD2 as-of created_at); '-1' = unknown"
       foreign_key:
-        contract: "{gold_layer}_dim_driver_profiles"
-        column: driver_profiles_sk
+        contract: "{gold_layer}_dim_driver"
+        column: driver_sk
     - name: charge_id
       type: string
       description: "Nullable — present on ~25% (payment/refund tickets)"
@@ -146,10 +146,10 @@ source:
 links:
   - name: dim_rider
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_rider_profiles"
+    path: "table:`{catalog}`.marketplace.gold_dim_rider"
   - name: dim_driver
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_driver_profiles"
+    path: "table:`{catalog}`.marketplace.gold_dim_driver"
   # Raw silver ticket text/priority — `source` is projected DOWN to this gold
   # contract's model fields before the transform runs, so subject /
   # ticket_description / priority are not visible on `source`. This link exposes
@@ -247,8 +247,8 @@ transformations:
                                 WHEN 'normal' THEN 0.40
                                 WHEN 'low'    THEN 0.15
                                 ELSE 0.40 END AS FLOAT)         AS urgency_score,
-          COALESCE(dr.rider_profiles_sk, '-1') AS rider_sk,
-          COALESCE(dd.driver_profiles_sk, '-1') AS driver_sk,
+          COALESCE(dr.rider_sk, '-1') AS rider_sk,
+          COALESCE(dd.driver_sk, '-1') AS driver_sk,
           'zendesk' AS system
       FROM derived d
       LEFT JOIN dim_rider dr

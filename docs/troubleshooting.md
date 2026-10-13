@@ -8,7 +8,7 @@
 unable to locate bundle root: databricks.yml not found
 ```
 
-Run every `databricks bundle` command from the repository's `databricks/` directory:
+Run every `databricks bundle` command from the repository's `platform/databricks/` directory:
 
 ```bash
 cd lakelogic-databricks-data-mesh/databricks
@@ -97,7 +97,7 @@ workspace_id mismatch: provider is configured for workspace X but got Y
 
 The local bundle state points to a different workspace, often after changing trial or development workspaces.
 
-When possible, switch back to the original workspace and run `bundle destroy` first. Then remove the stale `databricks/.databricks/` state directory and redeploy to the intended workspace.
+When possible, switch back to the original workspace and run `bundle destroy` first. Then remove the stale `platform/databricks/.databricks/` state directory and redeploy to the intended workspace.
 
 The repository wrappers can perform the recovery:
 

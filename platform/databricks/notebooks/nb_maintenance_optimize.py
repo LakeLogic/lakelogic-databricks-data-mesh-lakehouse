@@ -1,0 +1,186 @@
+# Databricks notebook source
+# ══════════════════════════════════════════════════════════════════════════════
+# Maintenance Driver — OPTIMIZE + VACUUM across all medallion layers
+# ══════════════════════════════════════════════════════════════════════════════
+# Walks the contract registry for one (domain, system), discovers every
+# Bronze/Silver/Gold Delta table it manages, then runs:
+#
+#   1. OPTIMIZE <table> [ZORDER BY (...)]   — coalesces small files,
+#                                              optionally clusters by hot cols
+#   2. VACUUM <table> RETAIN <hours>        — purges tombstoned files
+#
+# Designed to be scheduled weekly per domain. Doesn't touch contract logic,
+# doesn't move data, doesn't change schema — just reclaims storage and
+# improves read performance.
+#
+# Parameters
+# ──────────
+#   registry_path     — path to _system.yaml (same as other drivers)
+#   environment       — dev | stage | prod
+#   target_layers     — comma-separated subset of bronze,silver,gold (default: all)
+#   vacuum_retain_hrs — VACUUM retention (default: 168 = 7d, Delta minimum is 168)
+#   dry_run           — true → print SQL without executing
+#   zorder_columns    — JSON map per-table of ZORDER cols, e.g.
+#                       '{"silver_stripe_charges":["created_at","status"]}'
+#
+
+# ── LakeLogic source ──────────────────────────────────────────────────
+# Blank widget = install the published package from PyPI (what the demo does).
+# Set it to a wheel in the catalog's _wheels Volume to run an UNRELEASED build:
+#   platform/scripts/upload_lakelogic_wheel.sh   ->  prints the path to paste here
+# That is the only way to exercise a LakeLogic change on Databricks BEFORE it
+# is published, rather than discovering a bad release from the demo breaking.
+dbutils.widgets.text("lakelogic_wheel", "", "LakeLogic wheel (blank = PyPI)")
+dbutils.widgets.text("lakelogic_version", "", "LakeLogic version (blank = latest)")
+_wheel = dbutils.widgets.get("lakelogic_wheel").strip()
+# --force-reinstall matters: Databricks pre-installs the packages named in
+# this cell into the notebook environment at session startup, so pip sees the
+# PUBLISHED lakelogic already present. An unreleased wheel carries the SAME
+# version number, so pip reports "already satisfied" and silently keeps the
+# released code - the run then tests the wrong build while looking correct.
+_version = dbutils.widgets.get("lakelogic_version").strip()
+# The PyPI branch needs the same protection the wheel branch already had.
+# Databricks PRE-INSTALLS the packages named in this cell at session start,
+# so a bare `lakelogic` is "already satisfied" by whatever version the
+# environment was built with — pip installs nothing and the run silently
+# executes the OLD code. That is exactly how a run on "1.51.0" reproduced a
+# bug fixed in 1.51.0: it was really running the pre-installed 1.50.0, and
+# the null `lakelogic_version` in its telemetry was the only tell.
+# An explicit `==` is unsatisfied by an older pre-install, so pip must act;
+# `--upgrade` covers the unpinned case.
+if _wheel:
+    lakelogic_pkg = f"{_wheel} --force-reinstall"
+elif _version:
+    lakelogic_pkg = f"lakelogic=={_version}"
+else:
+    lakelogic_pkg = "lakelogic --upgrade"
+print(f"Installing LakeLogic from: {lakelogic_pkg}")
+
+# COMMAND ----------
+
+# MAGIC # Only lakelogic is named: pyyaml/polars/deltalake are its own dependencies.
+# MAGIC # pyarrow<25: DBR ships 21.0.0, lakelogic needs >=23.0.1, databricks-connect caps <25.
+# MAGIC %pip install $lakelogic_pkg "pyarrow<25"
+
+# COMMAND ----------
+
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
+# Fail loudly if the engine is not the one asked for. A pinned `pip install lakelogic==X`
+# that cannot be satisfied (e.g. Databricks' PyPI index has not picked up a fresh release)
+# prints an ERROR and the notebook CARRIES ON with the pre-installed version - a run that
+# looks fine while executing old code (seen 2026-10-04: 1.69.0 requested, 1.68.0 ran).
+import lakelogic as _ll
+_want = (dbutils.widgets.get("lakelogic_version") or "").strip()
+if _want and _ll.__version__ != _want:
+    raise RuntimeError(
+        f"LakeLogic {_want} was requested but {_ll.__version__} is installed - the pip install "
+        "failed (see the install cell). Re-run once the release is on Databricks' PyPI index."
+    )
+print(f"LakeLogic {_ll.__version__}")
+
+# COMMAND ----------
+
+import json
+from pathlib import Path
+
+dbutils.widgets.text("registry_path", "")
+dbutils.widgets.text("environment", "dev")
+dbutils.widgets.text("target_layers", "bronze,silver,gold")
+dbutils.widgets.text("vacuum_retain_hrs", "168")
+dbutils.widgets.text("dry_run", "false")
+dbutils.widgets.text("zorder_columns", "{}")
+
+registry_path = dbutils.widgets.get("registry_path")
+environment = dbutils.widgets.get("environment")
+target_layers = [s.strip() for s in dbutils.widgets.get("target_layers").split(",") if s.strip()]
+vacuum_retain_hrs = int(dbutils.widgets.get("vacuum_retain_hrs"))
+dry_run = dbutils.widgets.get("dry_run").lower() == "true"
+zorder_map = json.loads(dbutils.widgets.get("zorder_columns") or "{}")
+
+assert registry_path, "registry_path is required"
+print(f"📋 Registry: {registry_path}")
+print(f"📋 Env: {environment} · Layers: {target_layers} · Retain: {vacuum_retain_hrs}h · Dry-run: {dry_run}")
+
+# COMMAND ----------
+
+# Discover tables via the LakeLogic DomainRegistry so we always reflect the
+# current contracts. No hardcoded table lists — anything added to the registry
+# gets picked up next maintenance run for free.
+from lakelogic.core.registry import DomainRegistry
+
+registry = DomainRegistry.from_yaml(registry_path, environment=environment, storage_mode="uc")
+
+discovered = []  # list of (layer, fully_qualified_table)
+for contract in registry.contracts:
+    layer = (getattr(contract, "info", None) and getattr(contract.info, "target_layer", None)) or "?"
+    if layer not in target_layers:
+        continue
+    # Materialization path is the catalog-qualified table name for UC mode
+    mat = getattr(contract, "materialization", None)
+    target = getattr(mat, "target", None) if mat else None
+    if not target:
+        info_tbl = getattr(contract.info, "table_name", None) if getattr(contract, "info", None) else None
+        target = info_tbl
+    if not target:
+        print(f"  ⚠ skip {contract.info.title if contract.info else '?'} — no target table")
+        continue
+    discovered.append((layer, target))
+
+print(f"📋 Discovered {len(discovered)} tables to maintain")
+for layer, tbl in discovered:
+    print(f"   [{layer:6s}] {tbl}")
+
+# COMMAND ----------
+
+# Run OPTIMIZE then VACUUM per table. Failures on one table don't abort the run
+# — we want maintenance to make as much progress as possible per window.
+results = {"optimized": [], "vacuumed": [], "failed": []}
+
+for layer, table in discovered:
+    print(f"\n── {table} ─────────────────────────────────────────────")
+
+    # OPTIMIZE (+ ZORDER if configured)
+    zorder = zorder_map.get(table.split(".")[-1]) or zorder_map.get(table)
+    if zorder:
+        zorder_cols = ", ".join(zorder)
+        sql_optimize = f"OPTIMIZE {table} ZORDER BY ({zorder_cols})"
+    else:
+        sql_optimize = f"OPTIMIZE {table}"
+    print(f"  → {sql_optimize}")
+    if not dry_run:
+        try:
+            spark.sql(sql_optimize)
+            results["optimized"].append(table)
+        except Exception as e:
+            print(f"  ✗ OPTIMIZE failed: {e}")
+            results["failed"].append((table, "optimize", str(e)))
+            continue
+
+    # VACUUM (Delta min retention = 168h / 7 days unless config relaxes it)
+    sql_vacuum = f"VACUUM {table} RETAIN {vacuum_retain_hrs} HOURS"
+    print(f"  → {sql_vacuum}")
+    if not dry_run:
+        try:
+            spark.sql(sql_vacuum)
+            results["vacuumed"].append(table)
+        except Exception as e:
+            print(f"  ✗ VACUUM failed: {e}")
+            results["failed"].append((table, "vacuum", str(e)))
+
+# COMMAND ----------
+
+print("\n══════════════════════════════════════════════════════════════")
+print(f"  Maintenance complete")
+print(f"  OPTIMIZE:  ok={len(results['optimized'])}")
+print(f"  VACUUM:    ok={len(results['vacuumed'])}")
+print(f"  Failed:    {len(results['failed'])}")
+for tbl, op, err in results["failed"]:
+    print(f"    {op:8s} {tbl}: {err[:100]}")
+print("══════════════════════════════════════════════════════════════")
+
+if results["failed"] and not dry_run:
+    # Fail the task so the on_failure email fires, but keep the partial wins.
+    raise RuntimeError(f"{len(results['failed'])} maintenance operations failed; see logs above")

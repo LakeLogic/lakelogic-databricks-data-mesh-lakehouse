@@ -9,13 +9,13 @@ The target catalog must exist and be writable. On workspaces that use Default St
 Set `catalog` in:
 
 ```text
-databricks/databrick_variables.yml
+platform/databricks/databrick_variables.yml
 ```
 
 You can also override it for a target in:
 
 ```text
-databricks/databricks.yml
+platform/databricks/databricks.yml
 ```
 
 The value flows into the deployed job registry paths:
