@@ -38,9 +38,6 @@ quality:
       category: uniqueness
       description: No two rows share the same trip_type.
 
-natural_key:
-- trip_type
-
 materialization:
   strategy: merge
   scd1:

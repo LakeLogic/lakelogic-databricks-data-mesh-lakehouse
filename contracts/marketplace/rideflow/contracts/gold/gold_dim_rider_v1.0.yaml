@@ -77,13 +77,10 @@ model:
       required: true
       description: Source system this row came from
 
-# SCD2 matches existing↔incoming on the BUSINESS key, so primary_key must be
-# rider_id (stable across versions) — NOT the surrogate rider_sk (generated per
-# version by the materializer). Composite (rider_id, effective_from) uniqueness
-# is documented via natural_key.
+# SCD2 matches existing and incoming rows on the BUSINESS key, so primary_key is rider_id
+# (stable across versions), not the surrogate rider_sk (generated per version by the
+# materializer). What makes one VERSION unique is stated as a rule under quality.
 primary_key: [rider_id]
-
-natural_key: [rider_id, effective_from]
 
 source:
   type: table
@@ -135,6 +132,12 @@ quality:
   row_rules: []
   dataset_rules:
     - unique: rider_sk
+    # One version of a rider: the business key at a point in time.
+    - unique:
+        columns: [rider_id, effective_from]
+        name: rider_version_unique
+        category: uniqueness
+        description: No two versions of a rider start at the same time.
 
 # Every gold row names the source system it came from (single-system table).
 transformations:

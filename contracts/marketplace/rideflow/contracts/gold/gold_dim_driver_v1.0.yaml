@@ -85,13 +85,10 @@ model:
       required: true
       description: Source system this row came from
 
-# SCD2 matches existing↔incoming on the BUSINESS key, so primary_key must be
-# driver_id (stable across versions) — NOT the surrogate driver_sk (generated
-# per version by the materializer). Composite (driver_id, effective_from)
-# uniqueness is documented via natural_key.
+# SCD2 matches existing and incoming rows on the BUSINESS key, so primary_key is driver_id
+# (stable across versions), not the surrogate driver_sk (generated per version by the
+# materializer). What makes one VERSION unique is stated as a rule under quality.
 primary_key: [driver_id]
-
-natural_key: [driver_id, effective_from]
 
 source:
   type: table
@@ -142,6 +139,12 @@ quality:
   row_rules: []
   dataset_rules:
     - unique: driver_sk
+    # One version of a driver: the business key at a point in time.
+    - unique:
+        columns: [driver_id, effective_from]
+        name: driver_version_unique
+        category: uniqueness
+        description: No two versions of a driver start at the same time.
 
 # Every gold row names the source system it came from (single-system table).
 transformations:

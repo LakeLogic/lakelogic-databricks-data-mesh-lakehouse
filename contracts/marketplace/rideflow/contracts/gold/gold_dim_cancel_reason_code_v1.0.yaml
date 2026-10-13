@@ -39,9 +39,6 @@ quality:
       category: uniqueness
       description: No two rows share the same cancel_reason_code.
 
-natural_key:
-- cancel_reason_code
-
 materialization:
   strategy: merge
   scd1:

@@ -39,9 +39,6 @@ quality:
       category: uniqueness
       description: No two rows share the same preferred_payment_method.
 
-natural_key:
-- preferred_payment_method
-
 materialization:
   strategy: merge
   scd1:
