@@ -50,6 +50,7 @@ source:
       header: "true"
   load_mode: incremental
   watermark_strategy: pipeline_log
+
 lineage:
   enabled: true
   capture_timestamp: true

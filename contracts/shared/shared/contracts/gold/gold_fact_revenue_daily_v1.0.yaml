@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   data_product: revenue_reporting
   data_product_output: fact_revenue_daily
@@ -12,7 +13,6 @@ info:
   target_layer: gold
   domain: shared
   system: shared
-
 
 primary_key: [kpi_date, city_code, vehicle_type]
 

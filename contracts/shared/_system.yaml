@@ -2,6 +2,7 @@
 # Cross-domain Gold products that join data from multiple domains.
 # Examples: marketplace_health, revenue_daily, acquisition_cost, driver_360.
 domain: shared
+
 system: shared
 
 metadata:

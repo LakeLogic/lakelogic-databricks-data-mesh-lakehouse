@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Checkr Driver Verifications"
   table_name: '{silver_layer}_checkr_driver_verifications'
@@ -12,6 +13,7 @@ info:
   target_layer: silver
   domain: operations
   system: checkr
+
 model:
   fields:
   - name: report_id
@@ -51,17 +53,21 @@ model:
     type: timestamp
   - name: adjudication
     type: string
+
 primary_key: [report_id]
+
 quality:
   row_rules: []
   dataset_rules:
   - unique: report_id
+
 transformations:
 - deduplicate:
     by:
     - report_id
     sort_by: [created_at]
     order: desc
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_background_checks'

@@ -144,7 +144,9 @@ retention:
 
 # Layer aliases
 bronze_layer: bronze
+
 silver_layer: silver
+
 gold_layer: gold
 
 # ── Data Products ──────────────────────────────────────────────────────────

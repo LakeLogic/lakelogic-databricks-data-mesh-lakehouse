@@ -82,6 +82,7 @@ model:
 # version by the materializer). Composite (rider_id, effective_from) uniqueness
 # is documented via natural_key.
 primary_key: [rider_id]
+
 natural_key: [rider_id, effective_from]
 
 source:

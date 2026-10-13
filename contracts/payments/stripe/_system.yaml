@@ -1,5 +1,6 @@
 # ── Stripe Payment Platform System Registry ────────────────────────────────────────
 domain: payments
+
 system: stripe
 
 metadata:
@@ -63,6 +64,7 @@ contracts:
     path: "contracts/{gold_layer}/gold_fact_payment_reconciliation_v1.0.yaml"
     depends_on: ['silver_stripe_charges', 'silver_stripe_payouts', 'silver_stripe_refunds']
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

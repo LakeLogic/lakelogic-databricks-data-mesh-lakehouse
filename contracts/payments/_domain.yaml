@@ -57,7 +57,6 @@ slo:
       low:
         min_good_ratio: 0.95
 
-
 # What Contract Health scores declared checks against (OLC quality_coverage).
 quality_coverage:
   silver:
@@ -92,7 +91,9 @@ compliance:
 
 # Layer aliases
 bronze_layer: bronze
+
 silver_layer: silver
+
 gold_layer: gold
 
 # ── Data Products ──────────────────────────────────────────────────────────

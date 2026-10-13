@@ -90,6 +90,7 @@ model:
 # per version by the materializer). Composite (driver_id, effective_from)
 # uniqueness is documented via natural_key.
 primary_key: [driver_id]
+
 natural_key: [driver_id, effective_from]
 
 source:

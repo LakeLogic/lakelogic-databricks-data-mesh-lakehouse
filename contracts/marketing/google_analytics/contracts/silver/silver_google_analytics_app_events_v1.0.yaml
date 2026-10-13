@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Google Analytics App Events"
   table_name: '{silver_layer}_google_analytics_app_events'
@@ -10,10 +11,12 @@ info:
   target_layer: silver
   domain: marketing
   system: google_analytics
+
 # Composite key — GA4 fires multiple events per pseudo-id per timestamp
 # (button taps, screen views, etc.), so the natural unique tuple is
 # (event_timestamp, event_name, user_pseudo_id).
 primary_key: [event_timestamp, event_name, user_pseudo_id]
+
 model:
   fields:
   - name: event_name
@@ -55,6 +58,7 @@ model:
   - name: event_params_json
     type: string
     description: "Raw event parameters as JSON string for downstream extraction."
+
 quality:
   row_rules:
   - name: event_name_not_null
@@ -64,11 +68,13 @@ quality:
   - name: valid_device_category
     sql: "device_category IS NULL OR device_category IN ('mobile','tablet','desktop')"
   dataset_rules: []
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_app_events'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
+
 transformations:
 - deduplicate:
     "on":

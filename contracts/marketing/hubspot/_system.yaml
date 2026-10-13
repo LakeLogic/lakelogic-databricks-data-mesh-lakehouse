@@ -1,5 +1,6 @@
 # ── HubSpot Marketing Automation System Registry ────────────────────────────────────────
 domain: marketing
+
 system: hubspot
 
 metadata:
@@ -49,6 +50,7 @@ contracts:
     entity: silver_hubspot_push_notifications
     path: "contracts/{silver_layer}/silver_hubspot_push_notifications_v1.0.yaml"
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

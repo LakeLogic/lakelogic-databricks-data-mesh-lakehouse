@@ -1,5 +1,6 @@
 # ── Google Analytics 4 System Registry ────────────────────────────────────────
 domain: marketing
+
 system: google_analytics
 
 metadata:
@@ -49,6 +50,7 @@ contracts:
     entity: silver_google_analytics_app_events
     path: "contracts/{silver_layer}/silver_google_analytics_app_events_v1.0.yaml"
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

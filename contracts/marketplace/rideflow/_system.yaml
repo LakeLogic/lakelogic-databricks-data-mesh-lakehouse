@@ -2,6 +2,7 @@
 # Core ride-sharing + food delivery platform.
 # Entities: riders, drivers, trips, restaurants (Phase 2).
 domain: marketplace
+
 system: rideflow
 
 metadata:

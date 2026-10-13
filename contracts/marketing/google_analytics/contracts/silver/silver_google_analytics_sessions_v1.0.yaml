@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Google Analytics Sessions"
   table_name: '{silver_layer}_google_analytics_sessions'
@@ -6,6 +7,7 @@ info:
   target_layer: silver
   domain: marketing
   system: google_analytics
+
 model:
   fields:
   - name: session_id
@@ -40,16 +42,20 @@ model:
     type: string
   - name: landing_page
     type: string
+
 primary_key: [session_id]
+
 quality:
   row_rules: []
   dataset_rules:
   - unique: session_id
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_sessions'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
+
 transformations:
 - deduplicate:
     "on":

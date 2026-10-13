@@ -69,6 +69,7 @@ source:
   watermark_strategy: pipeline_log
   partition:
     format: "y_%Y/m_%m/d_%d"
+
 lineage:
   enabled: true
   capture_timestamp: true

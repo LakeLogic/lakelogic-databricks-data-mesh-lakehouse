@@ -1,5 +1,6 @@
 # ── Twilio Communications System Registry ────────────────────────────────────────
 domain: operations
+
 system: twilio
 
 metadata:
@@ -39,6 +40,7 @@ contracts:
     entity: silver_twilio_sms_logs
     path: "contracts/{silver_layer}/silver_twilio_sms_logs_v1.0.yaml"
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

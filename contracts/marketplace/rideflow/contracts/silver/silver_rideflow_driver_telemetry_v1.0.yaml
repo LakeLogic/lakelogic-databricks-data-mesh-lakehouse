@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Rideflow Driver Telemetry"
   table_name: '{silver_layer}_rideflow_driver_telemetry'
@@ -38,16 +39,19 @@ model:
     description: "ISO 3166-1 alpha-2 country of city_code — the partition key (materialization._all in _system.yaml)"
   - name: timestamp
     type: timestamp
+
 quality:
   row_rules: []
   dataset_rules:
   - unique: telemetry_id
+
 transformations:
 - deduplicate:
     by:
     - telemetry_id
     sort_by: [timestamp]
     order: desc
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_driver_telemetry'

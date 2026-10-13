@@ -46,6 +46,7 @@ source:
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_city_master'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
+
 transformations:
 - deduplicate:
     "on":
