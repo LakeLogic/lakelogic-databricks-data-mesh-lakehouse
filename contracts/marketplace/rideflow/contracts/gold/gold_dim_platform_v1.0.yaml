@@ -38,9 +38,6 @@ quality:
       category: uniqueness
       description: No two rows share the same platform.
 
-natural_key:
-- platform
-
 materialization:
   strategy: merge
   scd1:

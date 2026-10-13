@@ -27,10 +27,11 @@ targets:
     variables:
       catalog: "governed_rideflow_lakehouse_demo"
       # The engine comes from PyPI, pinned: Databricks pre-installs an older lakelogic, and a
-      # blank version can leave that one in place. 1.68.0 (OLC 0.19) carries the gold `system`
-      # derive and blank-key dedup the contracts use.
+      # blank version can leave that one in place. 1.75.0 defers rules over SCD2 columns on
+      # Spark (driver_sk_unique, driver_version_unique), passes `engine_options` to the Spark
+      # reader, and orders a layer by each contract's links as well as `depends_on`.
       lakelogic_wheel: ""
-      lakelogic_version: "1.70.0"
+      lakelogic_version: "1.75.0"
       # Blank = the catalog was created in the UI on the metastore's storage.
       catalog_storage_root: ""
 

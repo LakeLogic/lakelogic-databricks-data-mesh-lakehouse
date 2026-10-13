@@ -39,9 +39,6 @@ quality:
       category: uniqueness
       description: No two rows share the same cancelled_by.
 
-natural_key:
-- cancelled_by
-
 materialization:
   strategy: merge
   scd1:

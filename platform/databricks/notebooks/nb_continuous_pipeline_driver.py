@@ -87,7 +87,7 @@ print(f"LakeLogic {_ll.__version__}")
 dbutils.widgets.removeAll()
 
 dbutils.widgets.text("registry_path",
-    "/Workspace/Shared/data_platform/domains/marketplace/rideflow/_system.yaml",
+    "/Workspace/Shared/data_platform/contracts/marketplace/rideflow/_system.yaml",
     "Config - Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Config - Environment")

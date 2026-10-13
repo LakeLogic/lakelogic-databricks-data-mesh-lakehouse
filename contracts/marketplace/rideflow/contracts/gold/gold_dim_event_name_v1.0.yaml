@@ -39,9 +39,6 @@ quality:
       category: uniqueness
       description: No two rows share the same event_name.
 
-natural_key:
-- event_name
-
 materialization:
   strategy: merge
   scd1:

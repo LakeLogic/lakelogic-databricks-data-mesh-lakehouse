@@ -39,9 +39,6 @@ quality:
       category: uniqueness
       description: No two rows share the same status.
 
-natural_key:
-- status
-
 materialization:
   strategy: merge
   scd1:

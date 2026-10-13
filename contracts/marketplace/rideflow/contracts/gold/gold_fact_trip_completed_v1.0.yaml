@@ -154,10 +154,6 @@ links:
   type: table
   path: table:{domain_catalog}.{gold_layer}_dim_rider
 
-upstream:
-- gold_dim_driver
-- gold_dim_rider
-
 materialization:
   # Transaction facts are immutable events: the engine requires append for them.
   strategy: append
