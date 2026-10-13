@@ -32,7 +32,7 @@ storage:
   quarantine_table_name: "quarantine_{table}"
 
   # ── Operational Paths (UC mode — Databricks Volumes) ──────────────────────
-  contract_root: "/Workspace/Shared/data_platform/domains/{domain}/{system}"
+  contract_root: "/Workspace/Shared/data_platform/contracts/{domain}/{system}"
   landing_root: "/Volumes/{catalog}/nondelta/landing_{domain}/{system}"
   log_root: "/Volumes/{catalog}/nondelta/_logs"
 
