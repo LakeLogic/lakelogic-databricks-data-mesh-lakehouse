@@ -303,6 +303,11 @@ copied = 0
 for domain in domains:
     src = os.path.join(contracts_src, domain)
     dst = os.path.join(contracts_vol, domain)
+    # MIRROR, not merge. A plain copy never removed a contract that was renamed or deleted
+    # in the repo, so the Volume kept every old name (23 stale files by 2026-10-13, among
+    # them two retired dimensions). The synthetic-data driver globs this folder, so a stale
+    # contract is not just clutter. The Volume holds nothing but this staged copy.
+    dbutils.fs.rm(dst, True)
     n = copy_into_volume(src, dst)
     copied += n
     print(f"  ✓ {domain:<14} → {dst}  ({n} files)")
