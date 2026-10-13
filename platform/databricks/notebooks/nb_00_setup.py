@@ -240,17 +240,52 @@ _ERASURE_REQUEST_COLS = """(
   processed_at TIMESTAMP, run_id STRING, system STRING
 )"""
 
+def wants_own_catalog(domain: str) -> bool:
+    """A domain gets its own catalog when a system registry in it declares a schema per
+    layer (`storage.bronze_root` / `silver_root` / `gold_root`). The registry is the one
+    place that decides; this only reads it."""
+    import glob
+
+    import yaml
+
+    for reg in glob.glob(os.path.join(contracts_src, domain, "*", "_system.yaml")):
+        with open(reg, encoding="utf-8") as fh:
+            storage = (yaml.safe_load(fh) or {}).get("storage") or {}
+        if any(storage.get(f"{layer}_root") for layer in ("bronze", "silver", "gold")):
+            return True
+    return False
+
+
+def managed_location() -> str:
+    """Where a new domain catalog keeps its managed tables: the widget if set, else the
+    storage root the shared catalog already uses (this metastore has no default root)."""
+    if STORAGE_ROOT:
+        return STORAGE_ROOT.rstrip("/")
+    rows = spark.sql(f"DESCRIBE CATALOG EXTENDED `{CATALOG}`").collect()
+    info = {r[0]: r[1] for r in rows}
+    return (info.get("Storage Root") or "").rstrip("/")
+
+
 for domain in domains:
-    sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
-    sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`landing_{domain}`")
+    if wants_own_catalog(domain):
+        # A CATALOG PER DOMAIN: a schema per layer, the landing volume under `source`, and the
+        # engine's own tables under `lakelogic`. One grant then covers a layer.
+        own = f"{CATALOG}_{domain}"
+        root = managed_location()
+        sql(f"CREATE CATALOG IF NOT EXISTS `{own}`" + (f" MANAGED LOCATION '{root}'" if root else ""))
+        for schema in ("source", "bronze", "silver", "gold", "quarantine", "lakelogic"):
+            sql(f"CREATE SCHEMA IF NOT EXISTS `{own}`.`{schema}`")
+        sql(f"CREATE VOLUME IF NOT EXISTS `{own}`.`source`.`landing`")
+        meta = f"`{own}`.`lakelogic`"
+    else:
+        sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
+        sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`landing_{domain}`")
+        meta = f"`{CATALOG}`.`{domain}`"
     # Managed Delta run-log table (matches metadata.run_log_table = {domain_catalog}._lakelogic_run_log).
     # _lakelogic_slo_checks is intentionally NOT pre-created: the demo produces no SLO checks,
     # so it never races; the engine will create it with its own schema if needed.
-    sql(f"CREATE TABLE IF NOT EXISTS `{CATALOG}`.`{domain}`.`_lakelogic_run_log` {_RUN_LOG_COLS} USING DELTA")
-    sql(
-        f"CREATE TABLE IF NOT EXISTS `{CATALOG}`.`{domain}`.`_lakelogic_erasure_requests` "
-        f"{_ERASURE_REQUEST_COLS} USING DELTA"
-    )
+    sql(f"CREATE TABLE IF NOT EXISTS {meta}.`_lakelogic_run_log` {_RUN_LOG_COLS} USING DELTA")
+    sql(f"CREATE TABLE IF NOT EXISTS {meta}.`_lakelogic_erasure_requests` {_ERASURE_REQUEST_COLS} USING DELTA")
 
 # COMMAND ----------
 

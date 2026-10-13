@@ -12,7 +12,7 @@ info:
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_rideflow_trips"
+  path: "table:{silver_root}.silver_rideflow_trips"
   # full: GROUP BY (rider_id, activity_date); the `source IN` guard limits which dates are
   # recomputed (listed in GOLD_FULL, test_incremental_processing.py).
   load_mode: full
@@ -21,11 +21,11 @@ primary_key: [rider_id, activity_date]
 
 links:
   - name: silver_trips_full
-    path: "table:{domain_catalog}.silver_rideflow_trips"
+    path: "table:{silver_root}.silver_rideflow_trips"
     type: table
   # Conformed SCD2 dimension, for the surrogate-key (as-of) lookup below.
   - name: dim_rider
-    path: "table:{domain_catalog}.gold_dim_rider"
+    path: "table:{gold_root}.gold_dim_rider"
     type: table
 
 model:

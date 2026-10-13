@@ -84,7 +84,7 @@ primary_key: [rider_id]
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_rideflow_rider_profiles"
+  path: "table:{silver_root}.silver_rideflow_rider_profiles"
   # Incremental like the other gold dims: silver is merged on its key, so re-read rows
   # re-enter the SCD2 compare and cut a version only when a tracked column changed.
   load_mode: incremental

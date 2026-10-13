@@ -17,7 +17,7 @@ storage:
 # Cross-domain sources consumed by shared Gold products
 external_sources:
   - name: "silver_rideflow_trips"
-    catalog_path: "{catalog}.marketplace.silver_rideflow_trips"
+    catalog_path: "{catalog}_marketplace.silver.silver_rideflow_trips"
     source_domain: "marketplace/rideflow"
     consumed_by: ["marketplace_health", "revenue_daily"]
 
@@ -27,7 +27,7 @@ external_sources:
     consumed_by: ["marketplace_health", "revenue_daily"]
 
   - name: "silver_rideflow_driver_profiles"
-    catalog_path: "{catalog}.marketplace.silver_rideflow_driver_profiles"
+    catalog_path: "{catalog}_marketplace.silver.silver_rideflow_driver_profiles"
     source_domain: "marketplace/rideflow"
     consumed_by: ["driver_360"]
 

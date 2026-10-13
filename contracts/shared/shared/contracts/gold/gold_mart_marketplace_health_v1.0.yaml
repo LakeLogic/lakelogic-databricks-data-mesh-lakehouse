@@ -65,7 +65,7 @@ source:
   type: table
   # Primary fact is the request stream — every other metric is joined or
   # derived from it.
-  path: "table:`{catalog}`.marketplace.silver_rideflow_trip_requests"
+  path: "table:`{catalog}_marketplace`.silver.silver_rideflow_trip_requests"
   # Stays full (deliberate): an aggregate over its sources. An incremental batch
   # holds only new rows, so re-grouping it would overwrite a complete aggregate
   # with a partial one; the engine has no recompute-affected-keys mode.
@@ -140,13 +140,13 @@ materialization:
 links:
   - name: mp_requests
     type: table
-    path: "table:`{catalog}`.marketplace.silver_rideflow_trip_requests"
+    path: "table:`{catalog}_marketplace`.silver.silver_rideflow_trip_requests"
   - name: mp_trips
     type: table
-    path: "table:`{catalog}`.marketplace.silver_rideflow_trips"
+    path: "table:`{catalog}_marketplace`.silver.silver_rideflow_trips"
   - name: mp_cancels
     type: table
-    path: "table:`{catalog}`.marketplace.silver_rideflow_trip_cancellations"
+    path: "table:`{catalog}_marketplace`.silver.silver_rideflow_trip_cancellations"
   - name: pay_charges
     type: table
     path: "table:`{catalog}`.payments.silver_stripe_charges"

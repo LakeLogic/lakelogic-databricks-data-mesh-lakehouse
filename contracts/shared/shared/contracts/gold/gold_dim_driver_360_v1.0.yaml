@@ -58,7 +58,7 @@ primary_key: [driver_id]
 #   abfss://marketplace@{storage_account}.dfs.core.windows.net/silver/...
 source:
   type: table
-  path: "table:`{catalog}`.marketplace.silver_rideflow_driver_profiles"
+  path: "table:`{catalog}_marketplace`.silver.silver_rideflow_driver_profiles"
   # Stays full (deliberate): an aggregate over its sources. An incremental batch
   # holds only new rows, so re-grouping it would overwrite a complete aggregate
   # with a partial one; the engine has no recompute-affected-keys mode.
@@ -111,7 +111,7 @@ materialization:
 links:
   - name: mp_drivers
     type: table
-    path: "table:`{catalog}`.marketplace.silver_rideflow_driver_profiles"
+    path: "table:`{catalog}_marketplace`.silver.silver_rideflow_driver_profiles"
   - name: silver_checkr_driver_verifications
     type: table
     path: "table:`{catalog}`.operations.silver_checkr_driver_verifications"

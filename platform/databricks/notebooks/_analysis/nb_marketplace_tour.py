@@ -14,19 +14,58 @@
 dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Catalog")
 CATALOG = dbutils.widgets.get("catalog").strip()
 DOMAIN = "marketplace"
-S = f"`{CATALOG}`.`{DOMAIN}`"
+# ── Where a domain's tables live ──────────────────────────────────────────────
+# A domain is either a SCHEMA of the shared catalog (`<catalog>`.`<domain>`, layer in the
+# table name) or its OWN CATALOG with a schema per layer (`<catalog>_<domain>`.bronze /
+# .silver / .gold / .quarantine / .lakelogic). The registry's `storage` block decides
+# (bronze_root / silver_root / gold_root); this reads the result so a notebook works for
+# both while domains move across one at a time. Same function in every notebook that
+# names a table itself — keep the copies identical.
+def domain_layout(catalog: str, domain: str) -> dict:
+    own = f"{catalog}_{domain}"
+    try:
+        has_own = spark.sql(f"SHOW CATALOGS LIKE '{own}'").count() > 0
+    except Exception:  # noqa: BLE001
+        has_own = False
+    if has_own:
+        return {
+            "per_domain_catalog": True, "catalog": own,
+            "bronze": f"`{own}`.`bronze`", "silver": f"`{own}`.`silver`", "gold": f"`{own}`.`gold`",
+            "quarantine": f"`{own}`.`quarantine`", "lakelogic": f"`{own}`.`lakelogic`",
+            "landing": f"/Volumes/{own}/source/landing",
+        }
+    one = f"`{catalog}`.`{domain}`"
+    return {
+        "per_domain_catalog": False, "catalog": catalog,
+        "bronze": one, "silver": one, "gold": one, "quarantine": one, "lakelogic": one,
+        "landing": f"/Volumes/{catalog}/nondelta/landing_{domain}",
+    }
+
+
+def table_of(catalog: str, domain: str, table: str) -> str:
+    """`bronze_x` / `silver_x` / `gold_x` / `quarantine_x` / `_lakelogic_x` -> its full name."""
+    lay = domain_layout(catalog, domain)
+    key = ("quarantine" if table.startswith("quarantine_") else "lakelogic" if table.startswith("_lakelogic")
+           else table.split("_", 1)[0] if table.split("_", 1)[0] in ("bronze", "silver", "gold") else "lakelogic")
+    return f"{lay[key]}.`{table}`"
+
+
+LAY = domain_layout(CATALOG, DOMAIN)
+# One name per kind of table, so a query reads the same whichever layout the domain has.
+BRONZE, SILVER, GOLD = LAY["bronze"], LAY["silver"], LAY["gold"]
+QUARANTINE, META = LAY["quarantine"], LAY["lakelogic"]
 
 
 def q(sql: str):
-    """Run a query against the marketplace schema and show the result."""
-    display(spark.sql(sql.format(S=S)))
+    """Run a query against the marketplace domain and show the result."""
+    display(spark.sql(sql.format(BRONZE=BRONZE, SILVER=SILVER, GOLD=GOLD, QUARANTINE=QUARANTINE, META=META)))
 
 
 def exists(table: str) -> bool:
-    return spark.catalog.tableExists(f"{CATALOG}.{DOMAIN}.{table}")
+    return spark.catalog.tableExists(table_of(CATALOG, DOMAIN, table).replace("`", ""))
 
 
-print(f"Reading {CATALOG}.{DOMAIN}")
+print(f"Reading {DOMAIN} from {LAY['catalog']}" + (" (its own catalog)" if LAY["per_domain_catalog"] else ""))
 
 # COMMAND ----------
 
@@ -62,7 +101,7 @@ SELECT data_layer, dataset, status,
        round(quarantine_ratio * 100, 1) AS quarantined_pct,
        round(run_duration_seconds, 1)   AS seconds,
        end_time
-FROM {S}._lakelogic_run_log
+FROM {META}._lakelogic_run_log
 QUALIFY row_number() OVER (PARTITION BY dataset ORDER BY end_time DESC) = 1
 ORDER BY CASE data_layer WHEN 'bronze' THEN 1 WHEN 'silver' THEN 2 ELSE 3 END, dataset
 """)
@@ -79,7 +118,7 @@ ORDER BY CASE data_layer WHEN 'bronze' THEN 1 WHEN 'silver' THEN 2 ELSE 3 END, d
 if exists("_lakelogic_slo_checks"):
     q("""
     SELECT entity, check_type, passed, severity, message, checked_at
-    FROM {S}._lakelogic_slo_checks
+    FROM {META}._lakelogic_slo_checks
     QUALIFY row_number() OVER (PARTITION BY entity, check_type ORDER BY checked_at DESC) = 1
     ORDER BY passed, entity, check_type
     """)
@@ -95,12 +134,12 @@ else:
 
 # COMMAND ----------
 
-q_tables = [r.tableName for r in spark.sql(f"SHOW TABLES IN {S} LIKE 'quarantine_*'").collect()]
+q_tables = [r.tableName for r in spark.sql(f"SHOW TABLES IN {QUARANTINE} LIKE 'quarantine_*'").collect()]
 if not q_tables:
     print("No quarantine tables — nothing has been rejected.")
 else:
     union = " UNION ALL ".join(
-        f"SELECT '{t.removeprefix('quarantine_')}' AS source_table, _lakelogic_errors FROM {S}.`{t}`"
+        f"SELECT '{t.removeprefix('quarantine_')}' AS source_table, _lakelogic_errors FROM {QUARANTINE}.`{t}`"
         for t in q_tables
     )
     display(spark.sql(f"""
@@ -124,8 +163,8 @@ SELECT b.rider_id,
        b.name  AS bronze_name,  s.name  AS silver_name,
        b.email AS bronze_email, s.email AS silver_email,
        b.phone AS bronze_phone, s.phone AS silver_phone
-FROM {S}.bronze_rideflow_rider_profiles b
-JOIN {S}.silver_rideflow_rider_profiles s USING (rider_id)
+FROM {BRONZE}.bronze_rideflow_rider_profiles b
+JOIN {SILVER}.silver_rideflow_rider_profiles s USING (rider_id)
 LIMIT 5
 """)
 
@@ -143,9 +182,9 @@ LIMIT 5
 q("""
 SELECT rider_id, rider_sk, version_number, status, city_code,
        effective_from, effective_to, is_current
-FROM {S}.gold_dim_rider
+FROM {GOLD}.gold_dim_rider
 WHERE rider_id IN (
-  SELECT rider_id FROM {S}.gold_dim_rider GROUP BY rider_id HAVING count(*) > 1 LIMIT 5
+  SELECT rider_id FROM {GOLD}.gold_dim_rider GROUP BY rider_id HAVING count(*) > 1 LIMIT 5
 )
 ORDER BY rider_id, version_number
 """)
@@ -157,7 +196,7 @@ SELECT count(*)                                   AS versions,
        count_if(is_current)                       AS current_rows,
        count(DISTINCT rider_id)                   AS riders,
        count_if(rider_sk = '-1')         AS unknown_member_rows
-FROM {S}.gold_dim_rider
+FROM {GOLD}.gold_dim_rider
 """)
 
 # COMMAND ----------
@@ -173,8 +212,8 @@ FROM {S}.gold_dim_rider
 q("""
 SELECT f.trip_id, f.dropoff_at, d.rider_id, d.version_number, d.city_code, d.status,
        f.total_fare_amount, f.total_tip_amount
-FROM {S}.gold_fact_trip_completed f
-JOIN {S}.gold_dim_rider d ON d.rider_sk = f.rider_sk
+FROM {GOLD}.gold_fact_trip_completed f
+JOIN {GOLD}.gold_dim_rider d ON d.rider_sk = f.rider_sk
 ORDER BY f.dropoff_at DESC
 LIMIT 10
 """)
@@ -185,8 +224,8 @@ q("""
 SELECT count(*)                                  AS fact_rows,
        count_if(d.rider_sk IS NULL)     AS orphans,
        count_if(f.rider_sk = '-1')               AS on_unknown_member
-FROM {S}.gold_fact_trip_completed f
-LEFT JOIN (SELECT DISTINCT rider_sk FROM {S}.gold_dim_rider) d
+FROM {GOLD}.gold_fact_trip_completed f
+LEFT JOIN (SELECT DISTINCT rider_sk FROM {GOLD}.gold_dim_rider) d
   ON d.rider_sk = f.rider_sk
 """)
 
@@ -201,7 +240,7 @@ LEFT JOIN (SELECT DISTINCT rider_sk FROM {S}.gold_dim_rider) d
 if exists("_lakelogic_retention_evidence"):
     q("""
     SELECT table_name, policy, cutoff, rows_expired, status, detail, timestamp
-    FROM {S}._lakelogic_retention_evidence
+    FROM {META}._lakelogic_retention_evidence
     QUALIFY row_number() OVER (PARTITION BY table_name ORDER BY timestamp DESC) = 1
     ORDER BY status, table_name
     """)
@@ -222,7 +261,7 @@ else:
 if exists("_lakelogic_erasure_requests"):
     q("""
     SELECT request_id, framework, system, status, requested_at, processed_at
-    FROM {S}._lakelogic_erasure_requests
+    FROM {META}._lakelogic_erasure_requests
     ORDER BY requested_at DESC
     """)
 else:
@@ -233,7 +272,7 @@ else:
 if exists("_lakelogic_erasure_evidence"):
     q("""
     SELECT reason AS request_id, profile, table_name, subject_count, rows_affected, status, timestamp
-    FROM {S}._lakelogic_erasure_evidence
+    FROM {META}._lakelogic_erasure_evidence
     ORDER BY timestamp DESC, table_name
     """)
 else:
@@ -253,14 +292,14 @@ else:
 
 # CREATE OR REPLACE, so re-running the tour does not pile up duplicate rows.
 spark.sql(f"""
-CREATE OR REPLACE TABLE {S}.bronze_rideflow_taxi_ungoverned AS
+CREATE OR REPLACE TABLE {BRONZE}.bronze_rideflow_taxi_ungoverned AS
 SELECT * FROM VALUES
   (1, 'alpha', current_timestamp()),
   (2, 'beta',  current_timestamp())
 AS t(id, name, created_at)""")
-q("SELECT * FROM {S}.bronze_rideflow_taxi_ungoverned")
+q("SELECT * FROM {BRONZE}.bronze_rideflow_taxi_ungoverned")
 
 # COMMAND ----------
 
 # Clean-up: uncomment to remove the test table.
-# spark.sql(f"DROP TABLE IF EXISTS {S}.bronze_rideflow_taxi_ungoverned")
+# spark.sql(f"DROP TABLE IF EXISTS {BRONZE}.bronze_rideflow_taxi_ungoverned")

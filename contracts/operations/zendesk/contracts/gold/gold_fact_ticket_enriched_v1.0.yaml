@@ -146,10 +146,10 @@ source:
 links:
   - name: dim_rider
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_rider"
+    path: "table:`{catalog}_marketplace`.gold.gold_dim_rider"
   - name: dim_driver
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_driver"
+    path: "table:`{catalog}_marketplace`.gold.gold_dim_driver"
   # Raw silver ticket text/priority — `source` is projected DOWN to this gold
   # contract's model fields before the transform runs, so subject /
   # ticket_description / priority are not visible on `source`. This link exposes

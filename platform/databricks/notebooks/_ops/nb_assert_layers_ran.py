@@ -46,7 +46,44 @@ ENABLED = {
     for layer in ("bronze", "silver", "gold")
 }
 
-RUN_LOG = f"`{CATALOG}`.`{DOMAIN}`.`_lakelogic_run_log`"
+
+# ── Where a domain's tables live ──────────────────────────────────────────────
+# A domain is either a SCHEMA of the shared catalog (`<catalog>`.`<domain>`, layer in the
+# table name) or its OWN CATALOG with a schema per layer (`<catalog>_<domain>`.bronze /
+# .silver / .gold / .quarantine / .lakelogic). The registry's `storage` block decides
+# (bronze_root / silver_root / gold_root); this reads the result so a notebook works for
+# both while domains move across one at a time. Same function in every notebook that
+# names a table itself — keep the copies identical.
+def domain_layout(catalog: str, domain: str) -> dict:
+    own = f"{catalog}_{domain}"
+    try:
+        has_own = spark.sql(f"SHOW CATALOGS LIKE '{own}'").count() > 0
+    except Exception:  # noqa: BLE001
+        has_own = False
+    if has_own:
+        return {
+            "per_domain_catalog": True, "catalog": own,
+            "bronze": f"`{own}`.`bronze`", "silver": f"`{own}`.`silver`", "gold": f"`{own}`.`gold`",
+            "quarantine": f"`{own}`.`quarantine`", "lakelogic": f"`{own}`.`lakelogic`",
+            "landing": f"/Volumes/{own}/source/landing",
+        }
+    one = f"`{catalog}`.`{domain}`"
+    return {
+        "per_domain_catalog": False, "catalog": catalog,
+        "bronze": one, "silver": one, "gold": one, "quarantine": one, "lakelogic": one,
+        "landing": f"/Volumes/{catalog}/nondelta/landing_{domain}",
+    }
+
+
+def table_of(catalog: str, domain: str, table: str) -> str:
+    """`bronze_x` / `silver_x` / `gold_x` / `quarantine_x` / `_lakelogic_x` -> its full name."""
+    lay = domain_layout(catalog, domain)
+    key = ("quarantine" if table.startswith("quarantine_") else "lakelogic" if table.startswith("_lakelogic")
+           else table.split("_", 1)[0] if table.split("_", 1)[0] in ("bronze", "silver", "gold") else "lakelogic")
+    return f"{lay[key]}.`{table}`"
+
+
+RUN_LOG = table_of(CATALOG, DOMAIN, "_lakelogic_run_log")
 
 print(f"Asserting layers ran | catalog={CATALOG} domain={DOMAIN} window={WINDOW}m")
 print(f"Enabled: {', '.join(k for k, v in ENABLED.items() if v) or '(none)'}")
@@ -57,7 +94,7 @@ from pyspark.sql import functions as F
 
 try:
     runs = (
-        spark.table(f"{CATALOG}.{DOMAIN}._lakelogic_run_log")
+        spark.table(RUN_LOG)
         .filter(F.col("timestamp") >= F.expr(f"current_timestamp() - interval {WINDOW} minutes"))
     )
 except Exception as exc:

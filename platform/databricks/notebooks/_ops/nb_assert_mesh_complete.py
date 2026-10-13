@@ -36,11 +36,48 @@ print(f"   domains: {', '.join(DOMAINS)}  (≥ {MIN_GOLD} gold table each)")
 # COMMAND ----------
 
 
+
+# ── Where a domain's tables live ──────────────────────────────────────────────
+# A domain is either a SCHEMA of the shared catalog (`<catalog>`.`<domain>`, layer in the
+# table name) or its OWN CATALOG with a schema per layer (`<catalog>_<domain>`.bronze /
+# .silver / .gold / .quarantine / .lakelogic). The registry's `storage` block decides
+# (bronze_root / silver_root / gold_root); this reads the result so a notebook works for
+# both while domains move across one at a time. Same function in every notebook that
+# names a table itself — keep the copies identical.
+def domain_layout(catalog: str, domain: str) -> dict:
+    own = f"{catalog}_{domain}"
+    try:
+        has_own = spark.sql(f"SHOW CATALOGS LIKE '{own}'").count() > 0
+    except Exception:  # noqa: BLE001
+        has_own = False
+    if has_own:
+        return {
+            "per_domain_catalog": True, "catalog": own,
+            "bronze": f"`{own}`.`bronze`", "silver": f"`{own}`.`silver`", "gold": f"`{own}`.`gold`",
+            "quarantine": f"`{own}`.`quarantine`", "lakelogic": f"`{own}`.`lakelogic`",
+            "landing": f"/Volumes/{own}/source/landing",
+        }
+    one = f"`{catalog}`.`{domain}`"
+    return {
+        "per_domain_catalog": False, "catalog": catalog,
+        "bronze": one, "silver": one, "gold": one, "quarantine": one, "lakelogic": one,
+        "landing": f"/Volumes/{catalog}/nondelta/landing_{domain}",
+    }
+
+
+def table_of(catalog: str, domain: str, table: str) -> str:
+    """`bronze_x` / `silver_x` / `gold_x` / `quarantine_x` / `_lakelogic_x` -> its full name."""
+    lay = domain_layout(catalog, domain)
+    key = ("quarantine" if table.startswith("quarantine_") else "lakelogic" if table.startswith("_lakelogic")
+           else table.split("_", 1)[0] if table.split("_", 1)[0] in ("bronze", "silver", "gold") else "lakelogic")
+    return f"{lay[key]}.`{table}`"
+
+
 def gold_tables(catalog: str, schema: str) -> list:
-    """Gold tables in one schema. A missing schema counts as zero, not an error —
+    """Gold tables of one domain. A missing schema counts as zero, not an error —
     the point is to report what is absent, not to stop at the first gap."""
     try:
-        rows = spark.sql(f"SHOW TABLES IN `{catalog}`.`{schema}`").collect()
+        rows = spark.sql(f"SHOW TABLES IN {domain_layout(catalog, schema)['gold']}").collect()
     except Exception as e:  # noqa: BLE001
         print(f"  ⚠ {schema}: cannot list ({e})")
         return []
