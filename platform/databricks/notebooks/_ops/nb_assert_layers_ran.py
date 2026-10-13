@@ -30,7 +30,7 @@
 # skipping is legitimate; silently skipping is not.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Catalog")
+dbutils.widgets.text("catalog", "rideflow_dev_platform", "Catalog")
 dbutils.widgets.text("domain", "", "Domain (run-log schema)")
 dbutils.widgets.text("enable_bronze", "true", "Bronze was enabled")
 dbutils.widgets.text("enable_silver", "true", "Silver was enabled")

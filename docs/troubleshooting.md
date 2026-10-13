@@ -83,7 +83,7 @@ Typical causes are missing `CREATE CATALOG` permission or a workspace using Defa
 
 Use one of these approaches:
 
-1. In Databricks, open **Catalog > Create catalog**, create `governed_rideflow_lakehouse_demo` with Default Storage, and rerun setup.
+1. In Databricks, open **Catalog > Create catalog**, create `rideflow_dev_platform` with Default Storage, and rerun setup.
 2. Reuse a writable existing catalog such as `workspace` and update the repository configuration as described in [Catalog configuration](catalog-configuration.md).
 3. Ask an administrator to create the catalog and grant the required permissions.
 
@@ -122,7 +122,7 @@ databricks bundle destroy -t dev -p rideflow_dev
 for domain in marketing marketplace operations payments reference shared; do
   databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
 done
-databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
+databricks catalogs delete rideflow_dev_platform --force -p rideflow_dev
 ```
 
 If jobs or files remain because the bundle state was reset or provisioning used the notebook path, remove them explicitly.

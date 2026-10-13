@@ -15,7 +15,7 @@ It does **not** deploy the schedulable jobs that come with the Databricks Asset 
 3. Open `platform/databricks/notebooks/_ops/provision_all`.
 4. Attach the notebook to serverless compute or another Unity Catalog-enabled cluster.
 5. Review the widgets:
-   - `catalog` defaults to `governed_rideflow_lakehouse_demo`. It holds the platform's Volumes; the domain catalogs are named `rideflow_dev_<domain>` by each system registry.
+   - `catalog` defaults to `rideflow_dev_platform`. It holds the platform's Volumes; the domain catalogs are named `rideflow_dev_<domain>` by each system registry.
    - Table creation can be disabled when you only want schemas and Volumes.
 6. Select **Run All**.
 
@@ -46,7 +46,7 @@ The notebook creates Unity Catalog objects at runtime. Remove them when finished
 for domain in marketing marketplace operations payments reference shared; do
   databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
 done
-databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
+databricks catalogs delete rideflow_dev_platform --force -p rideflow_dev
 ```
 
 If you later deployed the Asset Bundle, also run `databricks bundle destroy` from the `platform/databricks/` directory to remove its jobs and synced workspace files.

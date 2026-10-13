@@ -163,7 +163,7 @@ layer, and the domain team owns the catalog:
 The system registry decides this, not the contracts: `storage.bronze_root`,
 `silver_root` and `gold_root` in `_system.yaml` name where each layer lives, and a
 contract reads `{silver_root}.<table>`. The catalog named by the `catalog` bundle
-variable (`governed_rideflow_lakehouse_demo`) holds only the platform's own Volumes:
+variable (`rideflow_dev_platform`) holds only the platform's own Volumes:
 staged contracts, logs and wheels.
 
 Contracts live in [`contracts/`](contracts/); Databricks deployment
@@ -264,7 +264,7 @@ databricks bundle destroy -t dev -p rideflow_dev
 for domain in marketing marketplace operations payments reference shared; do
   databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
 done
-databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
+databricks catalogs delete rideflow_dev_platform --force -p rideflow_dev
 ```
 
 The bundle manages jobs and synced files; catalogs are created at runtime and

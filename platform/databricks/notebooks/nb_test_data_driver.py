@@ -80,7 +80,7 @@ dbutils.widgets.removeAll()
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 dbutils.widgets.text("registry_path",
-    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
+    "/Volumes/rideflow_dev_platform/nondelta/_contracts/marketplace/rideflow/_system.yaml",
     "Config - Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Config - Environment")
@@ -219,7 +219,7 @@ if not storage_account:
 
 # Catalog — derived from the registry Volume path (/Volumes/<catalog>/...) so it
 # always matches the catalog this run targets. One source of truth; no ADLS needed.
-_derived_catalog = "governed_rideflow_lakehouse_demo"
+_derived_catalog = "rideflow_dev_platform"
 if REGISTRY_PATH.startswith("/Volumes/"):
     _p = REGISTRY_PATH.split("/")
     if len(_p) > 2 and _p[2]:

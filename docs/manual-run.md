@@ -2,11 +2,11 @@
 
 The one-click bootstrap job chains the setup, test-data, and pipeline notebooks together. This guide runs the same flow manually so you can inspect each stage.
 
-The examples use the `marketplace / rideflow` system. Its tables are built in the `rideflow_dev_marketplace` catalog; the default `governed_rideflow_lakehouse_demo` catalog holds the platform's own Volumes (staged contracts and logs).
+The examples use the `marketplace / rideflow` system. Its tables are built in the `rideflow_dev_marketplace` catalog; the default `rideflow_dev_platform` catalog holds the platform's own Volumes (staged contracts and logs).
 
 ## 1. Provision the structures
 
-Open `platform/databricks/notebooks/_ops/provision_all`, leave the `catalog` widget set to `governed_rideflow_lakehouse_demo`, and select **Run All**.
+Open `platform/databricks/notebooks/_ops/provision_all`, leave the `catalog` widget set to `rideflow_dev_platform`, and select **Run All**.
 
 The notebook creates:
 
@@ -20,7 +20,7 @@ The notebook creates:
 Open `platform/databricks/notebooks/nb_test_data_driver.py` and set:
 
 ```text
-registry_path = /Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
+registry_path = /Volumes/rideflow_dev_platform/nondelta/_contracts/marketplace/rideflow/_system.yaml
 environment = dev
 inject_edge_cases = true
 ```
@@ -32,7 +32,7 @@ Select **Run All**. The notebook writes synthetic RideFlow data into the marketp
 Open `platform/databricks/notebooks/nb_pipeline_driver.py` and set:
 
 ```text
-registry_path = /Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
+registry_path = /Volumes/rideflow_dev_platform/nondelta/_contracts/marketplace/rideflow/_system.yaml
 environment = dev
 engine = spark
 storage_mode = uc
@@ -69,7 +69,7 @@ Then select one of the tables returned by `SHOW TABLES IN quarantine` and inspec
 Point both drivers at another staged system registry, for example:
 
 ```text
-/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/payments/stripe/_system.yaml
+/Volumes/rideflow_dev_platform/nondelta/_contracts/payments/stripe/_system.yaml
 ```
 
 Run the test-data driver and pipeline driver again. Table names and dependencies are resolved from the contracts under `contracts/`.
@@ -90,7 +90,7 @@ databricks bundle destroy -t dev -p rideflow_dev
 for domain in marketing marketplace operations payments reference shared; do
   databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
 done
-databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
+databricks catalogs delete rideflow_dev_platform --force -p rideflow_dev
 ```
 
 If you used only the direct notebook path, the catalog deletions are sufficient because no bundle-managed jobs or workspace files were deployed.

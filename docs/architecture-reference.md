@@ -86,7 +86,7 @@ surrogate keys, effective dates, current-version flags, and an unknown member.
 ## What gets created
 
 ```text
-Platform catalog: governed_rideflow_lakehouse_demo
+Platform catalog: rideflow_dev_platform
 └── nondelta
     ├── _contracts       Unity Catalog Volume containing the staged registry
     └── _logs            Unity Catalog Volume containing pipeline run logs

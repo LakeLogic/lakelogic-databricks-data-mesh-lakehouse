@@ -5,7 +5,7 @@
 #             demo on Databricks with NO Azure ADLS and NO external storage.
 #
 # Creates, from the contract registry (contracts/):
-#   • the Unity Catalog            (default: governed_rideflow_lakehouse_demo)
+#   • the Unity Catalog            (default: rideflow_dev_platform)
 #   • one schema per domain        (marketing, marketplace, operations, ...)
 #   • a `nondelta` schema with UC Volumes:
 #         _contracts               (the staged contract registry the driver reads)
@@ -32,7 +32,7 @@
 # back their DEFAULTS instead. That is invisible for `catalog` (the default happens to equal
 # what the job passes) but silently disabled `reset`, so the purge never ran and the job
 # failed on the orphaned volume it was meant to rebuild.
-dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Config - Unity Catalog name")
+dbutils.widgets.text("catalog", "rideflow_dev_platform", "Config - Unity Catalog name")
 # Where the synced contract registry lives in the workspace. Leave blank to
 # auto-detect relative to this notebook. The bootstrap job passes it explicitly.
 dbutils.widgets.text("contracts_src", "", "Config - Contracts source dir (workspace)")
@@ -61,7 +61,7 @@ dbutils.widgets.text("storage_root", "", "Config - MANAGED LOCATION for a new ca
 import os
 import shutil
 
-CATALOG = dbutils.widgets.get("catalog").strip() or "governed_rideflow_lakehouse_demo"
+CATALOG = dbutils.widgets.get("catalog").strip() or "rideflow_dev_platform"
 RESET = dbutils.widgets.get("reset").strip().lower() == "true"
 STORAGE_ROOT = dbutils.widgets.get("storage_root").strip()
 contracts_src = dbutils.widgets.get("contracts_src").strip()

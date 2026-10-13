@@ -85,7 +85,7 @@ dbutils.widgets.removeAll()
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 dbutils.widgets.text("registry_path",
-    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
+    "/Volumes/rideflow_dev_platform/nondelta/_contracts/marketplace/rideflow/_system.yaml",
     "Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Env")
@@ -213,7 +213,7 @@ try:
         # Catalog derived from the registry Volume path — the same derivation the
         # pipeline driver uses, so `{catalog}` resolves to the tables it wrote.
         import os
-        _derived_catalog = "governed_rideflow_lakehouse_demo"
+        _derived_catalog = "rideflow_dev_platform"
         if REGISTRY_PATH.startswith("/Volumes/"):
             _parts = REGISTRY_PATH.split("/")
             if len(_parts) > 2 and _parts[2]:

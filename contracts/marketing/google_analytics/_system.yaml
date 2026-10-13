@@ -122,12 +122,12 @@ environments:
     <<: *azure_storage
   staging:
     domain_catalog_prefix: "rideflow_stg"
-    catalog: "governed_rideflow_lakehouse_demo_staging"
+    catalog: "rideflow_stg_platform"
     storage_account: "${RIDEFLOW_STG_STORAGE_ACCOUNT}"
     <<: *azure_storage
   prod:
     domain_catalog_prefix: "rideflow_prod"
-    catalog: "governed_rideflow_lakehouse_demo_prod"
+    catalog: "rideflow_prod_platform"
     storage_account: "${RIDEFLOW_PROD_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:

@@ -6,7 +6,7 @@
 # Asset Bundle deploy, no Terraform state. It provisions the full demo from the
 # contracts:
 #
-#     Platform catalog                 (default: governed_rideflow_lakehouse_demo)
+#     Platform catalog                 (default: rideflow_dev_platform)
 #       └── nondelta  (schema)         UC Volumes: _contracts, _logs
 #     One catalog per domain           (rideflow_dev_<domain>, named by the system registry)
 #       ├── files     (schema)         UC Volume `landing`, with a folder per system
@@ -75,7 +75,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 dbutils.widgets.removeAll()
-dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Unity Catalog name")
+dbutils.widgets.text("catalog", "rideflow_dev_platform", "Unity Catalog name")
 dbutils.widgets.text("contracts_root", "", "Contracts dir (blank = auto-detect)")
 dbutils.widgets.dropdown("create_tables", "true", ["true", "false"], "Create empty tables?")
 dbutils.widgets.dropdown("engine", "spark", ["spark", "polars"], "Engine (spark for UC)")
@@ -91,7 +91,7 @@ import os
 import glob
 import shutil
 
-CATALOG        = dbutils.widgets.get("catalog").strip() or "governed_rideflow_lakehouse_demo"
+CATALOG        = dbutils.widgets.get("catalog").strip() or "rideflow_dev_platform"
 CREATE_TABLES  = dbutils.widgets.get("create_tables") == "true"
 ENGINE         = dbutils.widgets.get("engine").strip() or "spark"
 contracts_root = dbutils.widgets.get("contracts_root").strip()

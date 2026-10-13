@@ -25,7 +25,7 @@ targets:
       host: https://adb-7405615991211788.8.azuredatabricks.net
       root_path: /Workspace/Shared/${var.deployment_folder}
     variables:
-      catalog: "governed_rideflow_lakehouse_demo"
+      catalog: "rideflow_dev_platform"
       # The engine comes from PyPI, pinned: Databricks pre-installs an older lakelogic, and a
       # blank version can leave that one in place. 1.76.0 is the first release that writes each
       # layer to its own schema (storage.bronze_root / silver_root / gold_root). An older engine
@@ -37,13 +37,13 @@ targets:
 
   stage:
     variables:
-      catalog: "governed_rideflow_lakehouse_demo_staging"
+      catalog: "rideflow_stg_platform"
       environment: "stage"
 
   prod:
     mode: production
     variables:
-      catalog: "governed_rideflow_lakehouse_demo_prod"
+      catalog: "rideflow_prod_platform"
       environment: "prod"
     permissions:
       - group_name: "data-team"
