@@ -18,7 +18,7 @@ Source-processing domains use the medallion pattern — Bronze (raw, all-string,
 │   │     driver_profiles · rider_profiles · trips (joined) · trip_requests
 │   │     driver_telemetry · rider_app_events
 │   └── Gold   business products
-│         dim_driver_profiles · dim_rider_profiles (SCD2) · code dims (trip_type, vehicle_type, …)
+│         dim_driver · dim_rider (SCD2) · code dims (trip_type, vehicle_type, …)
 │         fact_trip_completed · fact_trip_requests · fact_trip_cancellations
 │         fact_driver_telemetry · fact_rider_app_events
 │

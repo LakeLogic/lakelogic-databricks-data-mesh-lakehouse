@@ -8,7 +8,7 @@ required_tables = [
     ("marketplace", "bronze_rideflow_trip_completed"),
     ("marketplace", "silver_rideflow_trips"),
     ("marketplace", "gold_fact_trip_completed"),
-    ("marketplace", "gold_dim_rider_profiles"),
+    ("marketplace", "gold_dim_rider"),
 ]
 
 available = {
@@ -39,11 +39,11 @@ scd2_columns = {
         SELECT column_name
         FROM `{CATALOG}`.information_schema.columns
         WHERE table_schema = 'marketplace'
-          AND table_name = 'gold_dim_rider_profiles'
+          AND table_name = 'gold_dim_rider'
         """
     ).collect()
 }
-required_scd2 = {"rider_profiles_sk", "effective_from", "effective_to", "is_current", "version_number"}
+required_scd2 = {"rider_sk", "effective_from", "effective_to", "is_current", "version_number"}
 if not required_scd2.issubset(scd2_columns):
     raise AssertionError(f"Missing SCD2 columns: {sorted(required_scd2 - scd2_columns)}")
 
