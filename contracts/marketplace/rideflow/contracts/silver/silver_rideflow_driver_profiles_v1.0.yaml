@@ -68,6 +68,10 @@ quality:
       sql: "licence_number IS NOT NULL"
     - name: valid_email
       sql: "email like '%@%'"
+    # Checked here, not in gold_dim_driver: a bad rating is stopped at the cleaning layer, so
+    # the dimension never loses a driver (and facts never fall to the unknown member) for it.
+    - name: valid_rating
+      sql: "rating IS NULL OR (rating >= 1.0 AND rating <= 5.0)"
 
 transformations:
 - deduplicate:

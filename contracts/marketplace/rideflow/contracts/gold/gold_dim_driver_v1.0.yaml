@@ -137,9 +137,8 @@ materialization:
       surrogate_key_value: "-1"
 
 quality:
-  row_rules:
-  - name: valid_rating
-    sql: "rating IS NULL OR (rating >= 1.0 AND rating <= 5.0)"
+  # rating's range is checked in silver_rideflow_driver_profiles.
+  row_rules: []
   dataset_rules:
     - unique: driver_sk
 
