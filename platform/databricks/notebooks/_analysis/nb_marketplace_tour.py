@@ -55,7 +55,7 @@ def domain_layout(catalog: str, domain: str) -> dict:
             "per_domain_catalog": True, "catalog": own,
             "bronze": f"`{own}`.`bronze`", "silver": f"`{own}`.`silver`", "gold": f"`{own}`.`gold`",
             "quarantine": f"`{own}`.`quarantine`", "lakelogic": f"`{own}`.`lakelogic`",
-            "landing": f"/Volumes/{own}/source/landing",
+            "landing": f"/Volumes/{own}/files/landing",
         }
     one = f"`{catalog}`.`{domain}`"
     return {

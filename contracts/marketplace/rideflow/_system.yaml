@@ -27,11 +27,11 @@ quarantine:
 
 storage:
   # ── Table Resolution: a CATALOG PER DOMAIN, a schema per layer ────────────
-  #   `{domain_catalog_prefix}_{domain}`.source      landing volume (raw files)
+  #   `{domain_catalog_prefix}_{domain}`.files       volumes: `landing` for inbound files; others (outbound, reference) as needed
   #                       .bronze / .silver / .gold
   #                       .quarantine  rows a contract rejected
   #                       .lakelogic   run log, SLO checks, erasure requests
-  # One grant covers a layer (analysts: gold; ingestion: source), and the domain
+  # One grant covers a layer (analysts: gold; ingestion: the landing volume), and the domain
   # team owns the catalog. Table names keep their layer prefix, so a table has the
   # same name wherever it is addressed from.
   bronze_root: "`{domain_catalog_prefix}_{domain}`.{bronze_layer}"
@@ -44,7 +44,7 @@ storage:
 
   # ── Operational Paths (UC mode — Databricks Volumes) ──────────────────────
   contract_root: "/Workspace/Shared/data_platform/contracts/{domain}/{system}"
-  landing_root: "/Volumes/{domain_catalog_prefix}_{domain}/source/landing/{system}"
+  landing_root: "/Volumes/{domain_catalog_prefix}_{domain}/files/landing/{system}"
   log_root: "/Volumes/{catalog}/nondelta/_logs"
 
   # ── Storage Paths (direct mode — cloud/local) ────────────────────────────

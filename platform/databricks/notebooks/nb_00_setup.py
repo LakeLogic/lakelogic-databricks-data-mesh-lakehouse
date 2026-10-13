@@ -287,13 +287,14 @@ drop_default_schema(CATALOG)
 for domain in domains:
     own = own_catalog(domain)
     if own:
-        # A CATALOG PER DOMAIN: a schema per layer, the landing volume under `source`, and the
+        # A CATALOG PER DOMAIN: a schema per layer, the landing volume under `files` (the schema
+        # for every file volume, inbound or outbound), and the
         # engine's own tables under `lakelogic`. One grant then covers a layer.
         root = managed_location()
         sql(f"CREATE CATALOG IF NOT EXISTS `{own}`" + (f" MANAGED LOCATION '{root}'" if root else ""))
-        for schema in ("source", "bronze", "silver", "gold", "quarantine", "lakelogic"):
+        for schema in ("files", "bronze", "silver", "gold", "quarantine", "lakelogic"):
             sql(f"CREATE SCHEMA IF NOT EXISTS `{own}`.`{schema}`")
-        sql(f"CREATE VOLUME IF NOT EXISTS `{own}`.`source`.`landing`")
+        sql(f"CREATE VOLUME IF NOT EXISTS `{own}`.`files`.`landing`")
         drop_default_schema(own)
         meta = f"`{own}`.`lakelogic`"
     else:
