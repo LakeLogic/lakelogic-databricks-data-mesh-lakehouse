@@ -1,7 +1,7 @@
 """Run ONE system's pipeline locally, with LakeLogic telemetry.
 
-    python scripts/run_system.py marketplace/rideflow
-    python scripts/run_system.py marketplace/rideflow --windows 4 --no-generate
+    python platform/scripts/run_system.py marketplace/rideflow
+    python platform/scripts/run_system.py marketplace/rideflow --windows 4 --no-generate
 
 Telemetry goes where the environment says — never put the key in this file or the repo:
 
@@ -26,7 +26,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 # Systems with a native test-data simulator (others: --no-generate, bring your own landing).
 GENERATORS = {"marketplace/rideflow": "rideflow_marketplace"}

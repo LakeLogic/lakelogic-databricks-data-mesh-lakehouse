@@ -6,7 +6,7 @@ The examples use the `marketplace / rideflow` system and the default `governed_r
 
 ## 1. Provision the structures
 
-Open `databricks/notebooks/_ops/provision_all`, leave the `catalog` widget set to `governed_rideflow_lakehouse_demo`, and select **Run All**.
+Open `platform/databricks/notebooks/_ops/provision_all`, leave the `catalog` widget set to `governed_rideflow_lakehouse_demo`, and select **Run All**.
 
 The notebook creates:
 
@@ -18,7 +18,7 @@ The notebook creates:
 
 ## 2. Generate landing data
 
-Open `databricks/notebooks/nb_test_data_driver.py` and set:
+Open `platform/databricks/notebooks/nb_test_data_driver.py` and set:
 
 ```text
 registry_path = /Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
@@ -30,7 +30,7 @@ Select **Run All**. The notebook writes synthetic RideFlow data into the marketp
 
 ## 3. Process the medallion
 
-Open `databricks/notebooks/nb_pipeline_driver.py` and set:
+Open `platform/databricks/notebooks/nb_pipeline_driver.py` and set:
 
 ```text
 registry_path = /Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml
@@ -63,7 +63,7 @@ FROM marketplace.gold_fact_trip_completed
 LIMIT 20;
 ```
 
-Then select one of the tables returned by `SHOW TABLES IN quarantine` and inspect its failed rows and error context. You can also run `databricks/notebooks/_helpers/inspect_quarantine`.
+Then select one of the tables returned by `SHOW TABLES IN quarantine` and inspect its failed rows and error context. You can also run `platform/databricks/notebooks/_helpers/inspect_quarantine`.
 
 ## Run another domain
 
@@ -84,7 +84,7 @@ databricks bundle run marketing_google_ads -t dev -p rideflow_dev
 
 ## Clean up
 
-If you deployed the bundle, run both commands from `databricks/`:
+If you deployed the bundle, run both commands from `platform/databricks/`:
 
 ```bash
 databricks bundle destroy -t dev -p rideflow_dev

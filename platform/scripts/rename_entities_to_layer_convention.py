@@ -26,8 +26,8 @@ tables move too, so the estate matches the contracts. Gold tables under the old
 names are orphaned, and SaaS telemetry recorded before the rename stays keyed to
 the old names.
 
-    python scripts/rename_entities_to_layer_convention.py            # dry run
-    python scripts/rename_entities_to_layer_convention.py --apply
+    python platform/scripts/rename_entities_to_layer_convention.py            # dry run
+    python platform/scripts/rename_entities_to_layer_convention.py --apply
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 MESH = ROOT / "contracts"
 
 

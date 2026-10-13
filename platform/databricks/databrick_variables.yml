@@ -63,5 +63,5 @@ variables:
       /Volumes/<catalog>/nondelta/_wheels/lakelogic-<version>-py3-none-any.whl .
       Blank (the default) installs the published package from PyPI, which is what
       the demo does. Set it to test an UNRELEASED build before publishing:
-      scripts/upload_lakelogic_wheel.sh builds one and prints the path.
+      platform/scripts/upload_lakelogic_wheel.sh builds one and prints the path.
     default: ""

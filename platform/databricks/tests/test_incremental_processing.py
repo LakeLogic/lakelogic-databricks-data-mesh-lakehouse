@@ -14,7 +14,7 @@ WHAT THIS WOULD CATCH
     watermark; an incremental silver/gold contract that appends or overwrites (duplicates or
     data loss on the next batch); a merge without a primary_key.
 
-    python -m pytest databricks/tests
+    python -m pytest platform/databricks/tests
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2] / "contracts"
+ROOT = Path(__file__).resolve().parents[3] / "contracts"
 WATERMARK = "_lakelogic_processed_at"
 
 #: Bronze exceptions to incremental — none. (PDF extraction and city_master are incremental:

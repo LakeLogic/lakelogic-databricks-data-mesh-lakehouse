@@ -12,7 +12,7 @@ WHAT THIS WOULD CATCH
     it from its SELECT; or the driver's derived trip events (requests, cancellations) losing it,
     which would land every derived row in the null partition.
 
-    python -m pytest databricks/tests
+    python -m pytest platform/databricks/tests
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 SYSTEM = ROOT / "contracts" / "marketplace" / "rideflow"
 
 #: Gold (gold_<name>, curated at domain level). Its facts declare their own
@@ -68,6 +68,6 @@ def test_gold_facts_declare_their_own_partition():
 
 
 def test_derived_trip_events_inherit_the_trips_country():
-    driver = (ROOT / "databricks" / "notebooks" / "nb_test_data_driver.py").read_text(encoding="utf-8")
+    driver = (ROOT / "platform" / "databricks" / "notebooks" / "nb_test_data_driver.py").read_text(encoding="utf-8")
     body = driver.split("def _gen_trip_events", 1)[1].split("\ndef ", 1)[0]
     assert body.count('"country_code": t.get("country_code"') == 2, "requests and cancellations both carry it"

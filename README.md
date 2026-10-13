@@ -55,13 +55,13 @@ databricks auth login --host https://<your-workspace-host> -p rideflow_dev
 databricks -p rideflow_dev current-user me
 ```
 
-**Before deploying:** review [bundle variables](databricks/databrick_variables.yml).
+**Before deploying:** review [bundle variables](platform/databricks/databrick_variables.yml).
 Replace the demo-specific `catalog_storage_root` with your permitted managed
 storage location, or set it to an empty string if your metastore supplies one.
 Keep `reset_catalog: "false"`; enabling it deletes and rebuilds the catalog.
 Review [catalog configuration](docs/catalog-configuration.md) if using an existing catalog.
 
-Run all bundle commands from this `databricks/` directory:
+Run all bundle commands from this `platform/databricks/` directory:
 
 ```bash
 databricks bundle validate -t dev -p rideflow_dev
@@ -139,7 +139,7 @@ Marketplace, Payments, Operations, Marketing and Reference organise source data.
 Shared products combine outputs across domains without duplicating every layer.
 
 Contracts live in [`contracts/`](contracts/); Databricks deployment
-and execution code lives in [`databricks/`](databricks/). Domain and system
+and execution code lives in [`platform/databricks/`](platform/databricks/). Domain and system
 configuration keeps ownership and shared expectations close to the teams responsible
 for the data. Defaults reduce repeated configuration; declared dependencies support
 data product lineage and execution order.
@@ -149,7 +149,7 @@ LakeLogic applies the contract-driven processing and checks.
 
 ## Power BI consumers
 
-[`reports/`](reports/) holds two semantic models and ten reports, in Power BI project format.
+[`platform/reports/`](platform/reports/) holds two semantic models and ten reports, in Power BI project format.
 They read the gold tables through the Databricks connector in DirectQuery mode.
 
 | Semantic model | Gold tables | Reports |
@@ -159,8 +159,8 @@ They read the gold tables through the Databricks connector in DirectQuery mode.
 
 Each gold contract's `downstream:` block names the models that hold it and, under each
 model, the reports that read it. That is what a lineage view draws: gold table, semantic
-model, report. `python scripts/validate_release.py` fails if a contract names a model or
-report that is not in `reports/`, or a report reads a table its model does not hold.
+model, report. `python platform/scripts/validate_release.py` fails if a contract names a model or
+report that is not in `platform/reports/`, or a report reads a table its model does not hold.
 
 To open a model in Power BI Desktop, open its folder and set three parameters:
 `DatabricksHost`, `DatabricksHttpPath` (a SQL warehouse) and `DatabricksCatalog`. The models
@@ -188,7 +188,7 @@ For local static checks, run from the repository root with the validator's Pytho
 dependencies installed:
 
 ```bash
-python scripts/validate_release.py
+python platform/scripts/validate_release.py
 ```
 
 Read the output for skipped checks. Static validation is not a Databricks runtime
@@ -197,7 +197,7 @@ test; the bootstrap smoke test and output inspection provide separate evidence.
 To run another source system after deployment:
 
 ```bash
-# From databricks/
+# From platform/databricks/
 databricks bundle run payments_stripe -t dev -p rideflow_dev
 ```
 
@@ -229,7 +229,7 @@ Databricks secret scope—never in contracts or notebooks.
 Volumes and data. Verify the name and remove only resources belonging to this demo.
 
 ```bash
-# From databricks/; replace the catalog name if you changed it.
+# From platform/databricks/; replace the catalog name if you changed it.
 databricks bundle destroy -t dev -p rideflow_dev
 databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```

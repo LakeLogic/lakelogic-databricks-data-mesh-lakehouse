@@ -22,7 +22,7 @@ THE FAILURE
 These are source-level assertions on purpose: the notebooks only import inside
 Databricks, so the cheapest guard that would have caught this is a read of the text.
 
-    python -m pytest databricks/tests
+    python -m pytest platform/databricks/tests
 """
 from __future__ import annotations
 

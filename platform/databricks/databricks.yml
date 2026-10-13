@@ -11,7 +11,7 @@ include:
 sync:
   paths:
     - .
-    - ../contracts
+    - ../../contracts
 
 workspace:
   root_path: /Workspace/Shared/data_platform/domains/${var.domain}/${var.system}

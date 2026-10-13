@@ -20,7 +20,7 @@
 # ── LakeLogic source ──────────────────────────────────────────────────
 # Blank widget = install the published package from PyPI (what the demo does).
 # Set it to a wheel in the catalog's _wheels Volume to run an UNRELEASED build:
-#   scripts/upload_lakelogic_wheel.sh   ->  prints the path to paste here
+#   platform/scripts/upload_lakelogic_wheel.sh   ->  prints the path to paste here
 # That is the only way to exercise a LakeLogic change on Databricks BEFORE it
 # is published, rather than discovering a bad release from the demo breaking.
 dbutils.widgets.text("lakelogic_wheel", "", "LakeLogic wheel (blank = PyPI)")

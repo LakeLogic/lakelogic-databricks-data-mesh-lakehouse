@@ -123,7 +123,7 @@ contracts/             Domain-owned contract trees
   payments/                   Charges, refunds, payouts, and financial products
   reference/                  Shared lookups and conformed reference data
   shared/                     Cross-domain products and marts
-databricks/
+platform/databricks/
   databricks.yml              Asset Bundle targets
   databrick_variables.yml     Shared bundle variables
   deploy.ps1 / deploy.sh      Windows and Unix deployment wrappers
@@ -145,13 +145,13 @@ databricks/
     test/                     pl_test_synthetic_seed (all domains), pl_test_synthetic_seed_<domain>_<system>
 docs/                         Alternative setup and troubleshooting guides
   images/                     README screenshots and architecture diagrams
-scripts/
+platform/scripts/
   validate_release.py         Static checks used locally and in CI
 README.md                     Public overview and quickstart
 LICENSE                       Apache 2.0 licence
 ```
 
-`contracts/` contains the portable business definitions. `databricks/`
+`contracts/` contains the portable business definitions. `platform/databricks/`
 contains the platform-specific deployment and execution code. This boundary is
 intentional: a domain team can review its contracts without needing to understand
 the complete Asset Bundle, while the platform team can change deployment code

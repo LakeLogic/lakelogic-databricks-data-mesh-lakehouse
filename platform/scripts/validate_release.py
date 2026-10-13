@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse, ast, pathlib, re, sys
 import yaml
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 def _olc_validation(root: pathlib.Path) -> tuple[list[str], list[str]]:
     """Validate every contract and registry file against the published OLC standard.
@@ -64,17 +64,17 @@ def _olc_validation(root: pathlib.Path) -> tuple[list[str], list[str]]:
 
 
 def _powerbi_consistency(root: pathlib.Path) -> list[str]:
-    """The Power BI items in reports/ and the gold contracts' `downstream:` blocks must agree.
+    """The Power BI items in platform/reports/ and the gold contracts' `downstream:` blocks must agree.
 
     Lineage is read from the contracts, so a renamed report or a table dropped from a model
     would leave a consumer the contract still claims. Checks, both ways:
     every model table is a gold contract's table, every report entity is in its model, and every
-    semantic_model / report a gold contract names exists under reports/.
+    semantic_model / report a gold contract names exists under platform/reports/.
     """
     import json
 
     errors: list[str] = []
-    reports = root / "reports"
+    reports = root / "platform" / "reports"
     if not reports.is_dir():
         return errors
     gold = {}
@@ -97,7 +97,7 @@ def _powerbi_consistency(root: pathlib.Path) -> list[str]:
     for rep in reports.glob("*.Report"):
         bound = re.search(r'\.\./([^"]+\.SemanticModel)', (rep / "definition.pbir").read_text(encoding="utf-8"))
         if not bound or bound.group(1) not in model_tables:
-            errors.append(f"Power BI: {rep.name} is not bound to a semantic model in reports/")
+            errors.append(f"Power BI: {rep.name} is not bound to a semantic model in platform/reports/")
             continue
         report_names[display(rep)] = rep.name
         for section in json.loads((rep / "report.json").read_text(encoding="utf-8"))["sections"]:
@@ -110,10 +110,10 @@ def _powerbi_consistency(root: pathlib.Path) -> list[str]:
             if entry.get("platform", "").lower() != "powerbi":
                 continue
             if entry.get("type") == "semantic_model" and entry.get("name") not in model_names:
-                errors.append(f"Power BI: {name} names semantic model {entry.get('name')}, not in reports/")
+                errors.append(f"Power BI: {name} names semantic model {entry.get('name')}, not in platform/reports/")
             for consumer in entry.get("consumers") or []:
                 if consumer.get("type") == "report" and consumer.get("name") not in report_names:
-                    errors.append(f"Power BI: {name} names report {consumer.get('name')}, not in reports/")
+                    errors.append(f"Power BI: {name} names report {consumer.get('name')}, not in platform/reports/")
     return errors
 
 
@@ -133,7 +133,7 @@ def main() -> int:
     # The demo must always install the LATEST public lakelogic — it depends on
     # fixes that ship continuously — so notebooks must NOT pin a version.
     pattern = re.compile(r"%pip install\s+[^\n]*\blakelogic==")
-    for path in ROOT.joinpath("databricks", "notebooks").rglob("*.py"):
+    for path in ROOT.joinpath("platform", "databricks", "notebooks").rglob("*.py"):
         if pattern.search(path.read_text(encoding="utf-8")):
             errors.append(f"Pinned LakeLogic dependency (demo must use latest, drop the ==): {path.relative_to(ROOT)}")
     if args.release:
@@ -141,7 +141,7 @@ def main() -> int:
         if "<PUBLIC_REPOSITORY_URL>" in readme: errors.append("README still contains <PUBLIC_REPOSITORY_URL>")
         if "Pre-release:" in readme: errors.append("README is still marked pre-release")
         if not ROOT.joinpath(".git").exists(): errors.append("Repository has not been initialized with Git")
-        for path in ROOT.joinpath("databricks", "resources").rglob("*.yml"):
+        for path in ROOT.joinpath("platform", "databricks", "resources").rglob("*.yml"):
             if "@company.com" in path.read_text(encoding="utf-8"):
                 errors.append(f"Placeholder notification recipient: {path.relative_to(ROOT)}")
     olc_errors, olc_notes = _olc_validation(ROOT)

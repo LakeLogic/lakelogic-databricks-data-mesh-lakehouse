@@ -17,7 +17,7 @@ WHAT THIS WOULD HAVE CAUGHT
     key, and three `depends_on` entries named bronze as `bronze_<system>_<name>` -
     a form that did not exist - so those references silently resolved to nothing.
 
-    python -m pytest databricks/tests
+    python -m pytest platform/databricks/tests
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pytest
 
-MESH = Path(__file__).resolve().parents[2] / "contracts"
+MESH = Path(__file__).resolve().parents[3] / "contracts"
 
 #: Systems exempt from the no-system gold rule. Empty: the Build Centre-generated rideflow
 #: gold (formerly gold_rideflow_*) was renamed to gold_<name> on 2026-10-03, so every gold
