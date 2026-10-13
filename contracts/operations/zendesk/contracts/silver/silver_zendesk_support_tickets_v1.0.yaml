@@ -93,6 +93,6 @@ transformations:
 
 source:
   type: table
-  path: 'table:{domain_catalog}.{bronze_layer}_{system}_support_tickets'
+  path: 'table:{bronze_root}.{bronze_layer}_{system}_support_tickets'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at

@@ -12,7 +12,7 @@ info:
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_rideflow_trips"
+  path: "table:{silver_root}.silver_rideflow_trips"
   # full: GROUP BY driver_id over all trips — a partial batch would overwrite lifetime
   # totals with the batch's sums (listed in GOLD_FULL, test_incremental_processing.py).
   load_mode: full
@@ -21,12 +21,12 @@ primary_key: [driver_id]
 
 links:
   - name: silver_trips_full
-    path: "table:{domain_catalog}.silver_rideflow_trips"
+    path: "table:{silver_root}.silver_rideflow_trips"
     type: table
   # Conformed SCD2 driver dimension — used to resolve driver_sk. Same domain, so
   # the scorecard depends_on gold_dim_driver in _system.yaml (dim first).
   - name: dim_driver
-    path: "table:{domain_catalog}.gold_dim_driver"
+    path: "table:{gold_root}.gold_dim_driver"
     type: table
 
 model:

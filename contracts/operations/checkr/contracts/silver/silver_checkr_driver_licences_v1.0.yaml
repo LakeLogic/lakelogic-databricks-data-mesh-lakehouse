@@ -13,7 +13,7 @@ dataset: "driver_licences"
 source:
   type: table
   # Use bronze_path so we resolve to {data_root}/{bronze_layer}/...
-  path: "table:{domain_catalog}.{bronze_layer}_{system}_driver_licences"
+  path: "table:{bronze_root}.{bronze_layer}_{system}_driver_licences"
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 

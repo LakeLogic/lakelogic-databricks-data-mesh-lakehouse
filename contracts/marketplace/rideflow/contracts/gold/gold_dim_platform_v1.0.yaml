@@ -56,7 +56,7 @@ transformations:
 
 source:
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_app_events
+  path: table:{silver_root}.{silver_layer}_rideflow_rider_app_events
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 

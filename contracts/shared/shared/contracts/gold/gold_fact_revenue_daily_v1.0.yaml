@@ -61,7 +61,7 @@ model:
 source:
   type: table
   # Primary fact source. Joins are declared in `transformations` below.
-  path: "table:`{catalog}`.payments.silver_stripe_charges"
+  path: "table:`{domain_catalog_prefix}_payments`.silver.silver_stripe_charges"
   # Stays full (deliberate): an aggregate over its sources. An incremental batch
   # holds only new rows, so re-grouping it would overwrite a complete aggregate
   # with a partial one; the engine has no recompute-affected-keys mode.
@@ -143,19 +143,19 @@ materialization:
 links:
   - name: pay_charges
     type: table
-    path: "table:`{catalog}`.payments.silver_stripe_charges"
+    path: "table:`{domain_catalog_prefix}_payments`.silver.silver_stripe_charges"
   - name: silver_rideflow_trips
     type: table
-    path: "table:`{catalog}`.marketplace.silver_rideflow_trips"
+    path: "table:`{domain_catalog_prefix}_marketplace`.silver.silver_rideflow_trips"
   - name: mp_drivers
     type: table
-    path: "table:`{catalog}`.marketplace.silver_rideflow_driver_profiles"
+    path: "table:`{domain_catalog_prefix}_marketplace`.silver.silver_rideflow_driver_profiles"
   - name: silver_stripe_refunds
     type: table
-    path: "table:`{catalog}`.payments.silver_stripe_refunds"
+    path: "table:`{domain_catalog_prefix}_payments`.silver.silver_stripe_refunds"
   - name: silver_stripe_payouts
     type: table
-    path: "table:`{catalog}`.payments.silver_stripe_payouts"
+    path: "table:`{domain_catalog_prefix}_payments`.silver.silver_stripe_payouts"
 
 downstream:
   - type: semantic_model

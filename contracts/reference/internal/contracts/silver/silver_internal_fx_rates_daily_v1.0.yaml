@@ -40,7 +40,7 @@ primary_key: [rate_date, base_currency, quote_currency]
 
 source:
   type: table
-  path: 'table:{domain_catalog}.{bronze_layer}_{system}_fx_rates_daily'
+  path: 'table:{bronze_root}.{bronze_layer}_{system}_fx_rates_daily'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 

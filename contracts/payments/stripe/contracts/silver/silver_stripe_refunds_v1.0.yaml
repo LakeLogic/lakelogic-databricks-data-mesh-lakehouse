@@ -50,6 +50,6 @@ transformations:
 
 source:
   type: table
-  path: 'table:{domain_catalog}.{bronze_layer}_{system}_refunds'
+  path: 'table:{bronze_root}.{bronze_layer}_{system}_refunds'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at

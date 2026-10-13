@@ -59,7 +59,7 @@ source:
   # Primary source is google_ads — the other two channels are unioned in
   # via the union transformation below so we get a single table keyed by
   # (kpi_date, channel, campaign_id).
-  path: "table:`{catalog}`.marketing.silver_google_ads_campaigns"
+  path: "table:`{domain_catalog_prefix}_marketing`.silver.silver_google_ads_campaigns"
   # Stays full (deliberate): an aggregate over its sources. An incremental batch
   # holds only new rows, so re-grouping it would overwrite a complete aggregate
   # with a partial one; the engine has no recompute-affected-keys mode.
@@ -117,13 +117,13 @@ materialization:
 links:
   - name: mkt_google
     type: table
-    path: "table:`{catalog}`.marketing.silver_google_ads_campaigns"
+    path: "table:`{domain_catalog_prefix}_marketing`.silver.silver_google_ads_campaigns"
   - name: silver_meta_ads_campaigns
     type: table
-    path: "table:`{catalog}`.marketing.silver_meta_ads_campaigns"
+    path: "table:`{domain_catalog_prefix}_marketing`.silver.silver_meta_ads_campaigns"
   - name: silver_hubspot_email_campaigns
     type: table
-    path: "table:`{catalog}`.marketing.silver_hubspot_email_campaigns"
+    path: "table:`{domain_catalog_prefix}_marketing`.silver.silver_hubspot_email_campaigns"
 
 downstream:
   - type: semantic_model

@@ -119,10 +119,10 @@ transformations:
 links:
 - name: gold_dim_driver
   type: table
-  path: table:{domain_catalog}.{gold_layer}_dim_driver
+  path: table:{gold_root}.{gold_layer}_dim_driver
 - name: gold_dim_rider
   type: table
-  path: table:{domain_catalog}.{gold_layer}_dim_rider
+  path: table:{gold_root}.{gold_layer}_dim_rider
 
 materialization:
   # Transaction facts are immutable events: the engine requires append for them.
@@ -134,7 +134,7 @@ materialization:
 
 source:
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_cancellations
+  path: table:{silver_root}.{silver_layer}_rideflow_trip_cancellations
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 

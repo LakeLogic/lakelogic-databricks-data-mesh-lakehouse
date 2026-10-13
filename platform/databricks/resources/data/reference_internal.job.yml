@@ -179,6 +179,7 @@ resources:
           notebook_path: ../../notebooks/_ops/nb_assert_layers_ran.py
           base_parameters:
             catalog: ${var.catalog}
+            environment: "${var.environment}"
             domain: reference
             enable_bronze: '{{job.parameters.enable_bronze}}'
             enable_silver: '{{job.parameters.enable_silver}}'

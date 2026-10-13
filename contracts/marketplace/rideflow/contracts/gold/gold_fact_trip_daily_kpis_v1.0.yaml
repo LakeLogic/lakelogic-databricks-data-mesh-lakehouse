@@ -12,7 +12,7 @@ info:
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_rideflow_trips"
+  path: "table:{silver_root}.silver_rideflow_trips"
   # full: GROUP BY (kpi_date, city_code); the `source IN` guard limits which dates are
   # recomputed (listed in GOLD_FULL, test_incremental_processing.py).
   load_mode: full
@@ -21,7 +21,7 @@ primary_key: [kpi_date, city_code]
 
 links:
   - name: silver_trips_full
-    path: "table:{domain_catalog}.silver_rideflow_trips"
+    path: "table:{silver_root}.silver_rideflow_trips"
     type: table
 
 model:

@@ -50,7 +50,7 @@ materialization:
 links:
 - name: silver_rideflow_trip_requests
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_requests
+  path: table:{silver_root}.{silver_layer}_rideflow_trip_requests
 
 transformations:
 - phase: pre
@@ -65,7 +65,7 @@ transformations:
 
 source:
   type: table
-  path: table:{domain_catalog}.{silver_layer}_rideflow_trips
+  path: table:{silver_root}.{silver_layer}_rideflow_trips
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 

@@ -133,7 +133,7 @@ primary_key: [ticket_id]
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_zendesk_support_tickets"
+  path: "table:{silver_root}.silver_zendesk_support_tickets"
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 
@@ -146,17 +146,17 @@ source:
 links:
   - name: dim_rider
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_rider"
+    path: "table:`{domain_catalog_prefix}_marketplace`.gold.gold_dim_rider"
   - name: dim_driver
     type: table
-    path: "table:`{catalog}`.marketplace.gold_dim_driver"
+    path: "table:`{domain_catalog_prefix}_marketplace`.gold.gold_dim_driver"
   # Raw silver ticket text/priority — `source` is projected DOWN to this gold
   # contract's model fields before the transform runs, so subject /
   # ticket_description / priority are not visible on `source`. This link exposes
   # the untouched silver columns; we join it back on ticket_id.
   - name: tickets
     type: table
-    path: "table:{domain_catalog}.silver_zendesk_support_tickets"
+    path: "table:{silver_root}.silver_zendesk_support_tickets"
 
 transformations:
   # phase: pre — this SQL PRODUCES the model's required columns (category,

@@ -17,11 +17,16 @@ quarantine:
   mode: "append"
 
 storage:
-  domain_catalog: "`{catalog}`.{domain}"
-  quarantine_root: "`{catalog}`.{domain}"
+  # A CATALOG PER DOMAIN, a schema per layer: `rideflow_dev_{domain}`.bronze / .silver / .gold,
+  # .quarantine for rejected rows, .lakelogic for the run log, .files for volumes.
+  bronze_root: "`{domain_catalog_prefix}_{domain}`.{bronze_layer}"
+  silver_root: "`{domain_catalog_prefix}_{domain}`.{silver_layer}"
+  gold_root: "`{domain_catalog_prefix}_{domain}`.{gold_layer}"
+  domain_catalog: "`{domain_catalog_prefix}_{domain}`.lakelogic"
+  quarantine_root: "`{domain_catalog_prefix}_{domain}`.quarantine"
   quarantine_table_name: "quarantine_{table}"
   contract_root: "/Workspace/Shared/data_platform/contracts/{domain}/{system}"
-  landing_root: "/Volumes/{catalog}/nondelta/landing_{domain}/{system}"
+  landing_root: "/Volumes/{domain_catalog_prefix}_{domain}/files/landing/{system}"
   log_root: "/Volumes/{catalog}/nondelta/_logs"
 
 external_sources:
@@ -109,38 +114,46 @@ x-azure-storage: &azure_storage
 
 environments:
   dev:
+    domain_catalog_prefix: "rideflow_dev"
     catalog: "${RIDEFLOW_DEV_CATALOG}"
     storage_account: "${RIDEFLOW_DEV_STORAGE_ACCOUNT}"
     <<: *azure_storage
   staging:
+    domain_catalog_prefix: "rideflow_stg"
     catalog: "governed_rideflow_lakehouse_demo_staging"
     storage_account: "${RIDEFLOW_STG_STORAGE_ACCOUNT}"
     <<: *azure_storage
   prod:
+    domain_catalog_prefix: "rideflow_prod"
     catalog: "governed_rideflow_lakehouse_demo_prod"
     storage_account: "${RIDEFLOW_PROD_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:
+    domain_catalog_prefix: "rideflow_local"
     catalog: "local"
     storage_root: "./lakehouse"
     data_root: "./lakehouse/{domain}"
     quarantine_root: "./lakehouse/_quarantine"
   local_polars:
+    domain_catalog_prefix: "rideflow_local_polars"
     catalog: "local"
     storage_root: "./lakehouse_polars"
     data_root: "./lakehouse_polars/{domain}"
     quarantine_root: "./lakehouse_polars/_quarantine"
   local_spark:
+    domain_catalog_prefix: "rideflow_local_spark"
     catalog: "local"
     storage_root: "./lakehouse_spark"
     data_root: "./lakehouse_spark/{domain}"
     quarantine_root: "./lakehouse_spark/_quarantine"
   local_duckdb:
+    domain_catalog_prefix: "rideflow_local_duckdb"
     catalog: "local"
     storage_root: "./lakehouse_duckdb"
     data_root: "./lakehouse_duckdb/{domain}"
     quarantine_root: "./lakehouse_duckdb/_quarantine"
   colab:
+    domain_catalog_prefix: "rideflow_colab"
     catalog: "colab"
     storage_root: "/content/lake"
     data_root: "/content/lake/{domain}"

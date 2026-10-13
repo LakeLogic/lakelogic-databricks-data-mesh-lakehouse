@@ -47,7 +47,7 @@ primary_key: [rate_date, base_currency, quote_currency]
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_internal_fx_rates_daily"
+  path: "table:{silver_root}.silver_internal_fx_rates_daily"
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 

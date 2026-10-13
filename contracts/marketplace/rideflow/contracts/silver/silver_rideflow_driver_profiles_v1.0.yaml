@@ -83,6 +83,6 @@ transformations:
 
 source:
   type: table
-  path: 'table:{domain_catalog}.bronze_rideflow_driver_profiles'
+  path: 'table:{bronze_root}.bronze_rideflow_driver_profiles'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at

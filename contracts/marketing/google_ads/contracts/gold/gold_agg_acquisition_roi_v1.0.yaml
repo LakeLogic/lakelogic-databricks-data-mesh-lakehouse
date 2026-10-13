@@ -50,7 +50,7 @@ primary_key: [date]
 
 source:
   type: table
-  path: "table:{domain_catalog}.silver_google_ads_campaigns"
+  path: "table:{silver_root}.silver_google_ads_campaigns"
   # Stays full (deliberate): an aggregate over its sources. An incremental batch
   # holds only new rows, so re-grouping it would overwrite a complete aggregate
   # with a partial one; the engine has no recompute-affected-keys mode.
@@ -62,7 +62,7 @@ source:
 # marketplace fact contracts use).
 links:
   - name: silver_campaigns_full
-    path: "table:{domain_catalog}.silver_google_ads_campaigns"
+    path: "table:{silver_root}.silver_google_ads_campaigns"
     type: table
 
 # phase: pre — a single aggregation SQL (was a post-phase rollup + derives).

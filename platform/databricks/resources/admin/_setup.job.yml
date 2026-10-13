@@ -28,6 +28,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               catalog: "${var.catalog}"
+              environment: "${var.environment}"
               # Drop the catalog before rebuilding. Needed when the catalog was created
               # by a workspace that has since been deleted: UC catalogs live in the
               # regional metastore, so the orphan survives with storage this workspace

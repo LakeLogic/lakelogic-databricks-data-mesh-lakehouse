@@ -36,6 +36,7 @@ dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Config - Un
 # Where the synced contract registry lives in the workspace. Leave blank to
 # auto-detect relative to this notebook. The bootstrap job passes it explicitly.
 dbutils.widgets.text("contracts_src", "", "Config - Contracts source dir (workspace)")
+dbutils.widgets.text("environment", "dev", "Config - Environment (names each domain catalog)")
 # Purge before provisioning. A Unity Catalog catalog lives in the REGIONAL METASTORE,
 # not the workspace — so deleting a workspace leaves its catalog behind, still listed,
 # with managed storage that this workspace cannot reach. Volumes then "exist" as
@@ -64,6 +65,7 @@ CATALOG = dbutils.widgets.get("catalog").strip() or "governed_rideflow_lakehouse
 RESET = dbutils.widgets.get("reset").strip().lower() == "true"
 STORAGE_ROOT = dbutils.widgets.get("storage_root").strip()
 contracts_src = dbutils.widgets.get("contracts_src").strip()
+ENVIRONMENT = dbutils.widgets.get("environment").strip() or "dev"
 
 # Auto-detect the synced contract registry by walking UP from this notebook's own
 # location and checking each ancestor for a `contracts` child. Robust to how
@@ -240,17 +242,70 @@ _ERASURE_REQUEST_COLS = """(
   processed_at TIMESTAMP, run_id STRING, system STRING
 )"""
 
+def own_catalog(domain: str):
+    """The domain's own catalog name, or None when it is a schema of the shared catalog.
+    A system registry that declares a schema per layer (`storage.bronze_root` / `silver_root`
+    / `gold_root`) names it `<domain_catalog_prefix>_<domain>`, the prefix coming from the
+    registry's block for this environment. The registry decides; this only reads it."""
+    import glob
+
+    import yaml
+
+    for reg in sorted(glob.glob(os.path.join(contracts_src, domain, "*", "_system.yaml"))):
+        with open(reg, encoding="utf-8") as fh:
+            doc = yaml.safe_load(fh) or {}
+        storage = doc.get("storage") or {}
+        prefix = ((doc.get("environments") or {}).get(ENVIRONMENT) or {}).get("domain_catalog_prefix")
+        if prefix and any(storage.get(f"{layer}_root") for layer in ("bronze", "silver", "gold")):
+            return f"{prefix}_{domain}"
+    return None
+
+
+def managed_location() -> str:
+    """Where a new domain catalog keeps its managed tables: the widget if set, else the
+    storage root the shared catalog already uses (this metastore has no default root)."""
+    if STORAGE_ROOT:
+        return STORAGE_ROOT.rstrip("/")
+    rows = spark.sql(f"DESCRIBE CATALOG EXTENDED `{CATALOG}`").collect()
+    info = {r[0]: r[1] for r in rows}
+    return (info.get("Storage Root") or "").rstrip("/")
+
+
+def drop_default_schema(catalog: str) -> None:
+    """Remove the empty `default` schema Databricks adds to every new catalog, so a catalog
+    lists only the schemas the platform uses. No CASCADE: a `default` that holds anything is
+    left alone and reported, never emptied."""
+    try:
+        spark.sql(f"DROP SCHEMA IF EXISTS `{catalog}`.`default`")
+        print(f"  → dropped empty schema `{catalog}`.`default` (if it existed)")
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠ kept `{catalog}`.`default`: it is not empty or cannot be dropped ({str(e).splitlines()[0][:120]})")
+
+
+drop_default_schema(CATALOG)
+
 for domain in domains:
-    sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
-    sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`landing_{domain}`")
+    own = own_catalog(domain)
+    if own:
+        # A CATALOG PER DOMAIN: a schema per layer, the landing volume under `files` (the schema
+        # for every file volume, inbound or outbound), and the
+        # engine's own tables under `lakelogic`. One grant then covers a layer.
+        root = managed_location()
+        sql(f"CREATE CATALOG IF NOT EXISTS `{own}`" + (f" MANAGED LOCATION '{root}'" if root else ""))
+        for schema in ("files", "bronze", "silver", "gold", "quarantine", "lakelogic"):
+            sql(f"CREATE SCHEMA IF NOT EXISTS `{own}`.`{schema}`")
+        sql(f"CREATE VOLUME IF NOT EXISTS `{own}`.`files`.`landing`")
+        drop_default_schema(own)
+        meta = f"`{own}`.`lakelogic`"
+    else:
+        sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
+        sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`landing_{domain}`")
+        meta = f"`{CATALOG}`.`{domain}`"
     # Managed Delta run-log table (matches metadata.run_log_table = {domain_catalog}._lakelogic_run_log).
     # _lakelogic_slo_checks is intentionally NOT pre-created: the demo produces no SLO checks,
     # so it never races; the engine will create it with its own schema if needed.
-    sql(f"CREATE TABLE IF NOT EXISTS `{CATALOG}`.`{domain}`.`_lakelogic_run_log` {_RUN_LOG_COLS} USING DELTA")
-    sql(
-        f"CREATE TABLE IF NOT EXISTS `{CATALOG}`.`{domain}`.`_lakelogic_erasure_requests` "
-        f"{_ERASURE_REQUEST_COLS} USING DELTA"
-    )
+    sql(f"CREATE TABLE IF NOT EXISTS {meta}.`_lakelogic_run_log` {_RUN_LOG_COLS} USING DELTA")
+    sql(f"CREATE TABLE IF NOT EXISTS {meta}.`_lakelogic_erasure_requests` {_ERASURE_REQUEST_COLS} USING DELTA")
 
 # COMMAND ----------
 

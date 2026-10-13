@@ -37,8 +37,9 @@ policy permits, while dataset gates can stop a run.
 
 You need a Databricks workspace with Unity Catalog and serverless compute,
 an authenticated [Databricks CLI](https://docs.databricks.com/dev-tools/cli/)
-(v0.220 or later), and permission to create the demo catalog, schemas and Volumes.
-For an administrator-created catalog, see [catalog configuration](docs/catalog-configuration.md).
+(v0.220 or later), and permission to create catalogs, schemas and Volumes. The demo
+creates one catalog per domain and one for the platform's own files.
+For administrator-created catalogs, see [catalog configuration](docs/catalog-configuration.md).
 
 Use a dedicated demo environment. Databricks compute and storage charges or
 workspace quotas apply independently of the open-source project.
@@ -49,7 +50,7 @@ Clone the current GitHub repository into a shorter local directory:
 
 ```bash
 git clone https://github.com/LakeLogic/lakelogic-databricks-data-mesh-lakehouse.git lakelogic-databricks-lakehouse
-cd lakelogic-databricks-lakehouse/databricks
+cd lakelogic-databricks-lakehouse/platform/databricks
 
 databricks auth login --host https://<your-workspace-host> -p rideflow_dev
 databricks -p rideflow_dev current-user me
@@ -61,6 +62,11 @@ storage location, or set it to an empty string if your metastore supplies one.
 Keep `reset_catalog: "false"`; enabling it deletes and rebuilds the catalog.
 Review [catalog configuration](docs/catalog-configuration.md) if using an existing catalog.
 
+Catalog names must be unique in a metastore. The domain catalogs are named
+`<domain_catalog_prefix>_<domain>`, and the prefix is set per environment in each
+system's `_system.yaml` (`rideflow_dev` for `dev`). Change it there if those names
+are taken.
+
 Run all bundle commands from this `platform/databricks/` directory:
 
 ```bash
@@ -69,28 +75,34 @@ databricks bundle deploy -t dev -p rideflow_dev
 databricks bundle run setup -t dev -p rideflow_dev
 ```
 
-Setup creates the catalog resources, stages contracts, generates sample data,
-runs **Marketplace** through bronze, silver and gold, and checks the outputs.
+Setup creates the catalogs, schemas and Volumes, stages contracts, generates sample
+data, runs **Marketplace** through bronze, silver and gold, and checks the outputs.
 It does **not** populate every domain or run the separate SLO, retention and
 erasure jobs. Explore those after loading the relevant data; review privacy-job
 scope before execution. Setup time depends on your workspace.
+
+To build every domain in dependency order, run the mesh job:
+
+```bash
+databricks bundle run mesh_orchestrator -t dev -p rideflow_dev
+```
 
 ### Check the result
 
 In the Databricks SQL editor, run:
 
 ```sql
-USE CATALOG governed_rideflow_lakehouse_demo;
-SHOW TABLES IN marketplace;
+USE CATALOG rideflow_dev_marketplace;
+SHOW TABLES IN gold;
 SHOW TABLES IN quarantine;
 
 SELECT *
-FROM marketplace.gold_fact_trip_completed
+FROM gold.gold_fact_trip_completed
 LIMIT 20;
 ```
 
-Use your own catalog name if you changed it. Inspect a quarantine table to see
-which records failed and why.
+Use your own catalog name if you changed the prefix. Inspect a quarantine table to
+see which records failed and why.
 
 ![Rejected records with LakeLogic error details in a Databricks quarantine table](docs/images/databricks_quarantine_table.png)
 
@@ -114,7 +126,7 @@ info:
 
 source:
   type: table
-  path: "table:{domain_catalog}.{silver_layer}_rideflow_trips"
+  path: "table:{silver_root}.{silver_layer}_rideflow_trips"
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
 
@@ -137,6 +149,22 @@ meets expectations.
 
 Marketplace, Payments, Operations, Marketing and Reference organise source data.
 Shared products combine outputs across domains without duplicating every layer.
+
+Each domain has its own catalog, with a schema per layer. One grant then covers a
+layer, and the domain team owns the catalog:
+
+| Schema in `rideflow_dev_<domain>` | Holds |
+| --- | --- |
+| `files` | Volumes; `landing` receives the inbound source files |
+| `bronze`, `silver`, `gold` | The layer's tables. Table names keep the layer prefix, such as `gold.gold_fact_trip_completed` |
+| `quarantine` | Rows a contract rejected, one table per source table |
+| `lakelogic` | The run log, SLO results, and retention and erasure records |
+
+The system registry decides this, not the contracts: `storage.bronze_root`,
+`silver_root` and `gold_root` in `_system.yaml` name where each layer lives, and a
+contract reads `{silver_root}.<table>`. The catalog named by the `catalog` bundle
+variable (`governed_rideflow_lakehouse_demo`) holds only the platform's own Volumes:
+staged contracts, logs and wheels.
 
 Contracts live in [`contracts/`](contracts/); Databricks deployment
 and execution code lives in [`platform/databricks/`](platform/databricks/). Domain and system
@@ -166,6 +194,11 @@ To open a model in Power BI Desktop, open its folder and set three parameters:
 `DatabricksHost`, `DatabricksHttpPath` (a SQL warehouse) and `DatabricksCatalog`. The models
 hold placeholders for the first two. They read tables the gold jobs have already built.
 
+> **Not yet moved to a catalog per domain.** The models read every gold table from one
+> catalog with a schema per domain (`<DatabricksCatalog>.marketing.gold_...`). The
+> pipelines now write to `rideflow_dev_<domain>.gold`, so the models will not find
+> their tables until their sources are updated.
+
 ## Inspect the evidence
 
 A successful pipeline run is only part of the picture. Review each control's
@@ -173,10 +206,10 @@ results separately:
 
 | Control | Evidence to inspect |
 | --- | --- |
-| Data quality | Rejected records, failed-rule context and pipeline run results |
+| Data quality | Rejected records in the domain's `quarantine` schema, failed-rule context, and run results in `lakelogic._lakelogic_run_log` |
 | Service levels | SLO evaluation results against declared objectives |
-| Retention | Observations in `_lakelogic_retention_evidence`; checks do not delete data |
-| Erasure requests | Request statuses and `_lakelogic_erasure_evidence`; distinguish dry runs from execution |
+| Retention | Observations in `lakelogic._lakelogic_retention_evidence`, in the domain's catalog; checks do not delete data |
+| Erasure requests | Request statuses and `lakelogic._lakelogic_erasure_evidence`, in the domain's catalog; distinguish dry runs from execution |
 
 These controls cover the configured lakehouse scope. An erasure result is not
 proof of deletion from upstream systems, backups or every downstream copy.
@@ -225,17 +258,20 @@ Databricks secret scope—never in contracts or notebooks.
 
 ### Clean up
 
-**Destructive:** the second command deletes the catalog and its schemas, tables,
-Volumes and data. Verify the name and remove only resources belonging to this demo.
+**Destructive:** the catalog commands delete each catalog and its schemas, tables,
+Volumes and data. Verify the names and remove only resources belonging to this demo.
 
 ```bash
-# From platform/databricks/; replace the catalog name if you changed it.
+# From platform/databricks/; replace the catalog names if you changed them.
 databricks bundle destroy -t dev -p rideflow_dev
+for domain in marketing marketplace operations payments reference shared; do
+  databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
+done
 databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
 ```
 
-The bundle manages jobs and synced files; catalog resources are created at runtime
-and require separate cleanup.
+The bundle manages jobs and synced files; catalogs are created at runtime and
+require separate cleanup.
 
 ## Build your own
 
