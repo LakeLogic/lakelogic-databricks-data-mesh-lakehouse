@@ -110,6 +110,7 @@ source:
     # the hour level — otherwise a full-load partition scan looks in the daily
     # folder and misses the files one level deeper.
     format: "y_%Y/m_%m/d_%d/h_%H"
+
 lineage:
   enabled: true
   capture_timestamp: true

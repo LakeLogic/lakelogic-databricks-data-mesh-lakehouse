@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Rideflow Rider App Events"
   table_name: '{silver_layer}_rideflow_rider_app_events'
@@ -10,7 +11,9 @@ info:
   target_layer: silver
   domain: marketplace
   system: rideflow
+
 primary_key: [event_id]
+
 model:
   fields:
     - name: event_id
@@ -54,6 +57,7 @@ model:
     - name: event_properties_json
       type: string
       description: "Raw event properties as JSON string."
+
 quality:
   row_rules:
     - name: event_id_not_null
@@ -64,12 +68,14 @@ quality:
       sql: "platform IS NULL OR platform IN ('ios','android')"
   dataset_rules:
     - unique: event_id
+
 transformations:
   - deduplicate:
       by:
         - event_id
       sort_by: [event_timestamp]
       order: desc
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_rider_app_events'

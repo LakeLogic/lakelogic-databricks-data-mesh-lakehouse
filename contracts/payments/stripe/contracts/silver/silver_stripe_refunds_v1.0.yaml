@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Stripe Refunds"
   table_name: '{silver_layer}_stripe_refunds'
@@ -6,6 +7,7 @@ info:
   target_layer: silver
   domain: payments
   system: stripe
+
 model:
   fields:
   - name: refund_id
@@ -31,17 +33,21 @@ model:
   - name: created_at
     type: timestamp
     description: "ISO timestamp string — kept as string to match bronze; cast in gold"
+
 primary_key: [refund_id]
+
 quality:
   row_rules: []
   dataset_rules:
   - unique: refund_id
+
 transformations:
 - deduplicate:
     by:
     - refund_id
     sort_by: [created_at]
     order: desc
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_refunds'

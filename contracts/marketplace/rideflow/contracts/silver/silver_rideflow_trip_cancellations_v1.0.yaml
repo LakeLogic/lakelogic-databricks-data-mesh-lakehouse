@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Rideflow Trip Cancellations"
   table_name: '{silver_layer}_rideflow_trip_cancellations'
@@ -10,7 +11,9 @@ info:
   target_layer: silver
   domain: marketplace
   system: rideflow
+
 primary_key: [cancellation_id]
+
 model:
   fields:
   - name: cancellation_id
@@ -49,6 +52,7 @@ model:
     required: true
   - name: cancellation_fee
     type: float
+
 quality:
   row_rules:
   - name: cancellation_id_not_null
@@ -59,11 +63,13 @@ quality:
     sql: "requested_at IS NULL OR cancelled_at IS NULL OR cancelled_at >= requested_at"
   dataset_rules:
   - unique: cancellation_id
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_trip_cancellations'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
+
 transformations:
 - deduplicate:
     "on":

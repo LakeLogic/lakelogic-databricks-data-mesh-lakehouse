@@ -1,5 +1,6 @@
 # ── Google Ads Platform System Registry ────────────────────────────────────────
 domain: marketing
+
 system: google_ads
 
 metadata:
@@ -45,6 +46,7 @@ contracts:
     path: "contracts/{gold_layer}/gold_agg_acquisition_roi_v1.0.yaml"
     depends_on: ['silver_google_ads_campaigns']
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

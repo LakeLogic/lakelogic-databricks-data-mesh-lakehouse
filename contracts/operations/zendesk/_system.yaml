@@ -1,5 +1,6 @@
 # ── Zendesk Support Platform System Registry ────────────────────────────────────────
 domain: operations
+
 system: zendesk
 
 metadata:
@@ -50,6 +51,7 @@ contracts:
       - silver_rideflow_driver_profiles
       - silver_rideflow_rider_profiles
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

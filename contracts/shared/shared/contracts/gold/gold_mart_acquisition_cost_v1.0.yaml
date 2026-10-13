@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   data_product: acquisition_cost
   data_product_output: mart_acquisition_cost
@@ -13,7 +14,6 @@ info:
   target_layer: gold
   domain: shared
   system: shared
-
 
 primary_key: [kpi_date, channel, campaign_id]
 

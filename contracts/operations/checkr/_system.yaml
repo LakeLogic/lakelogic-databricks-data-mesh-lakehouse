@@ -1,5 +1,6 @@
 # ── Checkr Background Checks System Registry ────────────────────────────────────────
 domain: operations
+
 system: checkr
 
 metadata:
@@ -50,6 +51,7 @@ contracts:
     entity: silver_checkr_driver_licences
     path: "contracts/{silver_layer}/silver_checkr_driver_licences_v1.0.yaml"
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"

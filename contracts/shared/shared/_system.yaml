@@ -2,6 +2,7 @@
 # This file defines the contracts for the shared system. The domain-level
 # shared/_system.yaml above holds environment + external_sources config.
 domain: shared
+
 system: shared
 
 metadata:

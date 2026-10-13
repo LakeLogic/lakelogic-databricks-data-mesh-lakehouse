@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — HubSpot Push Notifications"
   table_name: '{silver_layer}_hubspot_push_notifications'
@@ -9,7 +10,9 @@ info:
   target_layer: silver
   domain: marketing
   system: hubspot
+
 primary_key: [notification_id]
+
 model:
   fields:
   - name: notification_id
@@ -36,6 +39,7 @@ model:
   - name: platform
     type: string
     description: "ios | android"
+
 quality:
   row_rules:
   - name: notification_id_not_null
@@ -44,11 +48,13 @@ quality:
     sql: "platform IS NULL OR platform IN ('ios','android')"
   dataset_rules:
   - unique: notification_id
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_push_notifications'
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
+
 transformations:
 - deduplicate:
     "on":

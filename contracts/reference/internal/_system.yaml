@@ -2,6 +2,7 @@
 # Static reference data: cities, vehicle types, surge tiers, cancellation reasons.
 # Also includes Python-generated dimensions (dim_date).
 domain: reference
+
 system: internal
 
 metadata:

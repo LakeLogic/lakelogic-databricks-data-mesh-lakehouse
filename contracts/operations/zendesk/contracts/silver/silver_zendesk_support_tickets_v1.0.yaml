@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: "Silver — Zendesk Support Tickets"
   table_name: '{silver_layer}_zendesk_support_tickets'
@@ -6,6 +7,7 @@ info:
   target_layer: silver
   domain: operations
   system: zendesk
+
 model:
   fields:
   - name: ticket_id
@@ -74,17 +76,21 @@ model:
   - name: satisfaction_rating
     type: string
     description: "Zendesk CSAT score: good | bad | blank when not rated (a label, not a number)"
+
 primary_key: [ticket_id]
+
 quality:
   row_rules: []
   dataset_rules:
   - unique: ticket_id
+
 transformations:
 - deduplicate:
     by:
     - ticket_id
     sort_by: [updated_at]
     order: desc
+
 source:
   type: table
   path: 'table:{domain_catalog}.{bronze_layer}_{system}_support_tickets'

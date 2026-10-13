@@ -1,4 +1,5 @@
 version: 1.0.0
+
 info:
   title: Gold — Dim Trip Type
   target_layer: gold
@@ -6,6 +7,7 @@ info:
   table_name: '{gold_layer}_dim_trip_type'
   system: rideflow
   domain: marketplace
+
 model:
   fields:
   - name: trip_type_sk
@@ -21,9 +23,12 @@ model:
     type: string
     required: true
     description: Source system this row came from
+
 dataset: gold_dim_trip_type
+
 primary_key:
 - trip_type
+
 quality:
   dataset_rules:
   - unique:
@@ -32,8 +37,10 @@ quality:
       name: trip_type_unique
       category: uniqueness
       description: No two rows share the same trip_type.
+
 natural_key:
 - trip_type
+
 materialization:
   strategy: merge
   scd1:
@@ -42,10 +49,12 @@ materialization:
     unknown_member:
       enabled: true
       surrogate_key_value: '-1'
+
 links:
 - name: silver_rideflow_trip_requests
   type: table
   path: table:{domain_catalog}.{silver_layer}_rideflow_trip_requests
+
 transformations:
 - phase: pre
   sql: |-
@@ -56,10 +65,12 @@ transformations:
       SELECT trip_type FROM silver_rideflow_trip_requests
     ) codes
     WHERE trip_type IS NOT NULL
+
 source:
   type: table
   path: table:{domain_catalog}.{silver_layer}_rideflow_trips
   load_mode: incremental
   watermark_field: _lakelogic_processed_at
+
 metadata:
   run_log_table: '{domain_catalog}._lakelogic_run_log'

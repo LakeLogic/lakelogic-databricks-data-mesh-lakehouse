@@ -45,6 +45,7 @@ source:
   # (fx_rates_daily/fx_rates_daily_seed.csv), not date-partitioned folders. A
   # partition format here would make a full-load scan look in non-existent
   # y/m/d dirs and find nothing. recursiveFileLookup (above) discovers the file.
+
 lineage:
   enabled: true
   capture_timestamp: true

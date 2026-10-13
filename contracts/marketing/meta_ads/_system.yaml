@@ -1,5 +1,6 @@
 # ── Meta Ads Platform System Registry ────────────────────────────────────────
 domain: marketing
+
 system: meta_ads
 
 metadata:
@@ -40,6 +41,7 @@ contracts:
     entity: silver_meta_ads_campaigns
     path: "contracts/{silver_layer}/silver_meta_ads_campaigns_v1.0.yaml"
     enabled: true
+
 lineage:
   enabled: true
   source_column_name: "_lakelogic_source"
