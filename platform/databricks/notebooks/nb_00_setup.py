@@ -36,6 +36,7 @@ dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Config - Un
 # Where the synced contract registry lives in the workspace. Leave blank to
 # auto-detect relative to this notebook. The bootstrap job passes it explicitly.
 dbutils.widgets.text("contracts_src", "", "Config - Contracts source dir (workspace)")
+dbutils.widgets.text("environment", "dev", "Config - Environment (names each domain catalog)")
 # Purge before provisioning. A Unity Catalog catalog lives in the REGIONAL METASTORE,
 # not the workspace — so deleting a workspace leaves its catalog behind, still listed,
 # with managed storage that this workspace cannot reach. Volumes then "exist" as
@@ -64,6 +65,7 @@ CATALOG = dbutils.widgets.get("catalog").strip() or "governed_rideflow_lakehouse
 RESET = dbutils.widgets.get("reset").strip().lower() == "true"
 STORAGE_ROOT = dbutils.widgets.get("storage_root").strip()
 contracts_src = dbutils.widgets.get("contracts_src").strip()
+ENVIRONMENT = dbutils.widgets.get("environment").strip() or "dev"
 
 # Auto-detect the synced contract registry by walking UP from this notebook's own
 # location and checking each ancestor for a `contracts` child. Robust to how
@@ -240,20 +242,23 @@ _ERASURE_REQUEST_COLS = """(
   processed_at TIMESTAMP, run_id STRING, system STRING
 )"""
 
-def wants_own_catalog(domain: str) -> bool:
-    """A domain gets its own catalog when a system registry in it declares a schema per
-    layer (`storage.bronze_root` / `silver_root` / `gold_root`). The registry is the one
-    place that decides; this only reads it."""
+def own_catalog(domain: str):
+    """The domain's own catalog name, or None when it is a schema of the shared catalog.
+    A system registry that declares a schema per layer (`storage.bronze_root` / `silver_root`
+    / `gold_root`) names it `<domain_catalog_prefix>_<domain>`, the prefix coming from the
+    registry's block for this environment. The registry decides; this only reads it."""
     import glob
 
     import yaml
 
-    for reg in glob.glob(os.path.join(contracts_src, domain, "*", "_system.yaml")):
+    for reg in sorted(glob.glob(os.path.join(contracts_src, domain, "*", "_system.yaml"))):
         with open(reg, encoding="utf-8") as fh:
-            storage = (yaml.safe_load(fh) or {}).get("storage") or {}
-        if any(storage.get(f"{layer}_root") for layer in ("bronze", "silver", "gold")):
-            return True
-    return False
+            doc = yaml.safe_load(fh) or {}
+        storage = doc.get("storage") or {}
+        prefix = ((doc.get("environments") or {}).get(ENVIRONMENT) or {}).get("domain_catalog_prefix")
+        if prefix and any(storage.get(f"{layer}_root") for layer in ("bronze", "silver", "gold")):
+            return f"{prefix}_{domain}"
+    return None
 
 
 def managed_location() -> str:
@@ -267,10 +272,10 @@ def managed_location() -> str:
 
 
 for domain in domains:
-    if wants_own_catalog(domain):
+    own = own_catalog(domain)
+    if own:
         # A CATALOG PER DOMAIN: a schema per layer, the landing volume under `source`, and the
         # engine's own tables under `lakelogic`. One grant then covers a layer.
-        own = f"{CATALOG}_{domain}"
         root = managed_location()
         sql(f"CREATE CATALOG IF NOT EXISTS `{own}`" + (f" MANAGED LOCATION '{root}'" if root else ""))
         for schema in ("source", "bronze", "silver", "gold", "quarantine", "lakelogic"):

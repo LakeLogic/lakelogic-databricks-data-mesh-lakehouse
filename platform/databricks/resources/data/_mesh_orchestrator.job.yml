@@ -214,6 +214,7 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               catalog: "${var.catalog}"
+              environment: "${var.environment}"
 
         - task_key: nb_assert_mesh_complete
           depends_on:
@@ -224,5 +225,6 @@ resources:
               lakelogic_wheel: "${var.lakelogic_wheel}"
               lakelogic_version: "${var.lakelogic_version}"
               catalog: "${var.catalog}"
+              environment: "${var.environment}"
 
       email_notifications: {}

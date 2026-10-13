@@ -27,24 +27,24 @@ quarantine:
 
 storage:
   # ── Table Resolution: a CATALOG PER DOMAIN, a schema per layer ────────────
-  #   `{catalog}_{domain}`.source      landing volume (raw files)
+  #   `{domain_catalog_prefix}_{domain}`.source      landing volume (raw files)
   #                       .bronze / .silver / .gold
   #                       .quarantine  rows a contract rejected
   #                       .lakelogic   run log, SLO checks, erasure requests
   # One grant covers a layer (analysts: gold; ingestion: source), and the domain
   # team owns the catalog. Table names keep their layer prefix, so a table has the
   # same name wherever it is addressed from.
-  bronze_root: "`{catalog}_{domain}`.{bronze_layer}"
-  silver_root: "`{catalog}_{domain}`.{silver_layer}"
-  gold_root: "`{catalog}_{domain}`.{gold_layer}"
+  bronze_root: "`{domain_catalog_prefix}_{domain}`.{bronze_layer}"
+  silver_root: "`{domain_catalog_prefix}_{domain}`.{silver_layer}"
+  gold_root: "`{domain_catalog_prefix}_{domain}`.{gold_layer}"
   # The engine's own tables ({domain_catalog}._lakelogic_run_log ...).
-  domain_catalog: "`{catalog}_{domain}`.lakelogic"
-  quarantine_root: "`{catalog}_{domain}`.quarantine"
+  domain_catalog: "`{domain_catalog_prefix}_{domain}`.lakelogic"
+  quarantine_root: "`{domain_catalog_prefix}_{domain}`.quarantine"
   quarantine_table_name: "quarantine_{table}"
 
   # ── Operational Paths (UC mode — Databricks Volumes) ──────────────────────
   contract_root: "/Workspace/Shared/data_platform/contracts/{domain}/{system}"
-  landing_root: "/Volumes/{catalog}_{domain}/source/landing/{system}"
+  landing_root: "/Volumes/{domain_catalog_prefix}_{domain}/source/landing/{system}"
   log_root: "/Volumes/{catalog}/nondelta/_logs"
 
   # ── Storage Paths (direct mode — cloud/local) ────────────────────────────
@@ -335,34 +335,42 @@ x-azure-storage: &azure_storage
 
 environments:
   dev:
+    domain_catalog_prefix: "rideflow_dev"
     catalog: "${RIDEFLOW_DEV_CATALOG}"
     storage_account: "${RIDEFLOW_DEV_STORAGE_ACCOUNT}"
     <<: *azure_storage
   staging:
+    domain_catalog_prefix: "rideflow_stg"
     catalog: "${RIDEFLOW_STG_CATALOG}"
     storage_account: "${RIDEFLOW_STG_STORAGE_ACCOUNT}"
     <<: *azure_storage
   prod:
+    domain_catalog_prefix: "rideflow_prod"
     catalog: "${RIDEFLOW_PROD_CATALOG}"
     storage_account: "${RIDEFLOW_PROD_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:
+    domain_catalog_prefix: "rideflow_local"
     catalog: "local"
     storage_root: "./lakehouse"
     data_root: "./lakehouse/{domain}"
   local_polars:
+    domain_catalog_prefix: "rideflow_local_polars"
     catalog: "local"
     storage_root: "./lakehouse_polars"
     data_root: "./lakehouse_polars/{domain}"
   local_duckdb:
+    domain_catalog_prefix: "rideflow_local_duckdb"
     catalog: "local"
     storage_root: "./lakehouse_duckdb"
     data_root: "./lakehouse_duckdb/{domain}"
   local_spark:
+    domain_catalog_prefix: "rideflow_local_spark"
     catalog: "local"
     storage_root: "./lakehouse_spark"
     data_root: "./lakehouse_spark/{domain}"
   colab:
+    domain_catalog_prefix: "rideflow_colab"
     catalog: "colab"
     storage_root: "/content/lake"
     data_root: "/content/lake/{domain}"

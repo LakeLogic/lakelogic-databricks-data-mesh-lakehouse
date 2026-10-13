@@ -80,25 +80,30 @@ x-azure-storage: &azure_storage
 
 environments:
   dev:
+    domain_catalog_prefix: "rideflow_dev"
     catalog: "${RIDEFLOW_DEV_CATALOG}"
     storage_account: "${RIDEFLOW_DEV_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:
+    domain_catalog_prefix: "rideflow_local"
     catalog: "local"
     storage_root: "./lakehouse"
     data_root: "./lakehouse/shared"
     quarantine_root: "./lakehouse/_quarantine"
   local_polars:
+    domain_catalog_prefix: "rideflow_local_polars"
     catalog: "local"
     storage_root: "./lakehouse_polars"
     data_root: "./lakehouse_polars/shared"
     quarantine_root: "./lakehouse_polars/_quarantine"
   local_spark:
+    domain_catalog_prefix: "rideflow_local_spark"
     catalog: "local"
     storage_root: "./lakehouse_spark"
     data_root: "./lakehouse_spark/{domain}"
     quarantine_root: "./lakehouse_spark/_quarantine"
   local_duckdb:
+    domain_catalog_prefix: "rideflow_local_duckdb"
     catalog: "local"
     storage_root: "./lakehouse_duckdb"
     data_root: "./lakehouse_duckdb/{domain}"

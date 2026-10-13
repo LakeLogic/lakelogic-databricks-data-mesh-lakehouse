@@ -17,7 +17,7 @@ storage:
 # Cross-domain sources consumed by shared Gold products
 external_sources:
   - name: "silver_rideflow_trips"
-    catalog_path: "{catalog}_marketplace.silver.silver_rideflow_trips"
+    catalog_path: "{domain_catalog_prefix}_marketplace.silver.silver_rideflow_trips"
     source_domain: "marketplace/rideflow"
     consumed_by: ["marketplace_health", "revenue_daily"]
 
@@ -27,7 +27,7 @@ external_sources:
     consumed_by: ["marketplace_health", "revenue_daily"]
 
   - name: "silver_rideflow_driver_profiles"
-    catalog_path: "{catalog}_marketplace.silver.silver_rideflow_driver_profiles"
+    catalog_path: "{domain_catalog_prefix}_marketplace.silver.silver_rideflow_driver_profiles"
     source_domain: "marketplace/rideflow"
     consumed_by: ["driver_360"]
 
@@ -71,23 +71,28 @@ x-azure-storage: &azure_storage
 
 environments:
   dev:
+    domain_catalog_prefix: "rideflow_dev"
     catalog: "${RIDEFLOW_DEV_CATALOG}"
     storage_account: "${RIDEFLOW_DEV_STORAGE_ACCOUNT}"
     <<: *azure_storage
   staging:
+    domain_catalog_prefix: "rideflow_stg"
     catalog: "governed_rideflow_lakehouse_demo_staging"
     storage_account: "${RIDEFLOW_STG_STORAGE_ACCOUNT}"
     <<: *azure_storage
   prod:
+    domain_catalog_prefix: "rideflow_prod"
     catalog: "governed_rideflow_lakehouse_demo_prod"
     storage_account: "${RIDEFLOW_PROD_STORAGE_ACCOUNT}"
     <<: *azure_storage
   local:
+    domain_catalog_prefix: "rideflow_local"
     catalog: "local"
     storage_root: "./lakehouse"
     data_root: "./lakehouse/shared"
     quarantine_root: "./lakehouse/_quarantine"
   colab:
+    domain_catalog_prefix: "rideflow_colab"
     catalog: "colab"
     storage_root: "/content/lake"
     data_root: "/content/lake/shared"
