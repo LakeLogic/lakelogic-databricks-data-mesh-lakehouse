@@ -103,7 +103,7 @@ dbutils.widgets.removeAll()
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 dbutils.widgets.text("registry_path",
-    "/Volumes/governed_rideflow_lakehouse_demo/nondelta/_contracts/marketplace/rideflow/_system.yaml",
+    "/Volumes/rideflow_dev_platform/nondelta/_contracts/marketplace/rideflow/_system.yaml",
     "Config - Registry",
 )
 dbutils.widgets.dropdown("environment", "dev", ["dev", "staging", "prod"], "Config - Environment")
@@ -258,7 +258,7 @@ import os
 # straight from the registry path (/Volumes/<catalog>/nondelta/_contracts/...) so
 # table names always match the catalog this pipeline is deployed against — one
 # source of truth. Set it by pointing registry_path at /Volumes/<your-catalog>/…
-_derived_catalog = "governed_rideflow_lakehouse_demo"
+_derived_catalog = "rideflow_dev_platform"
 if REGISTRY_PATH.startswith("/Volumes/"):
     _parts = REGISTRY_PATH.split("/")
     if len(_parts) > 2 and _parts[2]:

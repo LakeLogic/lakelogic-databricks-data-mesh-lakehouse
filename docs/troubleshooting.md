@@ -11,7 +11,7 @@ unable to locate bundle root: databricks.yml not found
 Run every `databricks bundle` command from the repository's `platform/databricks/` directory:
 
 ```bash
-cd lakelogic-databricks-data-mesh/databricks
+cd lakelogic-databricks-lakehouse/platform/databricks
 ls databricks.yml
 ```
 
@@ -83,7 +83,7 @@ Typical causes are missing `CREATE CATALOG` permission or a workspace using Defa
 
 Use one of these approaches:
 
-1. In Databricks, open **Catalog > Create catalog**, create `governed_rideflow_lakehouse_demo` with Default Storage, and rerun setup.
+1. In Databricks, open **Catalog > Create catalog**, create `rideflow_dev_platform` with Default Storage, and rerun setup.
 2. Reuse a writable existing catalog such as `workspace` and update the repository configuration as described in [Catalog configuration](catalog-configuration.md).
 3. Ask an administrator to create the catalog and grant the required permissions.
 
@@ -119,7 +119,10 @@ Remove both resource groups:
 
 ```bash
 databricks bundle destroy -t dev -p rideflow_dev
-databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
+for domain in marketing marketplace operations payments reference shared; do
+  databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
+done
+databricks catalogs delete rideflow_dev_platform --force -p rideflow_dev
 ```
 
 If jobs or files remain because the bundle state was reset or provisioning used the notebook path, remove them explicitly.
@@ -147,4 +150,4 @@ Inspect bundle resources before removal:
 databricks bundle summary -t dev -p rideflow_dev
 ```
 
-The catalog deletion command uses `--force` and removes the catalog's schemas, Volumes, tables, and data. Confirm the catalog name before running it.
+The catalog deletion commands use `--force` and remove each catalog's schemas, Volumes, tables, and data. Confirm the catalog names before running them.

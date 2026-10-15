@@ -148,7 +148,7 @@ try:
     # which fails with [PARSE_SYNTAX_ERROR] Syntax error at or near '.'. The catalog
     # is read from /Volumes/<catalog>/... so the tables this checks always match the
     # catalog the job is deployed against — one source of truth, same as the pipeline.
-    _derived_catalog = "governed_rideflow_lakehouse_demo"
+    _derived_catalog = "rideflow_dev_platform"
     if REGISTRY_PATH.startswith("/Volumes/"):
         _parts = REGISTRY_PATH.split("/")
         if len(_parts) > 2 and _parts[2]:

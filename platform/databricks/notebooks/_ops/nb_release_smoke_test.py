@@ -1,7 +1,7 @@
 # Databricks notebook source
 """Fail the release bootstrap when its promised outputs are missing."""
 
-dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Catalog")
+dbutils.widgets.text("catalog", "rideflow_dev_platform", "Catalog")
 dbutils.widgets.text("environment", "dev", "Environment")
 CATALOG = dbutils.widgets.get("catalog").strip()
 

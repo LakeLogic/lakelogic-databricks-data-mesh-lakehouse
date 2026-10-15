@@ -90,8 +90,8 @@ table gold_mart_acquisition_cost
 		source =
 				let
 					Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
-					Catalog = Source{[Name = DatabricksCatalog, Kind = "Database"]}[Data],
-					Schema = Catalog{[Name = "shared", Kind = "Schema"]}[Data],
+					Catalog = Source{[Name = DatabricksCatalogPrefix & "_shared", Kind = "Database"]}[Data],
+					Schema = Catalog{[Name = "gold", Kind = "Schema"]}[Data],
 					Table = Schema{[Name = "gold_mart_acquisition_cost", Kind = "Table"]}[Data]
 				in
 					Table

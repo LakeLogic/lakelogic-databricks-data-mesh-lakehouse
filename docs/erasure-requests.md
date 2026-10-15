@@ -11,7 +11,7 @@ File a request as a row in the domain's `_lakelogic_erasure_requests` table
 `status`, `processed_at` and `run_id` columns.
 
 ```sql
-INSERT INTO governed_rideflow_lakehouse_demo.payments._lakelogic_erasure_requests
+INSERT INTO rideflow_dev_payments.lakelogic._lakelogic_erasure_requests
   (request_id, framework, subject_column, subject_id, requested_at, requested_by, reason, status, system)
 VALUES
   ('DSR-2026-001', 'gdpr', 'customer_id', 'cus_123', current_timestamp(), 'privacy@rideflow.example',

@@ -6,11 +6,13 @@
 # Asset Bundle deploy, no Terraform state. It provisions the full demo from the
 # contracts:
 #
-#     Unity Catalog                    (default: governed_rideflow_lakehouse_demo)
-#       ├── nondelta  (schema)         UC Volumes: _contracts, _logs, landing_<domain>
-#       │     └── landing_<domain>/<system>/   (landing folders)
+#     Platform catalog                 (default: rideflow_dev_platform)
+#       └── nondelta  (schema)         UC Volumes: _contracts, _logs
+#     One catalog per domain           (rideflow_dev_<domain>, named by the system registry)
+#       ├── files     (schema)         UC Volume `landing`, with a folder per system
+#       ├── bronze / silver / gold     empty Delta TABLES, one schema per layer
 #       ├── quarantine (schema)
-#       └── <domain>  (schema)         empty bronze/silver/gold Delta TABLES
+#       └── lakelogic (schema)         the engine's own tables
 #
 # How to use:
 #   1. In Databricks: Workspace ▸ Repos ▸ Add Repo → clone this GitHub repo
@@ -73,7 +75,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 dbutils.widgets.removeAll()
-dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Unity Catalog name")
+dbutils.widgets.text("catalog", "rideflow_dev_platform", "Unity Catalog name")
 dbutils.widgets.text("contracts_root", "", "Contracts dir (blank = auto-detect)")
 dbutils.widgets.dropdown("create_tables", "true", ["true", "false"], "Create empty tables?")
 dbutils.widgets.dropdown("engine", "spark", ["spark", "polars"], "Engine (spark for UC)")
@@ -89,7 +91,7 @@ import os
 import glob
 import shutil
 
-CATALOG        = dbutils.widgets.get("catalog").strip() or "governed_rideflow_lakehouse_demo"
+CATALOG        = dbutils.widgets.get("catalog").strip() or "rideflow_dev_platform"
 CREATE_TABLES  = dbutils.widgets.get("create_tables") == "true"
 ENGINE         = dbutils.widgets.get("engine").strip() or "spark"
 contracts_root = dbutils.widgets.get("contracts_root").strip()
@@ -176,12 +178,55 @@ if not _catalog_exists(CATALOG):
 sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`nondelta`")
 sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`_contracts`")
 sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`_logs`")
-# Quarantine lives in each domain schema as quarantine_<table> (Build Centre layout),
-# so there is no separate `quarantine` schema to create.
+
+
+def own_catalog(domain: str):
+    """The domain's own catalog name, or None when it is a schema of the shared catalog.
+    A system registry that declares a schema per layer (`storage.bronze_root` / `silver_root`
+    / `gold_root`) names it `<domain_catalog_prefix>_<domain>`, the prefix coming from the
+    registry's `dev` environment. The registry decides; this only reads it. Same rule as
+    nb_00_setup."""
+    import yaml
+
+    for reg in sorted(glob.glob(os.path.join(contracts_root, domain, "*", "_system.yaml"))):
+        with open(reg, encoding="utf-8") as fh:
+            doc = yaml.safe_load(fh) or {}
+        storage = doc.get("storage") or {}
+        prefix = ((doc.get("environments") or {}).get("dev") or {}).get("domain_catalog_prefix")
+        if prefix and any(storage.get(f"{layer}_root") for layer in ("bronze", "silver", "gold")):
+            return f"{prefix}_{domain}"
+    return None
+
+
+def managed_location() -> str:
+    """Where a new domain catalog keeps its managed tables: the storage root the platform
+    catalog already uses (blank when the metastore supplies one)."""
+    rows = spark.sql(f"DESCRIBE CATALOG EXTENDED `{CATALOG}`").collect()
+    info = {r[0]: r[1] for r in rows}
+    return (info.get("Storage Root") or "").rstrip("/")
+
+
+def landing_volume(domain: str) -> str:
+    own = OWN.get(domain)
+    return f"/Volumes/{own}/files/landing" if own else f"/Volumes/{CATALOG}/nondelta/landing_{domain}"
+
+
+OWN = {domain: own_catalog(domain) for domain in domains}
 
 for domain in domains:
-    sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
-    sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`landing_{domain}`")
+    own = OWN[domain]
+    if own:
+        # A CATALOG PER DOMAIN: a schema per layer, the landing volume under `files`, rejected
+        # rows under `quarantine`, and the engine's own tables under `lakelogic`.
+        root = managed_location()
+        if not _catalog_exists(own):
+            sql(f"CREATE CATALOG IF NOT EXISTS `{own}`" + (f" MANAGED LOCATION '{root}'" if root else ""))
+        for schema in ("files", "bronze", "silver", "gold", "quarantine", "lakelogic"):
+            sql(f"CREATE SCHEMA IF NOT EXISTS `{own}`.`{schema}`")
+        sql(f"CREATE VOLUME IF NOT EXISTS `{own}`.`files`.`landing`")
+    else:
+        sql(f"CREATE SCHEMA IF NOT EXISTS `{CATALOG}`.`{domain}`")
+        sql(f"CREATE VOLUME IF NOT EXISTS `{CATALOG}`.`nondelta`.`landing_{domain}`")
 
 # COMMAND ----------
 
@@ -190,11 +235,11 @@ for domain in domains:
 
 # COMMAND ----------
 
-# landing folders: /Volumes/<catalog>/nondelta/landing_<domain>/<system>
+# landing folders: /Volumes/<domain catalog>/files/landing/<system>
 for reg in system_registries:
     system = os.path.basename(os.path.dirname(reg))
     domain = os.path.basename(os.path.dirname(os.path.dirname(reg)))
-    folder = f"/Volumes/{CATALOG}/nondelta/landing_{domain}/{system}"
+    folder = f"{landing_volume(domain)}/{system}"
     os.makedirs(folder, exist_ok=True)
     print(f"  📁 {folder}")
 
@@ -262,16 +307,18 @@ else:
 # COMMAND ----------
 
 print("═" * 70)
-print(f"  Provisioned Unity Catalog: {CATALOG}")
+print(f"  Provisioned Unity Catalog: {CATALOG} (platform volumes)")
 print("═" * 70)
-print(f"  Schemas : nondelta, {', '.join(domains)}")
-print(f"  Volumes : nondelta/_contracts, nondelta/_logs, "
-      + ", ".join(f"nondelta/landing_{d}" for d in domains))
+print(f"  Catalogs: {', '.join(OWN[d] or f'{CATALOG}.{d}' for d in domains)}")
+print("  Schemas : files, bronze, silver, gold, quarantine, lakelogic in each domain catalog")
+print(f"  Volumes : {CATALOG}.nondelta._contracts, {CATALOG}.nondelta._logs, "
+      "files.landing in each domain catalog")
 print(f"  Tables  : {'created (empty)' if CREATE_TABLES else 'skipped'}")
 print()
 print("  Next — generate + process data:")
 print("    • run a domain orchestrator job, OR")
 print("    • run nb_test_data_driver.py then nb_pipeline_driver.py for a system")
 print()
-print(f"  Teardown: DROP CATALOG `{CATALOG}` CASCADE;")
+print("  Teardown: DROP CATALOG <name> CASCADE; for each catalog listed above, then")
+print(f"            DROP CATALOG `{CATALOG}` CASCADE;")
 print("═" * 70)

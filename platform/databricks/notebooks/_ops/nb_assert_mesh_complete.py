@@ -17,7 +17,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("catalog", "governed_rideflow_lakehouse_demo", "Config - Unity Catalog name")
+dbutils.widgets.text("catalog", "rideflow_dev_platform", "Config - Unity Catalog name")
 # Schemas that must hold at least one gold table once the mesh has run. Comma
 # separated so a target with a different domain set can narrow it.
 dbutils.widgets.text("gold_domains", "marketing,marketplace,operations,payments",

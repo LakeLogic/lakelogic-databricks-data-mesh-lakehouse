@@ -163,7 +163,7 @@ layer, and the domain team owns the catalog:
 The system registry decides this, not the contracts: `storage.bronze_root`,
 `silver_root` and `gold_root` in `_system.yaml` name where each layer lives, and a
 contract reads `{silver_root}.<table>`. The catalog named by the `catalog` bundle
-variable (`governed_rideflow_lakehouse_demo`) holds only the platform's own Volumes:
+variable (`rideflow_dev_platform`) holds only the platform's own Volumes:
 staged contracts, logs and wheels.
 
 Contracts live in [`contracts/`](contracts/); Databricks deployment
@@ -191,13 +191,10 @@ model, report. `python platform/scripts/validate_release.py` fails if a contract
 report that is not in `platform/reports/`, or a report reads a table its model does not hold.
 
 To open a model in Power BI Desktop, open its folder and set three parameters:
-`DatabricksHost`, `DatabricksHttpPath` (a SQL warehouse) and `DatabricksCatalog`. The models
-hold placeholders for the first two. They read tables the gold jobs have already built.
-
-> **Not yet moved to a catalog per domain.** The models read every gold table from one
-> catalog with a schema per domain (`<DatabricksCatalog>.marketing.gold_...`). The
-> pipelines now write to `rideflow_dev_<domain>.gold`, so the models will not find
-> their tables until their sources are updated.
+`DatabricksHost`, `DatabricksHttpPath` (a SQL warehouse) and `DatabricksCatalogPrefix`. The
+models hold placeholders for the first two. The prefix defaults to `rideflow_dev`: each table
+is read from `<prefix>_<domain>.gold`, so set it to the `domain_catalog_prefix` of the
+environment you built. The models read tables the gold jobs have already built.
 
 ## Inspect the evidence
 
@@ -267,7 +264,7 @@ databricks bundle destroy -t dev -p rideflow_dev
 for domain in marketing marketplace operations payments reference shared; do
   databricks catalogs delete "rideflow_dev_${domain}" --force -p rideflow_dev
 done
-databricks catalogs delete governed_rideflow_lakehouse_demo --force -p rideflow_dev
+databricks catalogs delete rideflow_dev_platform --force -p rideflow_dev
 ```
 
 The bundle manages jobs and synced files; catalogs are created at runtime and
