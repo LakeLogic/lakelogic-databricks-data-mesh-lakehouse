@@ -99,10 +99,13 @@ transformations:
 quality:
   row_rules:
     - name: non_negative_trips
+      category: validity
       sql: "total_trips IS NULL OR total_trips >= 0"
     - name: non_negative_earnings
+      category: validity
       sql: "total_earnings IS NULL OR total_earnings >= 0"
     - name: valid_avg_rating
+      category: validity
       sql: "avg_driver_rating IS NULL OR (avg_driver_rating >= 1.0 AND avg_driver_rating <= 5.0)"
   dataset_rules:
     - unique: driver_id

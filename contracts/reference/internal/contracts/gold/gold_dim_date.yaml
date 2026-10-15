@@ -75,7 +75,7 @@ external_logic:
   engine: spark
   # Path is resolved relative to the contract YAML's directory (its
   # _base_path). This contract lives at
-  #   reference/internal/contracts/gold/gold_dim_date_v1.0.yaml
+  #   reference/internal/contracts/gold/gold_dim_date.yaml
   # and the generator lives at
   #   reference/internal/_generators/dim_date.py
   # so we climb two levels.

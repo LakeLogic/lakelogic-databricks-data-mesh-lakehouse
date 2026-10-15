@@ -39,12 +39,12 @@ external_sources:
 contracts:
   - layer: bronze
     entity: bronze_meta_ads_campaigns
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_campaigns_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_campaigns.yaml"
     enabled: true
 
   - layer: silver
     entity: silver_meta_ads_campaigns
-    path: "contracts/{silver_layer}/silver_meta_ads_campaigns_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_meta_ads_campaigns.yaml"
     enabled: true
 
 lineage:

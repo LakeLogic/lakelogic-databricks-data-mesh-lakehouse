@@ -52,8 +52,10 @@ model:
 quality:
   row_rules:
     - name: valid_email
+      category: validity
       sql: "email like '%@%'"
     - name: rider_id_not_null
+      category: completeness
       sql: "rider_id IS NOT NULL"
   dataset_rules:
   - unique: rider_id

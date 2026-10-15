@@ -39,22 +39,22 @@ external_sources:
 contracts:
   - layer: bronze
     entity: bronze_checkr_background_checks
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_background_checks_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_background_checks.yaml"
     enabled: true
 
   - layer: silver
     entity: silver_checkr_driver_verifications
-    path: "contracts/{silver_layer}/silver_checkr_driver_verifications_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_checkr_driver_verifications.yaml"
     enabled: true
 
   - layer: bronze
     entity: bronze_checkr_driver_licences
-    path: "contracts/{bronze_layer}/bronze_checkr_driver_licences_v1.0.yaml"
+    path: "contracts/{bronze_layer}/bronze_checkr_driver_licences.yaml"
     enabled: true
 
   - layer: silver
     entity: silver_checkr_driver_licences
-    path: "contracts/{silver_layer}/silver_checkr_driver_licences_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_checkr_driver_licences.yaml"
     enabled: true
 
 lineage:

@@ -40,20 +40,20 @@ external_sources:
 contracts:
   - layer: bronze
     entity: bronze_hubspot_email_campaigns
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_email_campaigns_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_email_campaigns.yaml"
     enabled: true
   - layer: bronze
     entity: bronze_hubspot_push_notifications
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_push_notifications_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_push_notifications.yaml"
     enabled: true
 
   - layer: silver
     entity: silver_hubspot_email_campaigns
-    path: "contracts/{silver_layer}/silver_hubspot_email_campaigns_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_hubspot_email_campaigns.yaml"
     enabled: true
   - layer: silver
     entity: silver_hubspot_push_notifications
-    path: "contracts/{silver_layer}/silver_hubspot_push_notifications_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_hubspot_push_notifications.yaml"
     enabled: true
 
 lineage:

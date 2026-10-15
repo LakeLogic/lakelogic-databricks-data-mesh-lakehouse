@@ -64,8 +64,10 @@ model:
 quality:
   row_rules:
   - name: positive_spend
+    category: validity
     sql: "fare_amount IS NULL OR fare_amount >= 0"
   - name: valid_rating
+    category: validity
     sql: "rider_rating IS NULL OR (rider_rating >= 1.0 AND rider_rating <= 5.0)"
 
   dataset_rules: []

@@ -127,10 +127,13 @@ transformations:
 quality:
   row_rules:
     - name: net_revenue_non_negative
+      category: validity
       sql: "net_revenue_amount IS NULL OR net_revenue_amount >= 0"
     - name: refund_le_gross
+      category: consistency
       sql: "refund_amount IS NULL OR gross_revenue_amount IS NULL OR refund_amount <= gross_revenue_amount"
     - name: trip_count_positive
+      category: validity
       sql: "trip_count IS NULL OR trip_count >= 0"
   dataset_rules: []
 

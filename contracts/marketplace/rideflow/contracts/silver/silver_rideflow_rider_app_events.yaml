@@ -61,10 +61,13 @@ model:
 quality:
   row_rules:
     - name: event_id_not_null
+      category: completeness
       sql: "event_id IS NOT NULL"
     - name: rider_id_not_null
+      category: completeness
       sql: "rider_id IS NOT NULL"
     - name: valid_platform
+      category: validity
       sql: "platform IS NULL OR platform IN ('ios','android')"
   dataset_rules:
     - unique: event_id

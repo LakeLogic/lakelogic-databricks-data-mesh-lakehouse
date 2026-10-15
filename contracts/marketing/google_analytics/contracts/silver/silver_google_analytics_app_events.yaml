@@ -62,10 +62,13 @@ model:
 quality:
   row_rules:
   - name: event_name_not_null
+    category: completeness
     sql: "event_name IS NOT NULL"
   - name: pseudo_id_not_null
+    category: completeness
     sql: "user_pseudo_id IS NOT NULL"
   - name: valid_device_category
+    category: validity
     sql: "device_category IS NULL OR device_category IN ('mobile','tablet','desktop')"
   dataset_rules: []
 
