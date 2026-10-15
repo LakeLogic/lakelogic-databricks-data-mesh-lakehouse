@@ -39,17 +39,17 @@ external_sources:
 contracts:
   - layer: bronze
     entity: bronze_zendesk_support_tickets
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_support_tickets_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_support_tickets.yaml"
     enabled: true
 
   - layer: silver
     entity: silver_zendesk_support_tickets
-    path: "contracts/{silver_layer}/silver_zendesk_support_tickets_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_zendesk_support_tickets.yaml"
     enabled: true
 
   - layer: gold
     entity: gold_fact_ticket_enriched
-    path: "contracts/{gold_layer}/gold_fact_ticket_enriched_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_fact_ticket_enriched.yaml"
     depends_on:
       - silver_zendesk_support_tickets
       - silver_rideflow_trips

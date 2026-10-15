@@ -30,63 +30,63 @@ contracts:
   # ── Bronze: raw external feeds ────────────────────────────────────────────
   - layer: bronze
     entity: bronze_internal_city_master
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_city_master_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_city_master.yaml"
     enabled: true
   - layer: bronze
     entity: bronze_internal_fx_rates_daily
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_fx_rates_daily_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_fx_rates_daily.yaml"
     enabled: true
 
   # ── Silver: cleaned + typed ───────────────────────────────────────────────
   - layer: silver
     entity: silver_internal_cities
-    path: "contracts/{silver_layer}/silver_internal_cities_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_internal_cities.yaml"
     depends_on: ['bronze_internal_city_master']
     enabled: true
   - layer: silver
     entity: silver_internal_fx_rates_daily
-    path: "contracts/{silver_layer}/silver_internal_fx_rates_daily_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_internal_fx_rates_daily.yaml"
     depends_on: ['bronze_internal_fx_rates_daily']
     enabled: true
 
   # ── Gold: dim_ (SCD2 capable) and fact_ ───────────────────────────────────
   - layer: gold
     entity: gold_dim_date
-    path: "contracts/{gold_layer}/gold_dim_date_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_date.yaml"
     enabled: true
   - layer: gold
     entity: gold_dim_country
-    path: "contracts/{gold_layer}/gold_dim_country_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_country.yaml"
     enabled: true
   - layer: gold
     entity: gold_dim_currency
-    path: "contracts/{gold_layer}/gold_dim_currency_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_currency.yaml"
     enabled: true
   - layer: gold
     entity: gold_dim_city
-    path: "contracts/{gold_layer}/gold_dim_city_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_city.yaml"
     depends_on: ['silver_internal_cities']
     enabled: true
   - layer: gold
     entity: gold_fact_fx_rate_daily
-    path: "contracts/{gold_layer}/gold_fact_fx_rate_daily_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_fact_fx_rate_daily.yaml"
     depends_on: ['silver_internal_fx_rates_daily']
     enabled: true
   - layer: gold
     entity: gold_dim_vehicle_type
-    path: "contracts/{gold_layer}/gold_dim_vehicle_type_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_vehicle_type.yaml"
     enabled: true
   - layer: gold
     entity: gold_dim_payment_method
-    path: "contracts/{gold_layer}/gold_dim_payment_method_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_payment_method.yaml"
     enabled: true
   - layer: gold
     entity: gold_dim_surge_tier
-    path: "contracts/{gold_layer}/gold_dim_surge_tier_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_surge_tier.yaml"
     enabled: true
   - layer: gold
     entity: gold_dim_cancellation_reason
-    path: "contracts/{gold_layer}/gold_dim_cancellation_reason_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_cancellation_reason.yaml"
     enabled: true
 
 lineage:

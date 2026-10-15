@@ -43,8 +43,10 @@ model:
 quality:
   row_rules:
   - name: notification_id_not_null
+    category: completeness
     sql: "notification_id IS NOT NULL"
   - name: valid_platform
+    category: validity
     sql: "platform IS NULL OR platform IN ('ios','android')"
   dataset_rules:
   - unique: notification_id

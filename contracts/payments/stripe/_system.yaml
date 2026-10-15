@@ -41,32 +41,32 @@ external_sources:
 contracts:
   - layer: bronze
     entity: bronze_stripe_charges
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_charges_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_charges.yaml"
     enabled: true
   - layer: bronze
     entity: bronze_stripe_payouts
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_payouts_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_payouts.yaml"
     enabled: true
   - layer: bronze
     entity: bronze_stripe_refunds
-    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_refunds_v1.0.yaml"
+    path: "contracts/{bronze_layer}/{bronze_layer}_{system}_refunds.yaml"
     enabled: true
 
   - layer: silver
     entity: silver_stripe_charges
-    path: "contracts/{silver_layer}/silver_stripe_charges_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_stripe_charges.yaml"
     enabled: true
   - layer: silver
     entity: silver_stripe_payouts
-    path: "contracts/{silver_layer}/silver_stripe_payouts_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_stripe_payouts.yaml"
     enabled: true
   - layer: silver
     entity: silver_stripe_refunds
-    path: "contracts/{silver_layer}/silver_stripe_refunds_v1.0.yaml"
+    path: "contracts/{silver_layer}/silver_stripe_refunds.yaml"
     enabled: true
   - layer: gold
     entity: gold_fact_payment_reconciliation
-    path: "contracts/{gold_layer}/gold_fact_payment_reconciliation_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_fact_payment_reconciliation.yaml"
     depends_on: ['silver_stripe_charges', 'silver_stripe_payouts', 'silver_stripe_refunds']
     enabled: true
 

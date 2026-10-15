@@ -123,12 +123,16 @@ transformations:
 quality:
   row_rules:
     - name: completion_rate_in_range
+      category: validity
       sql: "completion_rate IS NULL OR (completion_rate >= 0 AND completion_rate <= 1)"
     - name: cancellation_rate_in_range
+      category: validity
       sql: "cancellation_rate IS NULL OR (cancellation_rate >= 0 AND cancellation_rate <= 1)"
     - name: requested_ge_completed
+      category: consistency
       sql: "requested_trips IS NULL OR completed_trips IS NULL OR requested_trips >= completed_trips"
     - name: requested_ge_cancelled
+      category: consistency
       sql: "requested_trips IS NULL OR cancelled_trips IS NULL OR requested_trips >= cancelled_trips"
   dataset_rules: []
 

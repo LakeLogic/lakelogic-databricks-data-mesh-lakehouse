@@ -31,7 +31,7 @@ storage:
 contracts:
   - layer: gold
     entity: gold_dim_driver_360
-    path: "contracts/{gold_layer}/gold_dim_driver_360_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_dim_driver_360.yaml"
     depends_on:
       - silver_rideflow_driver_profiles
       - silver_checkr_driver_verifications
@@ -39,14 +39,14 @@ contracts:
     enabled: true
   - layer: gold
     entity: gold_fact_revenue_daily
-    path: "contracts/{gold_layer}/gold_fact_revenue_daily_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_fact_revenue_daily.yaml"
     depends_on:
       - silver_stripe_charges
       - silver_rideflow_trips
     enabled: true
   - layer: gold
     entity: gold_mart_acquisition_cost
-    path: "contracts/{gold_layer}/gold_mart_acquisition_cost_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_mart_acquisition_cost.yaml"
     depends_on:
       - silver_google_ads_campaigns
       - silver_meta_ads_campaigns
@@ -54,7 +54,7 @@ contracts:
     enabled: true
   - layer: gold
     entity: gold_mart_marketplace_health
-    path: "contracts/{gold_layer}/gold_mart_marketplace_health_v1.0.yaml"
+    path: "contracts/{gold_layer}/gold_mart_marketplace_health.yaml"
     depends_on:
       - silver_rideflow_trip_requests
       - silver_rideflow_trips

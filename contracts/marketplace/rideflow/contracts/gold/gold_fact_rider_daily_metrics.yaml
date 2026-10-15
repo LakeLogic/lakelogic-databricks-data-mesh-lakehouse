@@ -115,12 +115,16 @@ materialization:
 quality:
   row_rules:
     - name: non_negative_trips
+      category: validity
       sql: "daily_trips IS NULL OR daily_trips >= 0"
     - name: non_negative_spend
+      category: validity
       sql: "daily_spend IS NULL OR daily_spend >= 0"
     - name: non_negative_tips
+      category: validity
       sql: "daily_tips IS NULL OR daily_tips >= 0"
     - name: valid_avg_rating
+      category: validity
       sql: "avg_daily_rating IS NULL OR (avg_daily_rating >= 1.0 AND avg_daily_rating <= 5.0)"
 
 downstream:

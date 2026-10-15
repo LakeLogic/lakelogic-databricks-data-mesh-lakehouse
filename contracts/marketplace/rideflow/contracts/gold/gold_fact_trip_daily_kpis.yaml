@@ -87,12 +87,16 @@ materialization:
 quality:
   row_rules:
     - name: non_negative_trips
+      category: validity
       sql: "total_trips IS NULL OR total_trips >= 0"
     - name: non_negative_revenue
+      category: validity
       sql: "total_revenue IS NULL OR total_revenue >= 0"
     - name: non_negative_distance
+      category: validity
       sql: "total_distance_km IS NULL OR total_distance_km >= 0"
     - name: valid_avg_surge
+      category: validity
       sql: "avg_surge IS NULL OR avg_surge > 0"
 
 downstream:

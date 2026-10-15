@@ -101,10 +101,13 @@ transformations:
 quality:
   row_rules:
     - name: spend_non_negative
+      category: validity
       sql: "spend_amount IS NULL OR spend_amount >= 0"
     - name: valid_channel
+      category: validity
       sql: "channel IN ('google_ads','meta_ads','hubspot_email')"
     - name: clicks_le_impressions
+      category: consistency
       sql: "impressions IS NULL OR clicks IS NULL OR clicks <= impressions"
   dataset_rules: []
 

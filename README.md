@@ -133,7 +133,7 @@ source:
 primary_key: [trip_id]
 ```
 
-The [complete contract](contracts/marketplace/rideflow/contracts/gold/gold_fact_trip_completed_v1.0.yaml)
+The [complete contract](contracts/marketplace/rideflow/contracts/gold/gold_fact_trip_completed.yaml)
 also defines fields, the as-of lookups of `rider_sk` / `driver_sk` against the SCD2
 rider and driver dimensions, and quality rules. Trip revenue is a business metric;
 quality checks and freshness measures tell you whether the data supporting it

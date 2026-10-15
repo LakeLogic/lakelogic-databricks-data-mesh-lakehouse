@@ -56,10 +56,13 @@ model:
 quality:
   row_rules:
   - name: cancellation_id_not_null
+    category: completeness
     sql: "cancellation_id IS NOT NULL"
   - name: valid_cancelled_by
+    category: validity
     sql: "cancelled_by IS NULL OR cancelled_by IN ('rider','driver')"
   - name: cancelled_after_requested
+    category: consistency
     sql: "requested_at IS NULL OR cancelled_at IS NULL OR cancelled_at >= requested_at"
   dataset_rules:
   - unique: cancellation_id
