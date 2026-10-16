@@ -1,0 +1,90 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal Dim Date Seed
+  target_layer: silver
+  table_name: '{silver_layer}_internal_dim_date_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: date_key
+    type: Int64
+    required: false
+    description: Column 'date_key' projected from source table 'internal_dim_date_seed',
+      typed as Int64.
+  - name: full_date
+    type: date
+    required: false
+    description: Column 'full_date' projected from source table 'internal_dim_date_seed',
+      typed as date.
+  - name: year
+    type: Int64
+    required: false
+    description: Column 'year' projected from source table 'internal_dim_date_seed',
+      typed as Int64.
+  - name: quarter
+    type: Int64
+    required: false
+    description: Column 'quarter' projected from source table 'internal_dim_date_seed',
+      typed as Int64.
+  - name: month
+    type: Int64
+    required: false
+    description: Column 'month' projected from source table 'internal_dim_date_seed',
+      typed as Int64.
+  - name: month_name
+    type: string
+    required: false
+    description: Column 'month_name' projected from source table 'internal_dim_date_seed',
+      typed as string.
+  - name: day
+    type: Int64
+    required: false
+    description: Column 'day' projected from source table 'internal_dim_date_seed',
+      typed as Int64.
+  - name: day_of_week
+    type: Int64
+    required: false
+    description: Column 'day_of_week' projected from source table 'internal_dim_date_seed',
+      typed as Int64.
+  - name: day_name
+    type: string
+    required: false
+    description: Column 'day_name' projected from source table 'internal_dim_date_seed',
+      typed as string.
+  - name: is_weekend
+    type: boolean
+    required: false
+    description: Column 'is_weekend' projected from source table 'internal_dim_date_seed',
+      typed as boolean.
+  - name: iso_week
+    type: Int64
+    required: false
+    description: Column 'iso_week' projected from source table 'internal_dim_date_seed',
+      typed as Int64.
+  - name: is_holiday_us
+    type: boolean
+    required: false
+    description: Column 'is_holiday_us' projected from source table 'internal_dim_date_seed',
+      typed as boolean.
+  - name: is_holiday_uk
+    type: boolean
+    required: false
+    description: Column 'is_holiday_uk' projected from source table 'internal_dim_date_seed',
+      typed as boolean.
+
+materialization:
+  strategy: overwrite
+
+dataset: silver_internal_dim_date_seed
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_dim_date_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,8 @@
+# Written by LakeLogic on every delivery. It names the LakeLogic project this repository
+# was delivered from, so "Upgrade a LakeLogic estate" can continue that project.
+# It holds no secret. Keep it, or the next upgrade starts a new project.
+schema: lakelogic.project/v1
+project_id: proj-4b52e2f476b1427d
+project_name: decide later
+revision: chv1:e7b0c49f07bce8fda7e01b76564ac41c80ddcbb956e46bec30c967061acb4e1a
+snapshot: snap-d91da9d87d0e48ba

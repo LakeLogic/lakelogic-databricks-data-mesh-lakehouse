@@ -1,0 +1,74 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Dim Payment Method Seed
+  target_layer: gold
+  description: 'grain: one row per payment method code'
+  table_name: '{gold_layer}_dim_dim_payment_method_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: dim_payment_method_seed_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: payment_method_code
+    type: string
+    required: true
+    description: Dimension attribute 'payment_method_code', projected from the 'dim_payment_method_seed'
+      entity.
+  - name: payment_method_name
+    type: string
+    required: false
+    description: Dimension attribute 'payment_method_name', projected from the 'dim_payment_method_seed'
+      entity.
+  - name: rail
+    type: string
+    required: false
+    description: Dimension attribute 'rail', projected from the 'dim_payment_method_seed'
+      entity.
+  - name: requires_strong_auth
+    type: boolean
+    required: false
+    description: Dimension attribute 'requires_strong_auth', projected from the 'dim_payment_method_seed'
+      entity.
+  - name: settles_instantly
+    type: boolean
+    required: false
+    description: Dimension attribute 'settles_instantly', projected from the 'dim_payment_method_seed'
+      entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_dim_payment_method_seed
+
+primary_key:
+- payment_method_code
+
+materialization:
+  scd1:
+    surrogate_key: dim_payment_method_seed_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_dim_payment_method_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+transformations:
+- phase: pre
+  derive:
+    field: system
+    sql: '''internal'''

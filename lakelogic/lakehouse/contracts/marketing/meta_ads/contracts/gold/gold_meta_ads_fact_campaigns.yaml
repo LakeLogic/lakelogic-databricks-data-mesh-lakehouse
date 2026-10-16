@@ -1,0 +1,155 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Campaigns (Meta Ads)
+  target_layer: gold
+  description: 'grain: one row per campaign, ad set and day'
+  table_name: '{gold_layer}_meta_ads_fact_campaigns'
+  system: meta_ads
+  domain: marketing
+
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    required: true
+    description: Grain key of the 'campaigns' fact.
+  - name: adset_id
+    type: string
+    required: true
+    description: Grain key of the 'campaigns' fact.
+  - name: activity_date
+    type: date
+    required: true
+    description: Grain key of the 'campaigns' fact.
+  - name: impressions
+    type: integer
+    required: false
+    description: 'Measure candidate: sum of ''impressions'' (needs confirmation).'
+  - name: clicks
+    type: integer
+    required: false
+    description: 'Measure candidate: sum of ''clicks'' (needs confirmation).'
+  - name: spend
+    type: decimal(18,2)
+    required: false
+    description: 'Measure candidate: sum of ''spend'' (needs confirmation).'
+  - name: conversions
+    type: integer
+    required: false
+    description: 'Measure candidate: sum of ''conversions'' (needs confirmation).'
+  - name: date_key
+    type: integer
+    required: false
+    description: The day of activity_date as YYYYMMDD — the key of the date dimension.
+    foreign_key:
+      contract: gold_dim_date
+      column: date_key
+  - name: currency_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_dim_currency_seed
+      column: dim_currency_seed_sk
+    description: Surrogate key of gold_dim_dim_currency_seed, looked up on its business
+      key; '-1' when the dimension does not know the row.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_meta_ads_fact_campaigns
+
+primary_key:
+- campaign_id
+- adset_id
+- activity_date
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - campaign_id
+      - adset_id
+      - activity_date
+      name: campaign_id_adset_id_activity_date_unique
+      category: uniqueness
+      description: No two rows share the same campaign_id, adset_id, activity_date.
+  - name: currency_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE currency_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose currency_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    WITH touched AS (
+      SELECT DISTINCT
+        campaign_id AS _touched_0,
+        adset_id AS _touched_1,
+        CAST(date AS DATE) AS _touched_2,
+        currency AS _touched_3
+      FROM source
+    ),
+    r AS (
+      SELECT
+        campaign_id,
+        adset_id,
+        CAST(date AS DATE) AS activity_date,
+        currency,
+        SUM(impressions) AS impressions,
+        SUM(clicks) AS clicks,
+        SUM(spend) AS spend,
+        SUM(conversions) AS conversions
+      FROM silver_meta_ads_campaigns_full
+      JOIN touched
+        ON campaign_id = touched._touched_0
+        AND adset_id = touched._touched_1
+        AND CAST(date AS DATE) = touched._touched_2
+        AND currency = touched._touched_3
+      GROUP BY campaign_id, adset_id, CAST(date AS DATE), currency
+    )
+    SELECT
+      r.campaign_id,
+      r.adset_id,
+      r.activity_date,
+      r.impressions,
+      r.clicks,
+      r.spend,
+      r.conversions,
+      CAST(EXTRACT(YEAR FROM r.activity_date) AS BIGINT) * 10000 + CAST(EXTRACT(MONTH FROM r.activity_date) AS BIGINT) * 100 + CAST(EXTRACT(DAY FROM r.activity_date) AS BIGINT) AS date_key,
+      COALESCE(d1.dim_currency_seed_sk, '-1') AS currency_sk
+    FROM r
+    LEFT JOIN gold_dim_dim_currency_seed d1
+      ON  r.currency = d1.currency_code
+- phase: pre
+  derive:
+    field: system
+    sql: '''meta_ads'''
+
+links:
+- name: gold_dim_dim_currency_seed
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_dim_currency_seed
+- name: silver_meta_ads_campaigns_full
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_meta_ads_campaigns
+
+upstream:
+- gold_dim_dim_currency_seed
+
+materialization:
+  fact:
+    type: aggregate
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_meta_ads_campaigns
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

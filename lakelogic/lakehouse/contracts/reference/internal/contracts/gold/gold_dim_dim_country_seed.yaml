@@ -1,0 +1,79 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Dim Country Seed
+  target_layer: gold
+  description: 'grain: one row per country'
+  table_name: '{gold_layer}_dim_dim_country_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: dim_country_seed_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: country_alpha3
+    type: string
+    required: true
+    description: Dimension attribute 'country_alpha3', projected from the 'dim_country_seed'
+      entity.
+  - name: country_alpha2
+    type: string
+    required: false
+    description: Dimension attribute 'country_alpha2', projected from the 'dim_country_seed'
+      entity.
+  - name: country_name
+    type: string
+    required: false
+    description: Dimension attribute 'country_name', projected from the 'dim_country_seed'
+      entity.
+  - name: country_numeric
+    type: Int64
+    required: false
+    description: Dimension attribute 'country_numeric', projected from the 'dim_country_seed'
+      entity.
+  - name: region
+    type: string
+    required: false
+    description: Dimension attribute 'region', projected from the 'dim_country_seed'
+      entity.
+  - name: sub_region
+    type: string
+    required: false
+    description: Dimension attribute 'sub_region', projected from the 'dim_country_seed'
+      entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_dim_country_seed
+
+primary_key:
+- country_alpha3
+
+materialization:
+  scd1:
+    surrogate_key: dim_country_seed_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_dim_country_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+transformations:
+- phase: pre
+  derive:
+    field: system
+    sql: '''internal'''

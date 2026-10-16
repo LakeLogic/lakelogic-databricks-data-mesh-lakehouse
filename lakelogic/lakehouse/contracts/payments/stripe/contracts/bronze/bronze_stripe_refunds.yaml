@@ -1,0 +1,64 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Stripe Refunds
+  target_layer: bronze
+  table_name: '{bronze_layer}_stripe_refunds'
+  domain: payments
+  system: stripe
+
+model:
+  fields:
+  - name: refund_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: charge_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: rider_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: amount
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: currency
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: status
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: reason
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: refund_reason
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+  - name: created_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_refunds.
+
+source:
+  type: landing
+  path: '{landing_root}/refunds'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- refund_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_stripe_refunds

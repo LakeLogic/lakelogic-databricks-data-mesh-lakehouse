@@ -1,0 +1,80 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Checkr Driver Licences
+  target_layer: bronze
+  table_name: '{bronze_layer}_checkr_driver_licences'
+  domain: operations
+  system: checkr
+
+model:
+  fields:
+  - name: file_path
+    type: string
+    description: The document this row was extracted from.
+  - name: issuing_authority
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - ^([A-Z]{2} [A-Z]{6} [A-Z]{7})
+    description: State/territory authority that issued the licence, shown as the header
+      line.
+  - name: document_subtitle
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - \(([A-Za-z]+ - [A-Za-z]+ [A-Za-z]+)\)
+    description: Parenthesised document descriptor on the header line, e.g. the card
+      type and category.
+  - name: holder_name
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - Name:\s+([A-Za-z]+ [A-Za-z]+)
+    description: Full name of the licence holder.
+  - name: licence_number
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - Licence No:\s+([A-Z]{2}-\d{8})
+    description: Unique licence identifier issued to the holder.
+    pii: true
+    classification: licence_id
+  - name: date_of_birth
+    type: date
+    extraction_task: metadata
+    extraction_examples:
+    - DOB:\s+(\d{4}-\d{2}-\d{2})
+    description: Holder's date of birth.
+    pii: true
+    classification: date_of_birth
+  - name: expiry_date
+    type: date
+    extraction_task: metadata
+    extraction_examples:
+    - EXP:\s+(\d{4}-\d{2}-\d{2})
+    description: Date on which the licence expires.
+  - name: vehicle_classes
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - Classes:\s+([A-Z0-9, ]+)
+    description: Comma-separated list of vehicle classes the holder is licensed to
+      drive.
+
+source:
+  type: landing
+  path: '{landing_root}/driver_licences/**/*.pdf'
+  format: pdf
+  partition:
+    format: y_%Y/m_%m/d_%d
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_checkr_driver_licences
+
+extraction:
+  provider: pdfplumber

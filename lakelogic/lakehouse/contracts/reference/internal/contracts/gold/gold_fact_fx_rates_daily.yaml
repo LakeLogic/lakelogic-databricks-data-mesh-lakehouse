@@ -1,0 +1,104 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Fx Rates Daily
+  target_layer: gold
+  description: 'grain: one row per base/quote currency pair per rate date'
+  table_name: '{gold_layer}_fact_fx_rates_daily'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: rate_date
+    type: date
+    required: true
+    description: Grain key of the 'fx_rates_daily' fact.
+  - name: base_currency
+    type: string
+    required: true
+    description: Grain key of the 'fx_rates_daily' fact.
+  - name: quote_currency
+    type: string
+    required: true
+    description: Grain key of the 'fx_rates_daily' fact.
+  - name: avg_rate
+    type: float
+    required: false
+    description: Column 'avg_rate' of the 'fx_rates_daily' fact.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_fx_rates_daily
+
+primary_key:
+- rate_date
+- base_currency
+- quote_currency
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - rate_date
+      - base_currency
+      - quote_currency
+      name: rate_date_base_currency_quote_currency_unique
+      category: uniqueness
+      description: No two rows share the same rate_date, base_currency, quote_currency.
+
+transformations:
+- phase: pre
+  sql: |-
+    WITH touched AS (
+      SELECT DISTINCT
+        rate_date AS _touched_0,
+        base_currency AS _touched_1,
+        quote_currency AS _touched_2
+      FROM source
+    ),
+    r AS (
+      SELECT
+        rate_date,
+        base_currency,
+        quote_currency,
+        AVG(rate) AS avg_rate
+      FROM silver_internal_fx_rates_daily_full
+      JOIN touched
+        ON rate_date = touched._touched_0
+        AND base_currency = touched._touched_1
+        AND quote_currency = touched._touched_2
+      GROUP BY rate_date, base_currency, quote_currency
+    )
+    SELECT
+      r.rate_date,
+      r.base_currency,
+      r.quote_currency,
+      r.avg_rate
+    FROM r
+- phase: pre
+  derive:
+    field: system
+    sql: '''internal'''
+
+links:
+- name: silver_internal_fx_rates_daily_full
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_fx_rates_daily
+
+upstream: []
+
+materialization:
+  fact:
+    type: aggregate
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_fx_rates_daily
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

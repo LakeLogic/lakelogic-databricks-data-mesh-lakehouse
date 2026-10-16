@@ -1,0 +1,74 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Dim Surge Tier Seed
+  target_layer: gold
+  description: 'grain: one row per surge tier code'
+  table_name: '{gold_layer}_dim_dim_surge_tier_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: dim_surge_tier_seed_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: surge_tier_code
+    type: string
+    required: true
+    description: Dimension attribute 'surge_tier_code', projected from the 'dim_surge_tier_seed'
+      entity.
+  - name: multiplier_min
+    type: float
+    required: false
+    description: Dimension attribute 'multiplier_min', projected from the 'dim_surge_tier_seed'
+      entity.
+  - name: multiplier_max
+    type: float
+    required: false
+    description: Dimension attribute 'multiplier_max', projected from the 'dim_surge_tier_seed'
+      entity.
+  - name: display_label
+    type: string
+    required: false
+    description: Dimension attribute 'display_label', projected from the 'dim_surge_tier_seed'
+      entity.
+  - name: notify_rider
+    type: boolean
+    required: false
+    description: Dimension attribute 'notify_rider', projected from the 'dim_surge_tier_seed'
+      entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_dim_surge_tier_seed
+
+primary_key:
+- surge_tier_code
+
+materialization:
+  scd1:
+    surrogate_key: dim_surge_tier_seed_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_dim_surge_tier_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+transformations:
+- phase: pre
+  derive:
+    field: system
+    sql: '''internal'''

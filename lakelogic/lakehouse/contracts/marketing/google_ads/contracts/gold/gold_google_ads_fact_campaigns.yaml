@@ -1,0 +1,153 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Campaigns (Google Ads)
+  target_layer: gold
+  description: 'grain: one row per campaign, ad group and day'
+  table_name: '{gold_layer}_google_ads_fact_campaigns'
+  system: google_ads
+  domain: marketing
+
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    required: true
+    description: Grain key of the 'campaigns' fact.
+  - name: ad_group_id
+    type: string
+    required: true
+    description: Grain key of the 'campaigns' fact.
+  - name: date
+    type: date
+    required: true
+    description: Grain key of the 'campaigns' fact.
+  - name: total_impressions
+    type: integer
+    required: false
+    description: Column 'total_impressions' of the 'campaigns' fact.
+  - name: total_clicks
+    type: integer
+    required: false
+    description: Column 'total_clicks' of the 'campaigns' fact.
+  - name: total_cost
+    type: decimal(18,2)
+    required: false
+    description: Column 'total_cost' of the 'campaigns' fact.
+  - name: total_conversions
+    type: integer
+    required: false
+    description: Column 'total_conversions' of the 'campaigns' fact.
+  - name: total_conversion_value
+    type: decimal(18,2)
+    required: false
+    description: Column 'total_conversion_value' of the 'campaigns' fact.
+  - name: currency_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_dim_currency_seed
+      column: dim_currency_seed_sk
+    description: Surrogate key of gold_dim_dim_currency_seed, looked up on its business
+      key; '-1' when the dimension does not know the row.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_google_ads_fact_campaigns
+
+primary_key:
+- campaign_id
+- ad_group_id
+- date
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - campaign_id
+      - ad_group_id
+      - date
+      name: campaign_id_ad_group_id_date_unique
+      category: uniqueness
+      description: No two rows share the same campaign_id, ad_group_id, date.
+  - name: currency_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE currency_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose currency_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    WITH touched AS (
+      SELECT DISTINCT
+        campaign_id AS _touched_0,
+        ad_group_id AS _touched_1,
+        date AS _touched_2,
+        currency AS _touched_3
+      FROM source
+    ),
+    r AS (
+      SELECT
+        campaign_id,
+        ad_group_id,
+        date,
+        currency,
+        SUM(impressions) AS total_impressions,
+        SUM(clicks) AS total_clicks,
+        SUM(cost) AS total_cost,
+        SUM(conversions) AS total_conversions,
+        SUM(conversion_value) AS total_conversion_value
+      FROM silver_google_ads_campaigns_full
+      JOIN touched
+        ON campaign_id = touched._touched_0
+        AND ad_group_id = touched._touched_1
+        AND date = touched._touched_2
+        AND currency = touched._touched_3
+      GROUP BY campaign_id, ad_group_id, date, currency
+    )
+    SELECT
+      r.campaign_id,
+      r.ad_group_id,
+      r.date,
+      r.total_impressions,
+      r.total_clicks,
+      r.total_cost,
+      r.total_conversions,
+      r.total_conversion_value,
+      COALESCE(d1.dim_currency_seed_sk, '-1') AS currency_sk
+    FROM r
+    LEFT JOIN gold_dim_dim_currency_seed d1
+      ON  r.currency = d1.currency_code
+- phase: pre
+  derive:
+    field: system
+    sql: '''google_ads'''
+
+links:
+- name: gold_dim_dim_currency_seed
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_dim_currency_seed
+- name: silver_google_ads_campaigns_full
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_google_ads_campaigns
+
+upstream:
+- gold_dim_dim_currency_seed
+
+materialization:
+  fact:
+    type: aggregate
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_google_ads_campaigns
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,72 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Google Ads Campaigns
+  target_layer: bronze
+  table_name: '{bronze_layer}_google_ads_campaigns'
+  domain: marketing
+  system: google_ads
+
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: campaign_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: ad_group_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: ad_group_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: date
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: impressions
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: clicks
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: cost
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: conversions
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: conversion_value
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+  - name: currency
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_ads_campaigns.
+
+source:
+  type: landing
+  path: '{landing_root}/campaigns'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- campaign_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_google_ads_campaigns

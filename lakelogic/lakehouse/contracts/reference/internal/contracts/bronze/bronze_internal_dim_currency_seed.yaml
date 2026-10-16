@@ -1,0 +1,38 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Dim Currency Seed
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_dim_currency_seed'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: currency_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_currency_seed.
+  - name: currency_numeric
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_currency_seed.
+  - name: currency_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_currency_seed.
+  - name: symbol
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_currency_seed.
+  - name: minor_units
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_currency_seed.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_currency_seed'
+  format: csv
+
+dataset: bronze_internal_dim_currency_seed

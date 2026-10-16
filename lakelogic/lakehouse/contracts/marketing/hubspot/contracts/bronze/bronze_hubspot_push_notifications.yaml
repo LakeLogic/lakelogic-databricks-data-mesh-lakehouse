@@ -1,0 +1,60 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Hubspot Push Notifications
+  target_layer: bronze
+  table_name: '{bronze_layer}_hubspot_push_notifications'
+  domain: marketing
+  system: hubspot
+
+model:
+  fields:
+  - name: notification_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+  - name: rider_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+  - name: device_token
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+  - name: campaign_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+  - name: sent_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+  - name: delivered_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+  - name: opened_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+  - name: platform
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_push_notifications.
+
+source:
+  type: landing
+  path: '{landing_root}/push_notifications'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- notification_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_hubspot_push_notifications

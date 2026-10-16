@@ -1,0 +1,107 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Email Campaigns
+  target_layer: gold
+  description: 'grain: one row per campaign send to a recipient'
+  table_name: '{gold_layer}_fact_email_campaigns'
+  system: hubspot
+  domain: marketing
+
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    required: true
+    description: Grain key of the 'email_campaigns' fact.
+  - name: recipient_name
+    type: string
+    required: true
+    description: Grain key of the 'email_campaigns' fact.
+  - name: campaign_name
+    type: string
+    required: false
+    description: Column 'campaign_name' of the 'email_campaigns' fact.
+  - name: subject_line
+    type: string
+    required: false
+    description: Column 'subject_line' of the 'email_campaigns' fact.
+  - name: sent_at
+    type: timestamp
+    required: false
+    description: Column 'sent_at' of the 'email_campaigns' fact.
+  - name: engagement_stage
+    type: string
+    required: true
+    description: 'Derived from clicked_at by rule: one of clicked, sent.'
+  - name: open_stage
+    type: string
+    required: true
+    description: 'Derived from opened_at by rule: one of opened, unopened.'
+  - name: sent_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `sent_at`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_email_campaigns
+
+primary_key:
+- campaign_id
+- recipient_name
+
+quality:
+  row_rules:
+  - name: engagement_stage_accepted_values
+    sql: engagement_stage IN ('clicked', 'sent')
+    category: validity
+    description: 'engagement_stage is one of: clicked, sent.'
+  - name: open_stage_accepted_values
+    sql: open_stage IN ('opened', 'unopened')
+    category: validity
+    description: 'open_stage is one of: opened, unopened.'
+  dataset_rules:
+  - unique:
+      columns:
+      - campaign_id
+      - recipient_name
+      name: campaign_id_recipient_name_unique
+      category: uniqueness
+      description: No two rows share the same campaign_id, recipient_name.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.campaign_id,
+      r.recipient_name,
+      r.campaign_name,
+      r.subject_line,
+      r.sent_at,
+      CASE WHEN r.clicked_at IS NOT NULL THEN 'clicked' ELSE 'sent' END AS engagement_stage,
+      CASE WHEN r.opened_at IS NOT NULL THEN 'opened' ELSE 'unopened' END AS open_stage,
+      CAST(r.sent_at AS DATE) AS sent_date
+    FROM source r
+- phase: pre
+  derive:
+    field: system
+    sql: '''hubspot'''
+
+materialization:
+  strategy: append
+  fact:
+    type: factless
+  partition_by:
+  - sent_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_hubspot_email_campaigns
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,50 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal Dim Currency Seed
+  target_layer: silver
+  table_name: '{silver_layer}_internal_dim_currency_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: currency_code
+    type: string
+    required: false
+    description: Column 'currency_code' projected from source table 'internal_dim_currency_seed',
+      typed as string.
+  - name: currency_numeric
+    type: Int64
+    required: false
+    description: Column 'currency_numeric' projected from source table 'internal_dim_currency_seed',
+      typed as Int64.
+  - name: currency_name
+    type: string
+    required: false
+    description: Column 'currency_name' projected from source table 'internal_dim_currency_seed',
+      typed as string.
+  - name: symbol
+    type: string
+    required: false
+    description: Column 'symbol' projected from source table 'internal_dim_currency_seed',
+      typed as string.
+  - name: minor_units
+    type: Int64
+    required: false
+    description: Column 'minor_units' projected from source table 'internal_dim_currency_seed',
+      typed as Int64.
+
+materialization:
+  strategy: overwrite
+
+dataset: silver_internal_dim_currency_seed
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_dim_currency_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

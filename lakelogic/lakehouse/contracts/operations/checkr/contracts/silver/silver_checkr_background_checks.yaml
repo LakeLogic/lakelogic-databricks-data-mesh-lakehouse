@@ -1,0 +1,110 @@
+version: 1.0.0
+
+info:
+  title: Silver — Checkr Background Checks
+  target_layer: silver
+  table_name: '{silver_layer}_checkr_background_checks'
+  system: checkr
+  domain: operations
+
+model:
+  fields:
+  - name: report_id
+    type: string
+    required: true
+    description: Business key 'report_id' (from source table 'checkr_background_checks'),
+      typed as string.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' projected from source table 'checkr_background_checks',
+      typed as string.
+  - name: full_name
+    type: string
+    required: false
+    pii: true
+    classification: person_name
+    description: Column 'full_name' projected from source table 'checkr_background_checks',
+      typed as string. Personal data (person_name), not masked.
+  - name: date_of_birth
+    type: string
+    required: false
+    pii: true
+    classification: date_of_birth
+    description: Column 'date_of_birth' projected from source table 'checkr_background_checks',
+      typed as string. Personal data (date_of_birth), not masked.
+  - name: ssn_last_four
+    type: string
+    required: false
+    pii: true
+    classification: national_id
+    description: Column 'ssn_last_four' projected from source table 'checkr_background_checks',
+      typed as string. Personal data (national_id), not masked.
+  - name: licence_number
+    type: string
+    required: false
+    pii: true
+    classification: licence_id
+    description: Column 'licence_number' projected from source table 'checkr_background_checks',
+      typed as string. Personal data (licence_id), not masked.
+  - name: address
+    type: string
+    required: false
+    pii: true
+    classification: postal_address
+    description: Column 'address' projected from source table 'checkr_background_checks',
+      typed as string. Personal data (postal_address), not masked.
+  - name: status
+    type: string
+    required: false
+    description: Column 'status' projected from source table 'checkr_background_checks',
+      typed as string.
+  - name: result
+    type: string
+    required: false
+    description: Column 'result' projected from source table 'checkr_background_checks',
+      typed as string.
+  - name: completed_at
+    type: timestamp
+    required: false
+    description: Column 'completed_at' projected from source table 'checkr_background_checks',
+      typed as timestamp.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' projected from source table 'checkr_background_checks',
+      typed as timestamp.
+  - name: adjudication
+    type: string
+    required: false
+    description: Column 'adjudication' projected from source table 'checkr_background_checks',
+      typed as string.
+
+primary_key:
+- report_id
+
+quality:
+  row_rules:
+  - name: report_id_not_null
+    sql: report_id IS NOT NULL
+    category: completeness
+    description: report_id is always present (never null).
+
+transformations:
+- deduplicate:
+    by:
+    - report_id
+    sort_by:
+    - created_at
+    order: desc
+
+dataset: silver_checkr_background_checks
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_checkr_background_checks
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

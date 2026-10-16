@@ -1,0 +1,124 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Trip Completed
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_trip_completed'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: trip_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: rider_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: driver_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: trip_type
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: pickup_lat
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed. Personal data (gps_coordinate),
+      not masked.
+  - name: pickup_lng
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed. Personal data (gps_coordinate),
+      not masked.
+  - name: dropoff_lat
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed. Personal data (gps_coordinate),
+      not masked.
+  - name: dropoff_lng
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed. Personal data (gps_coordinate),
+      not masked.
+  - name: city_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: requested_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: pickup_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: dropoff_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: distance_km
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: duration_minutes
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: fare_amount
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: surge_multiplier
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: tip_amount
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: payment_method
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: rider_rating
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: driver_rating
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+  - name: notes
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_completed.
+
+source:
+  type: landing
+  path: '{landing_root}/trip_completed'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- trip_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_rideflow_trip_completed

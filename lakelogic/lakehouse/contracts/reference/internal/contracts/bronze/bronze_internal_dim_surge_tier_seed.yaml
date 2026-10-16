@@ -1,0 +1,38 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Dim Surge Tier Seed
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_dim_surge_tier_seed'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: surge_tier_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_surge_tier_seed.
+  - name: multiplier_min
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_surge_tier_seed.
+  - name: multiplier_max
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_surge_tier_seed.
+  - name: display_label
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_surge_tier_seed.
+  - name: notify_rider
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_surge_tier_seed.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_surge_tier_seed'
+  format: csv
+
+dataset: bronze_internal_dim_surge_tier_seed

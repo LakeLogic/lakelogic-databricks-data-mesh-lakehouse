@@ -1,0 +1,179 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Trip Cancellations
+  target_layer: gold
+  description: 'grain: one row per trip cancellation event'
+  table_name: '{gold_layer}_fact_trip_cancellations'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: cancellation_id
+    type: string
+    required: true
+    description: Grain key of the 'trip_cancellations' fact.
+  - name: cancellation_fee_amount
+    type: float
+    required: false
+    description: Column 'cancellation_fee_amount' of the 'trip_cancellations' fact.
+  - name: trip_id
+    type: string
+    required: false
+    description: Column 'trip_id' of the 'trip_cancellations' fact.
+  - name: cancelled_at
+    type: timestamp
+    required: false
+    description: Column 'cancelled_at' of the 'trip_cancellations' fact.
+  - name: driver_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_driver_profiles
+      column: driver_profiles_sk
+    description: Surrogate key of gold_dim_driver_profiles, looked up as of cancelled_at;
+      '-1' when the dimension does not know the row.
+  - name: rider_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_rider_profiles
+      column: rider_profiles_sk
+    description: Surrogate key of gold_dim_rider_profiles, looked up as of cancelled_at;
+      '-1' when the dimension does not know the row.
+  - name: city_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_city_master
+      column: city_master_sk
+    description: Surrogate key of gold_dim_city_master, looked up as of cancelled_at;
+      '-1' when the dimension does not know the row.
+  - name: cancel_reason_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_dim_cancellation_reason_seed
+      column: dim_cancellation_reason_seed_sk
+    description: Surrogate key of gold_dim_dim_cancellation_reason_seed, looked up
+      on its business key; '-1' when the dimension does not know the row.
+  - name: cancelled_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `cancelled_at`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_trip_cancellations
+
+primary_key:
+- cancellation_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - cancellation_id
+      name: cancellation_id_unique
+      category: uniqueness
+      description: No two rows share the same cancellation_id.
+  - name: driver_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE driver_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose driver_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: rider_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE rider_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose rider_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: city_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE city_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose city_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: cancel_reason_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE cancel_reason_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose cancel_reason_sk fell back to the unknown member — the
+      dimension did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.cancellation_id,
+      r.trip_id,
+      r.cancelled_at,
+      r.cancellation_fee AS cancellation_fee_amount,
+      COALESCE(d1.driver_profiles_sk, '-1') AS driver_sk,
+      COALESCE(d2.rider_profiles_sk, '-1') AS rider_sk,
+      COALESCE(d3.city_master_sk, '-1') AS city_sk,
+      COALESCE(d4.dim_cancellation_reason_seed_sk, '-1') AS cancel_reason_sk,
+      CAST(r.cancelled_at AS DATE) AS cancelled_date
+    FROM source r
+    LEFT JOIN gold_dim_driver_profiles d1
+      ON  r.driver_id = d1.driver_id
+      AND r.cancelled_at >= d1.effective_from
+      AND r.cancelled_at < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_rider_profiles d2
+      ON  r.rider_id = d2.rider_id
+      AND r.cancelled_at >= d2.effective_from
+      AND r.cancelled_at < COALESCE(d2.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_city_master d3
+      ON  r.city_code = d3.city_code
+      AND r.cancelled_at >= d3.effective_from
+      AND r.cancelled_at < COALESCE(d3.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_dim_cancellation_reason_seed d4
+      ON  r.cancel_reason_code = d4.reason_code
+- phase: pre
+  derive:
+    field: system
+    sql: '''rideflow'''
+
+links:
+- name: gold_dim_driver_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_dim_driver_profiles
+- name: gold_dim_rider_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_dim_rider_profiles
+- name: gold_dim_city_master
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_city_master
+- name: gold_dim_dim_cancellation_reason_seed
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_dim_cancellation_reason_seed
+
+upstream:
+- gold_dim_city_master
+- gold_dim_dim_cancellation_reason_seed
+- gold_dim_driver_profiles
+- gold_dim_rider_profiles
+
+materialization:
+  strategy: append
+  fact:
+    type: transaction
+  partition_by:
+  - cancelled_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_cancellations
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,85 @@
+version: 1.0.0
+
+info:
+  title: Silver — Stripe Refunds
+  target_layer: silver
+  table_name: '{silver_layer}_stripe_refunds'
+  system: stripe
+  domain: payments
+
+model:
+  fields:
+  - name: refund_id
+    type: string
+    required: true
+    description: Business key 'refund_id' (from source table 'stripe_refunds'), typed
+      as string.
+  - name: charge_id
+    type: string
+    required: false
+    description: Column 'charge_id' projected from source table 'stripe_refunds',
+      typed as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'stripe_refunds', typed
+      as string.
+  - name: amount
+    type: float
+    required: false
+    description: Column 'amount' projected from source table 'stripe_refunds', typed
+      as float.
+  - name: currency
+    type: string
+    required: false
+    description: Column 'currency' projected from source table 'stripe_refunds', typed
+      as string.
+  - name: status
+    type: string
+    required: false
+    description: Column 'status' projected from source table 'stripe_refunds', typed
+      as string.
+  - name: reason
+    type: string
+    required: false
+    description: Column 'reason' projected from source table 'stripe_refunds', typed
+      as string.
+  - name: refund_reason
+    type: string
+    required: false
+    description: Column 'refund_reason' projected from source table 'stripe_refunds',
+      typed as string.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' projected from source table 'stripe_refunds',
+      typed as timestamp.
+
+primary_key:
+- refund_id
+
+quality:
+  row_rules:
+  - name: refund_id_not_null
+    sql: refund_id IS NOT NULL
+    category: completeness
+    description: refund_id is always present (never null).
+
+transformations:
+- deduplicate:
+    by:
+    - refund_id
+    sort_by:
+    - created_at
+    order: desc
+
+dataset: silver_stripe_refunds
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_stripe_refunds
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

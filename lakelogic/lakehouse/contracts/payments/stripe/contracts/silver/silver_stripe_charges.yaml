@@ -1,0 +1,106 @@
+version: 1.0.0
+
+info:
+  title: Silver — Stripe Charges
+  target_layer: silver
+  table_name: '{silver_layer}_stripe_charges'
+  system: stripe
+  domain: payments
+
+model:
+  fields:
+  - name: charge_id
+    type: string
+    required: true
+    description: Business key 'charge_id' (from source table 'stripe_charges'), typed
+      as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'stripe_charges', typed
+      as string.
+  - name: trip_id
+    type: string
+    required: false
+    description: Column 'trip_id' projected from source table 'stripe_charges', typed
+      as string.
+  - name: amount
+    type: float
+    required: false
+    description: Column 'amount' projected from source table 'stripe_charges', typed
+      as float.
+  - name: currency
+    type: string
+    required: false
+    description: Column 'currency' projected from source table 'stripe_charges', typed
+      as string.
+  - name: status
+    type: string
+    required: false
+    description: Column 'status' projected from source table 'stripe_charges', typed
+      as string.
+  - name: payment_method_type
+    type: string
+    required: false
+    description: Column 'payment_method_type' projected from source table 'stripe_charges',
+      typed as string.
+  - name: card_last_four
+    type: string
+    required: false
+    sensitive: true
+    classification: financial_account
+    description: Column 'card_last_four' projected from source table 'stripe_charges',
+      typed as string. Confidential (financial_account), not masked.
+  - name: billing_email
+    type: string
+    required: false
+    pii: true
+    classification: email
+    description: Column 'billing_email' projected from source table 'stripe_charges',
+      typed as string. Personal data (email), not masked.
+  - name: billing_address
+    type: string
+    required: false
+    pii: true
+    classification: postal_address
+    description: Column 'billing_address' projected from source table 'stripe_charges',
+      typed as string. Personal data (postal_address), not masked.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' projected from source table 'stripe_charges',
+      typed as timestamp.
+  - name: metadata_json
+    type: string
+    required: false
+    description: Column 'metadata_json' projected from source table 'stripe_charges',
+      typed as string.
+
+primary_key:
+- charge_id
+
+quality:
+  row_rules:
+  - name: charge_id_not_null
+    sql: charge_id IS NOT NULL
+    category: completeness
+    description: charge_id is always present (never null).
+
+transformations:
+- deduplicate:
+    by:
+    - charge_id
+    sort_by:
+    - created_at
+    order: desc
+
+dataset: silver_stripe_charges
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_stripe_charges
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

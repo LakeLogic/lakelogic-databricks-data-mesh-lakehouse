@@ -1,0 +1,116 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Driver Licences (SCD2)
+  target_layer: gold
+  description: 'grain: one row per driver licence document'
+  table_name: '{gold_layer}_dim_driver_licences'
+  system: checkr
+  domain: operations
+
+model:
+  fields:
+  - name: driver_licences_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key and the version start,
+      written by the materializer; ''-1'' is the unknown member.'
+  - name: file_path
+    type: string
+    required: true
+    description: Dimension attribute 'file_path', projected from the 'driver_licences'
+      entity.
+  - name: issuing_authority
+    type: string
+    required: false
+    description: Dimension attribute 'issuing_authority', projected from the 'driver_licences'
+      entity.
+  - name: document_subtitle
+    type: string
+    required: false
+    description: Dimension attribute 'document_subtitle', projected from the 'driver_licences'
+      entity.
+  - name: holder_name
+    type: string
+    required: false
+    description: Dimension attribute 'holder_name', projected from the 'driver_licences'
+      entity.
+  - name: expiry_date
+    type: date
+    required: false
+    description: Dimension attribute 'expiry_date', projected from the 'driver_licences'
+      entity.
+  - name: vehicle_classes
+    type: string
+    required: false
+    description: Dimension attribute 'vehicle_classes', projected from the 'driver_licences'
+      entity.
+  - name: effective_from
+    type: timestamp
+    required: false
+    description: SCD2 effective from, written by the materializer.
+  - name: effective_to
+    type: timestamp
+    required: false
+    description: SCD2 effective to, written by the materializer.
+  - name: is_current
+    type: boolean
+    required: false
+    description: SCD2 current flag, written by the materializer.
+  - name: version_number
+    type: long
+    required: false
+    description: SCD2 version column, written by the materializer.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_driver_licences
+
+primary_key:
+- file_path
+
+materialization:
+  strategy: scd2
+  scd2:
+    surrogate_key: driver_licences_sk
+    surrogate_key_strategy: hash
+    effective_from_field: effective_from
+    effective_to_field: effective_to
+    current_flag_field: is_current
+    version_column: version_number
+    track_columns:
+    - issuing_authority
+    - document_subtitle
+    - holder_name
+    - expiry_date
+    - vehicle_classes
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - file_path
+      - effective_from
+      name: file_path_effective_from_unique
+      category: uniqueness
+      description: No two rows share the same file_path, effective_from.
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_checkr_driver_licences
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+transformations:
+- phase: pre
+  derive:
+    field: system
+    sql: '''checkr'''

@@ -1,0 +1,148 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Rider App Events
+  target_layer: gold
+  description: 'grain: one row per rider app event'
+  table_name: '{gold_layer}_fact_rider_app_events'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: event_id
+    type: string
+    required: true
+    description: Grain key of the 'rider_app_events' fact.
+  - name: event_timestamp
+    type: timestamp
+    required: false
+    description: Column 'event_timestamp' of the 'rider_app_events' fact.
+  - name: event_name
+    type: string
+    required: false
+    description: Column 'event_name' of the 'rider_app_events' fact.
+  - name: screen_name
+    type: string
+    required: false
+    description: Column 'screen_name' of the 'rider_app_events' fact.
+  - name: app_version
+    type: string
+    required: false
+    description: Column 'app_version' of the 'rider_app_events' fact.
+  - name: platform
+    type: float
+    required: false
+    description: Column 'platform' of the 'rider_app_events' fact.
+  - name: event_properties_json
+    type: string
+    required: false
+    description: Column 'event_properties_json' of the 'rider_app_events' fact.
+  - name: rider_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_rider_profiles
+      column: rider_profiles_sk
+    description: Surrogate key of gold_dim_rider_profiles, looked up as of event_timestamp;
+      '-1' when the dimension does not know the row.
+  - name: city_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_city_master
+      column: city_master_sk
+    description: Surrogate key of gold_dim_city_master, looked up as of event_timestamp;
+      '-1' when the dimension does not know the row.
+  - name: event_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `event_timestamp`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_rider_app_events
+
+primary_key:
+- event_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - event_id
+      name: event_id_unique
+      category: uniqueness
+      description: No two rows share the same event_id.
+  - name: rider_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE rider_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose rider_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: city_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE city_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose city_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.event_id,
+      r.event_timestamp,
+      r.event_name,
+      r.screen_name,
+      r.app_version,
+      r.platform,
+      r.event_properties_json,
+      COALESCE(d1.rider_profiles_sk, '-1') AS rider_sk,
+      COALESCE(d2.city_master_sk, '-1') AS city_sk,
+      CAST(r.event_timestamp AS DATE) AS event_date
+    FROM source r
+    LEFT JOIN gold_dim_rider_profiles d1
+      ON  r.rider_id = d1.rider_id
+      AND r.event_timestamp >= d1.effective_from
+      AND r.event_timestamp < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_city_master d2
+      ON  r.city_code = d2.city_code
+      AND r.event_timestamp >= d2.effective_from
+      AND r.event_timestamp < COALESCE(d2.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+- phase: pre
+  derive:
+    field: system
+    sql: '''rideflow'''
+
+links:
+- name: gold_dim_rider_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_dim_rider_profiles
+- name: gold_dim_city_master
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_city_master
+
+upstream:
+- gold_dim_city_master
+- gold_dim_rider_profiles
+
+materialization:
+  strategy: append
+  fact:
+    type: factless
+  partition_by:
+  - event_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_app_events
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

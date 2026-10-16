@@ -1,0 +1,131 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Payouts
+  target_layer: gold
+  description: 'grain: one row per Stripe payout to a driver'
+  table_name: '{gold_layer}_fact_payouts'
+  system: stripe
+  domain: payments
+
+model:
+  fields:
+  - name: payout_id
+    type: string
+    required: true
+    description: Grain key of the 'payouts' fact.
+  - name: payout_amount
+    type: float
+    required: false
+    description: Column 'payout_amount' of the 'payouts' fact.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' of the 'payouts' fact.
+  - name: arrival_date
+    type: date
+    required: false
+    description: Column 'arrival_date' of the 'payouts' fact.
+  - name: driver_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_driver_profiles
+      column: driver_profiles_sk
+    description: Surrogate key of gold_dim_driver_profiles, looked up as of created_at;
+      '-1' when the dimension does not know the row.
+  - name: currency_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_dim_currency_seed
+      column: dim_currency_seed_sk
+    description: Surrogate key of gold_dim_dim_currency_seed, looked up on its business
+      key; '-1' when the dimension does not know the row.
+  - name: created_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `created_at`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_payouts
+
+primary_key:
+- payout_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - payout_id
+      name: payout_id_unique
+      category: uniqueness
+      description: No two rows share the same payout_id.
+  - name: driver_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE driver_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose driver_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: currency_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE currency_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose currency_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.payout_id,
+      r.created_at,
+      r.arrival_date,
+      r.amount AS payout_amount,
+      COALESCE(d1.driver_profiles_sk, '-1') AS driver_sk,
+      COALESCE(d2.dim_currency_seed_sk, '-1') AS currency_sk,
+      CAST(r.created_at AS DATE) AS created_date
+    FROM source r
+    LEFT JOIN gold_dim_driver_profiles d1
+      ON  r.driver_id = d1.driver_id
+      AND r.created_at >= d1.effective_from
+      AND r.created_at < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_dim_currency_seed d2
+      ON  r.currency = d2.currency_code
+- phase: pre
+  derive:
+    field: system
+    sql: '''stripe'''
+
+links:
+- name: gold_dim_driver_profiles
+  type: table
+  path: table:{domain_catalog__marketplace}.{gold_layer}_dim_driver_profiles
+- name: gold_dim_dim_currency_seed
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_dim_currency_seed
+
+upstream:
+- gold_dim_dim_currency_seed
+- gold_dim_driver_profiles
+
+materialization:
+  strategy: append
+  fact:
+    type: transaction
+  partition_by:
+  - created_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_stripe_payouts
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

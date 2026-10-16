@@ -1,0 +1,131 @@
+version: 1.0.0
+
+info:
+  title: Silver — Rideflow Driver Profiles
+  target_layer: silver
+  table_name: '{silver_layer}_rideflow_driver_profiles'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: driver_id
+    type: string
+    required: true
+    description: Business key 'driver_id' (from source table 'rideflow_driver_profiles'),
+      typed as string.
+  - name: name
+    type: string
+    required: false
+    pii: true
+    classification: person_name
+    description: Column 'name' projected from source table 'rideflow_driver_profiles',
+      typed as string. Personal data (person_name), not masked.
+  - name: email
+    type: string
+    required: false
+    pii: true
+    classification: email
+    description: Column 'email' projected from source table 'rideflow_driver_profiles',
+      typed as string. Personal data (email), not masked.
+  - name: phone
+    type: string
+    required: false
+    pii: true
+    classification: phone
+    description: Column 'phone' projected from source table 'rideflow_driver_profiles',
+      typed as string. Personal data (phone), not masked.
+  - name: date_of_birth
+    type: string
+    required: false
+    pii: true
+    classification: date_of_birth
+    description: Column 'date_of_birth' projected from source table 'rideflow_driver_profiles',
+      typed as string. Personal data (date_of_birth), not masked.
+  - name: home_address
+    type: string
+    required: false
+    pii: true
+    classification: postal_address
+    description: Column 'home_address' projected from source table 'rideflow_driver_profiles',
+      typed as string. Personal data (postal_address), not masked.
+  - name: licence_number
+    type: string
+    required: false
+    pii: true
+    classification: licence_id
+    description: Column 'licence_number' projected from source table 'rideflow_driver_profiles',
+      typed as string. Personal data (licence_id), not masked.
+  - name: licence_plate
+    type: float
+    required: false
+    pii: true
+    classification: licence_plate
+    description: Column 'licence_plate' projected from source table 'rideflow_driver_profiles',
+      typed as float. Personal data (licence_plate), not masked.
+  - name: vehicle_type
+    type: string
+    required: false
+    description: Column 'vehicle_type' projected from source table 'rideflow_driver_profiles',
+      typed as string.
+  - name: bank_account_last_four
+    type: string
+    required: false
+    sensitive: true
+    classification: financial_account
+    description: Column 'bank_account_last_four' projected from source table 'rideflow_driver_profiles',
+      typed as string. Confidential (financial_account), not masked.
+  - name: city_code
+    type: string
+    required: false
+    description: Column 'city_code' projected from source table 'rideflow_driver_profiles',
+      typed as string.
+  - name: signup_date
+    type: date
+    required: false
+    description: Column 'signup_date' projected from source table 'rideflow_driver_profiles',
+      typed as date.
+  - name: status
+    type: string
+    required: false
+    description: Column 'status' projected from source table 'rideflow_driver_profiles',
+      typed as string.
+  - name: rating
+    type: float
+    required: false
+    description: Column 'rating' projected from source table 'rideflow_driver_profiles',
+      typed as float.
+  - name: updated_at
+    type: timestamp
+    required: false
+    description: Column 'updated_at' projected from source table 'rideflow_driver_profiles',
+      typed as timestamp.
+
+primary_key:
+- driver_id
+
+quality:
+  row_rules:
+  - name: driver_id_not_null
+    sql: driver_id IS NOT NULL
+    category: completeness
+    description: driver_id is always present (never null).
+
+transformations:
+- deduplicate:
+    by:
+    - driver_id
+    sort_by:
+    - updated_at
+    order: desc
+
+dataset: silver_rideflow_driver_profiles
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_rideflow_driver_profiles
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,70 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Dim Date Seed
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_dim_date_seed'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: date_key
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: full_date
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: year
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: quarter
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: month
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: month_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: day
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: day_of_week
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: day_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: is_weekend
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: iso_week
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: is_holiday_us
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+  - name: is_holiday_uk
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_date_seed.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_date_seed'
+  format: csv
+
+dataset: bronze_internal_dim_date_seed

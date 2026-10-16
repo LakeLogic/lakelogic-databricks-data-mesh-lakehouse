@@ -1,0 +1,68 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Event Name (Google Analytics)
+  target_layer: gold
+  description: 'grain: one row per event_name'
+  table_name: '{gold_layer}_google_analytics_dim_event_name'
+  system: google_analytics
+  domain: marketing
+
+model:
+  fields:
+  - name: event_name_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: event_name
+    type: string
+    required: true
+    description: Dimension attribute 'event_name', projected from the 'event_name'
+      entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_google_analytics_dim_event_name
+
+primary_key:
+- event_name
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - event_name
+      name: event_name_unique
+      category: uniqueness
+      description: No two rows share the same event_name.
+
+materialization:
+  scd1:
+    surrogate_key: event_name_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT DISTINCT event_name
+    FROM source
+    WHERE event_name IS NOT NULL
+- phase: pre
+  derive:
+    field: system
+    sql: '''google_analytics'''
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_google_analytics_app_events
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

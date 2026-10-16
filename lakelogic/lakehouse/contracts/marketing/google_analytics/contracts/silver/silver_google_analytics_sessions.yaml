@@ -1,0 +1,110 @@
+version: 1.0.0
+
+info:
+  title: Silver — Google Analytics Sessions
+  target_layer: silver
+  table_name: '{silver_layer}_google_analytics_sessions'
+  system: google_analytics
+  domain: marketing
+
+model:
+  fields:
+  - name: session_id
+    type: string
+    required: true
+    description: Business key 'session_id' (from source table 'google_analytics_sessions'),
+      typed as string.
+  - name: user_pseudo_id
+    type: string
+    required: false
+    description: Column 'user_pseudo_id' projected from source table 'google_analytics_sessions',
+      typed as string.
+  - name: user_id
+    type: string
+    required: false
+    description: Column 'user_id' projected from source table 'google_analytics_sessions',
+      typed as string.
+  - name: ip_address
+    type: string
+    required: false
+    pii: true
+    classification: ip_address
+    description: Column 'ip_address' projected from source table 'google_analytics_sessions',
+      typed as string. Personal data (ip_address), not masked.
+  - name: session_start
+    type: timestamp
+    required: false
+    description: Column 'session_start' projected from source table 'google_analytics_sessions',
+      typed as timestamp.
+  - name: session_duration_seconds
+    type: integer
+    required: false
+    description: Column 'session_duration_seconds' projected from source table 'google_analytics_sessions',
+      typed as integer.
+  - name: page_views
+    type: integer
+    required: false
+    description: Column 'page_views' projected from source table 'google_analytics_sessions',
+      typed as integer.
+  - name: traffic_source
+    type: string
+    required: false
+    description: Column 'traffic_source' projected from source table 'google_analytics_sessions',
+      typed as string.
+  - name: traffic_medium
+    type: string
+    required: false
+    description: Column 'traffic_medium' projected from source table 'google_analytics_sessions',
+      typed as string.
+  - name: traffic_campaign
+    type: string
+    required: false
+    description: Column 'traffic_campaign' projected from source table 'google_analytics_sessions',
+      typed as string.
+  - name: device_category
+    type: string
+    required: false
+    description: Column 'device_category' projected from source table 'google_analytics_sessions',
+      typed as string.
+  - name: geo_country
+    type: string
+    required: false
+    description: Column 'geo_country' projected from source table 'google_analytics_sessions',
+      typed as string.
+  - name: landing_page
+    type: string
+    required: false
+    description: Column 'landing_page' projected from source table 'google_analytics_sessions',
+      typed as string.
+
+primary_key:
+- session_id
+
+quality:
+  row_rules:
+  - name: session_id_not_null
+    sql: session_id IS NOT NULL
+    category: completeness
+    description: session_id is always present (never null).
+  dataset_rules:
+  - unique:
+      columns:
+      - session_id
+      name: session_id_unique
+      category: uniqueness
+      description: No two rows share the same session_id.
+
+materialization:
+  partition_by:
+  - geo_country
+
+dataset: silver_google_analytics_sessions
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_google_analytics_sessions
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

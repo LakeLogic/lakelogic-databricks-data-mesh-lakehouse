@@ -1,0 +1,38 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Dim Vehicle Type Seed
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_dim_vehicle_type_seed'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: vehicle_type_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_vehicle_type_seed.
+  - name: vehicle_type_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_vehicle_type_seed.
+  - name: passenger_capacity
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_vehicle_type_seed.
+  - name: product_tier
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_vehicle_type_seed.
+  - name: requires_inspection
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_vehicle_type_seed.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_vehicle_type_seed'
+  format: csv
+
+dataset: bronze_internal_dim_vehicle_type_seed

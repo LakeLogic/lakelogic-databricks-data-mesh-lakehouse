@@ -1,0 +1,116 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact App Events
+  target_layer: gold
+  description: 'grain: one row per app event'
+  table_name: '{gold_layer}_fact_app_events'
+  system: google_analytics
+  domain: marketing
+
+model:
+  fields:
+  - name: event_name
+    type: string
+    required: true
+    description: Grain key of the 'app_events' fact.
+  - name: event_timestamp
+    type: timestamp
+    required: true
+    description: Grain key of the 'app_events' fact.
+  - name: user_pseudo_id
+    type: string
+    required: true
+    description: Grain key of the 'app_events' fact.
+  - name: user_id
+    type: string
+    required: false
+    description: Column 'user_id' of the 'app_events' fact.
+  - name: device_category
+    type: string
+    required: false
+    description: Column 'device_category' of the 'app_events' fact.
+  - name: device_os
+    type: string
+    required: false
+    description: Column 'device_os' of the 'app_events' fact.
+  - name: geo_country
+    type: string
+    required: false
+    description: Column 'geo_country' of the 'app_events' fact.
+  - name: geo_city
+    type: string
+    required: false
+    description: Column 'geo_city' of the 'app_events' fact.
+  - name: app_version
+    type: string
+    required: false
+    description: Column 'app_version' of the 'app_events' fact.
+  - name: event_params_json
+    type: string
+    required: false
+    description: Column 'event_params_json' of the 'app_events' fact.
+  - name: event_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `event_timestamp`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_app_events
+
+primary_key:
+- event_name
+- event_timestamp
+- user_pseudo_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - event_name
+      - event_timestamp
+      - user_pseudo_id
+      name: event_name_event_timestamp_user_pseudo_id_unique
+      category: uniqueness
+      description: No two rows share the same event_name, event_timestamp, user_pseudo_id.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.event_name,
+      r.event_timestamp,
+      r.user_pseudo_id,
+      r.user_id,
+      r.device_category,
+      r.device_os,
+      r.geo_country,
+      r.geo_city,
+      r.app_version,
+      r.event_params_json,
+      CAST(r.event_timestamp AS DATE) AS event_date
+    FROM source r
+- phase: pre
+  derive:
+    field: system
+    sql: '''google_analytics'''
+
+materialization:
+  strategy: append
+  fact:
+    type: factless
+  partition_by:
+  - geo_country
+  - event_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_google_analytics_app_events
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,71 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Hubspot Email Campaigns
+  target_layer: bronze
+  table_name: '{bronze_layer}_hubspot_email_campaigns'
+  domain: marketing
+  system: hubspot
+
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: recipient_email
+    type: string
+    pii: true
+    classification: email
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns. Personal data (email),
+      not masked.
+  - name: recipient_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: campaign_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: subject_line
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: sent_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: opened_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: clicked_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: bounced
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+  - name: unsubscribed
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.hubspot_email_campaigns.
+
+source:
+  type: landing
+  path: '{landing_root}/email_campaigns'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- campaign_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_hubspot_email_campaigns

@@ -1,0 +1,88 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Sms Logs
+  target_layer: gold
+  description: 'grain: one row per SMS message, updated as it moves from sent to delivered'
+  table_name: '{gold_layer}_fact_sms_logs'
+  system: twilio
+  domain: operations
+
+model:
+  fields:
+  - name: message_sid
+    type: string
+    required: true
+    description: Grain key of the 'sms_logs' fact.
+  - name: message_price
+    type: float
+    required: false
+    description: Column 'message_price' of the 'sms_logs' fact.
+  - name: sent_at
+    type: timestamp
+    required: false
+    description: Column 'sent_at' of the 'sms_logs' fact.
+  - name: delivered_at
+    type: timestamp
+    required: false
+    description: Column 'delivered_at' of the 'sms_logs' fact.
+  - name: error_code
+    type: string
+    required: false
+    description: Column 'error_code' of the 'sms_logs' fact.
+  - name: delivered_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `delivered_at`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_sms_logs
+
+primary_key:
+- message_sid
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - message_sid
+      name: message_sid_unique
+      category: uniqueness
+      description: No two rows share the same message_sid.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.message_sid,
+      r.sent_at,
+      r.delivered_at,
+      r.error_code,
+      r.price AS message_price,
+      CAST(r.delivered_at AS DATE) AS delivered_date
+    FROM source r
+- phase: pre
+  derive:
+    field: system
+    sql: '''twilio'''
+
+materialization:
+  fact:
+    type: accumulating_snapshot
+    milestone_dates:
+    - sent_at
+    - delivered_at
+  partition_by:
+  - delivered_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_twilio_sms_logs
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

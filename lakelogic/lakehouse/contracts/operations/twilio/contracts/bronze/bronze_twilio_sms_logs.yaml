@@ -1,0 +1,77 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Twilio Sms Logs
+  target_layer: bronze
+  table_name: '{bronze_layer}_twilio_sms_logs'
+  domain: operations
+  system: twilio
+
+model:
+  fields:
+  - name: message_sid
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: recipient_phone
+    type: string
+    pii: true
+    classification: phone
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs. Personal data (phone), not masked.
+  - name: sender_phone
+    type: string
+    pii: true
+    classification: phone
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs. Personal data (phone), not masked.
+  - name: message_body
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: status
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: direction
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: num_segments
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: price
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: price_unit
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: sent_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: delivered_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+  - name: error_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.twilio_sms_logs.
+
+source:
+  type: landing
+  path: '{landing_root}/sms_logs'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_twilio_sms_logs

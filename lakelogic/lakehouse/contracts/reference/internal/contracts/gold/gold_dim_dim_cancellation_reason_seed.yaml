@@ -1,0 +1,79 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Dim Cancellation Reason Seed
+  target_layer: gold
+  description: 'grain: one row per cancellation reason code'
+  table_name: '{gold_layer}_dim_dim_cancellation_reason_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: dim_cancellation_reason_seed_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: reason_code
+    type: string
+    required: true
+    description: Dimension attribute 'reason_code', projected from the 'dim_cancellation_reason_seed'
+      entity.
+  - name: reason_label
+    type: string
+    required: false
+    description: Dimension attribute 'reason_label', projected from the 'dim_cancellation_reason_seed'
+      entity.
+  - name: actor
+    type: string
+    required: false
+    description: Dimension attribute 'actor', projected from the 'dim_cancellation_reason_seed'
+      entity.
+  - name: severity
+    type: string
+    required: false
+    description: Dimension attribute 'severity', projected from the 'dim_cancellation_reason_seed'
+      entity.
+  - name: charge_cancellation_fee
+    type: float
+    required: false
+    description: Dimension attribute 'charge_cancellation_fee', projected from the
+      'dim_cancellation_reason_seed' entity.
+  - name: counts_against_driver_rating
+    type: float
+    required: false
+    description: Dimension attribute 'counts_against_driver_rating', projected from
+      the 'dim_cancellation_reason_seed' entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_dim_cancellation_reason_seed
+
+primary_key:
+- reason_code
+
+materialization:
+  scd1:
+    surrogate_key: dim_cancellation_reason_seed_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_dim_cancellation_reason_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+transformations:
+- phase: pre
+  derive:
+    field: system
+    sql: '''internal'''

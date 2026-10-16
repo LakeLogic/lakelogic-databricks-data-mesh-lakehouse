@@ -1,0 +1,78 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Rider App Events
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_rider_app_events'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: event_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: rider_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: device_id
+    type: string
+    pii: true
+    classification: device_id
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events. Personal data (device_id),
+      not masked.
+  - name: ip_address
+    type: string
+    pii: true
+    classification: ip_address
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events. Personal data (ip_address),
+      not masked.
+  - name: event_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: screen_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: event_timestamp
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: app_version
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: platform
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: city_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+  - name: event_properties_json
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_rider_app_events.
+
+source:
+  type: landing
+  path: '{landing_root}/rider_app_events'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- event_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_rideflow_rider_app_events

@@ -1,0 +1,65 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal City Master
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_city_master'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: city_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: city_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: country_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: timezone
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: default_currency
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: geofence_wkt
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: launched_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: sunset_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+  - name: _lakelogic_processed_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_city_master.
+
+source:
+  type: landing
+  path: '{landing_root}/city_master'
+  format: csv
+
+quality:
+  row_rules:
+  - name: country_code_partition_not_null
+    sql: country_code IS NOT NULL
+    category: completeness
+    description: country_code is always present (never null).
+
+materialization:
+  partition_by:
+  - country_code
+
+dataset: bronze_internal_city_master

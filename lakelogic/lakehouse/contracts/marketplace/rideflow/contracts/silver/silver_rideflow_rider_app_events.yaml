@@ -1,0 +1,98 @@
+version: 1.0.0
+
+info:
+  title: Silver — Rideflow Rider App Events
+  target_layer: silver
+  table_name: '{silver_layer}_rideflow_rider_app_events'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: event_id
+    type: string
+    required: true
+    description: Business key 'event_id' (from source table 'rideflow_rider_app_events'),
+      typed as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'rideflow_rider_app_events',
+      typed as string.
+  - name: device_id
+    type: string
+    required: false
+    pii: true
+    classification: device_id
+    description: Column 'device_id' projected from source table 'rideflow_rider_app_events',
+      typed as string. Personal data (device_id), not masked.
+  - name: ip_address
+    type: string
+    required: false
+    pii: true
+    classification: ip_address
+    description: Column 'ip_address' projected from source table 'rideflow_rider_app_events',
+      typed as string. Personal data (ip_address), not masked.
+  - name: event_name
+    type: string
+    required: false
+    description: Column 'event_name' projected from source table 'rideflow_rider_app_events',
+      typed as string.
+  - name: screen_name
+    type: string
+    required: false
+    description: Column 'screen_name' projected from source table 'rideflow_rider_app_events',
+      typed as string.
+  - name: event_timestamp
+    type: timestamp
+    required: false
+    description: Column 'event_timestamp' projected from source table 'rideflow_rider_app_events',
+      typed as timestamp.
+  - name: app_version
+    type: string
+    required: false
+    description: Column 'app_version' projected from source table 'rideflow_rider_app_events',
+      typed as string.
+  - name: platform
+    type: float
+    required: false
+    description: Column 'platform' projected from source table 'rideflow_rider_app_events',
+      typed as float.
+  - name: city_code
+    type: string
+    required: false
+    description: Column 'city_code' projected from source table 'rideflow_rider_app_events',
+      typed as string.
+  - name: event_properties_json
+    type: string
+    required: false
+    description: Column 'event_properties_json' projected from source table 'rideflow_rider_app_events',
+      typed as string.
+
+primary_key:
+- event_id
+
+quality:
+  row_rules:
+  - name: event_id_not_null
+    sql: event_id IS NOT NULL
+    category: completeness
+    description: event_id is always present (never null).
+  dataset_rules:
+  - unique:
+      columns:
+      - event_id
+      name: event_id_unique
+      category: uniqueness
+      description: No two rows share the same event_id.
+
+dataset: silver_rideflow_rider_app_events
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_rideflow_rider_app_events
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

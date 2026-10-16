@@ -1,0 +1,91 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Checkr Background Checks
+  target_layer: bronze
+  table_name: '{bronze_layer}_checkr_background_checks'
+  domain: operations
+  system: checkr
+
+model:
+  fields:
+  - name: report_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks.
+  - name: driver_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks.
+  - name: full_name
+    type: string
+    pii: true
+    classification: person_name
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks. Personal data (person_name),
+      not masked.
+  - name: date_of_birth
+    type: string
+    pii: true
+    classification: date_of_birth
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks. Personal data (date_of_birth),
+      not masked.
+  - name: ssn_last_four
+    type: string
+    pii: true
+    classification: national_id
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks. Personal data (national_id),
+      not masked.
+  - name: licence_number
+    type: string
+    pii: true
+    classification: licence_id
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks. Personal data (licence_id),
+      not masked.
+  - name: address
+    type: string
+    pii: true
+    classification: postal_address
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks. Personal data (postal_address),
+      not masked.
+  - name: status
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks.
+  - name: result
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks.
+  - name: completed_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks.
+  - name: created_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks.
+  - name: adjudication
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_operations.checkr_background_checks.
+
+source:
+  type: landing
+  path: '{landing_root}/background_checks'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- report_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_checkr_background_checks

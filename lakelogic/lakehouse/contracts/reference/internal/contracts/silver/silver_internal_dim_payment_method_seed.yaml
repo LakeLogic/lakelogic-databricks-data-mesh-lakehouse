@@ -1,0 +1,50 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal Dim Payment Method Seed
+  target_layer: silver
+  table_name: '{silver_layer}_internal_dim_payment_method_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: payment_method_code
+    type: string
+    required: false
+    description: Column 'payment_method_code' projected from source table 'internal_dim_payment_method_seed',
+      typed as string.
+  - name: payment_method_name
+    type: string
+    required: false
+    description: Column 'payment_method_name' projected from source table 'internal_dim_payment_method_seed',
+      typed as string.
+  - name: rail
+    type: string
+    required: false
+    description: Column 'rail' projected from source table 'internal_dim_payment_method_seed',
+      typed as string.
+  - name: requires_strong_auth
+    type: boolean
+    required: false
+    description: Column 'requires_strong_auth' projected from source table 'internal_dim_payment_method_seed',
+      typed as boolean.
+  - name: settles_instantly
+    type: boolean
+    required: false
+    description: Column 'settles_instantly' projected from source table 'internal_dim_payment_method_seed',
+      typed as boolean.
+
+materialization:
+  strategy: overwrite
+
+dataset: silver_internal_dim_payment_method_seed
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_dim_payment_method_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
