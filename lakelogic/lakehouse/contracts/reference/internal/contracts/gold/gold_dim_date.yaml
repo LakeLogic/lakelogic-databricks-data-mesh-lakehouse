@@ -1,0 +1,136 @@
+version: 1.0.0
+
+dataset: gold_dim_date
+
+info:
+  title: Gold — Dim Date
+  table_name: '{gold_layer}_dim_date'
+  description: One row per calendar day from 2020-01-01 to 2030-12-31, built by LakeLogic's
+    date generator. Daily facts point at it through date_key (YYYYMMDD).
+  target_layer: gold
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: date_key
+    type: integer
+    required: true
+  - name: full_date
+    type: date
+    required: true
+  - name: year
+    type: integer
+    required: false
+  - name: month
+    type: integer
+    required: false
+  - name: day
+    type: integer
+    required: false
+  - name: day_of_week
+    type: integer
+    required: false
+  - name: day_of_year
+    type: integer
+    required: false
+  - name: day_name
+    type: string
+    required: false
+  - name: day_abbrev
+    type: string
+    required: false
+  - name: month_name
+    type: string
+    required: false
+  - name: month_abbrev
+    type: string
+    required: false
+  - name: quarter
+    type: integer
+    required: false
+  - name: year_quarter
+    type: string
+    required: false
+  - name: year_month
+    type: string
+    required: false
+  - name: iso_year
+    type: integer
+    required: false
+  - name: iso_week
+    type: integer
+    required: false
+  - name: iso_weekday
+    type: integer
+    required: false
+  - name: is_weekend
+    type: boolean
+    required: false
+  - name: is_business_day
+    type: boolean
+    required: false
+  - name: is_holiday
+    type: boolean
+    required: false
+  - name: holiday_name
+    type: string
+    required: false
+  - name: is_month_start
+    type: boolean
+    required: false
+  - name: is_month_end
+    type: boolean
+    required: false
+  - name: is_quarter_start
+    type: boolean
+    required: false
+  - name: is_quarter_end
+    type: boolean
+    required: false
+  - name: is_year_start
+    type: boolean
+    required: false
+  - name: is_year_end
+    type: boolean
+    required: false
+  - name: fiscal_year
+    type: integer
+    required: false
+  - name: fiscal_quarter
+    type: integer
+    required: false
+  - name: fiscal_month
+    type: integer
+    required: false
+  - name: fiscal_year_quarter
+    type: string
+    required: false
+
+primary_key:
+- date_key
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - date_key
+      name: date_key_unique
+      category: uniqueness
+      description: No two rows share the same date_key.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_date_seed'
+  format: csv
+  load_mode: full
+
+external_logic:
+  type: python
+  engine: spark
+  path: ../../_generators/dim_date.py
+  entrypoint: run
+  args:
+    start_date: '2020-01-01'
+    end_date: '2030-12-31'
+    fiscal_year_start_month: 1

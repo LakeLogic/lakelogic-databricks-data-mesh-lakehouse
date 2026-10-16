@@ -1,0 +1,53 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Dim Country Seed
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_dim_country_seed'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: country_alpha3
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_country_seed.
+  - name: country_alpha2
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_country_seed.
+  - name: country_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_country_seed.
+  - name: country_numeric
+    type: Int64
+    description: Observed Int64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_country_seed.
+  - name: region
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_country_seed.
+  - name: sub_region
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_country_seed.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_country_seed'
+  format: csv
+
+quality:
+  row_rules:
+  - name: country_alpha3_partition_not_null
+    sql: country_alpha3 IS NOT NULL
+    category: completeness
+    description: country_alpha3 is always present (never null).
+
+materialization:
+  partition_by:
+  - country_alpha3
+
+dataset: bronze_internal_dim_country_seed

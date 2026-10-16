@@ -1,0 +1,136 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Refunds
+  target_layer: gold
+  description: 'grain: one row per refund'
+  table_name: '{gold_layer}_fact_refunds'
+  system: stripe
+  domain: payments
+
+model:
+  fields:
+  - name: refund_id
+    type: string
+    required: true
+    description: Grain key of the 'refunds' fact.
+  - name: refund_amount
+    type: float
+    required: false
+    description: Column 'refund_amount' of the 'refunds' fact.
+  - name: refund_count
+    type: integer
+    required: false
+    description: Column 'refund_count' of the 'refunds' fact.
+  - name: charge_id
+    type: string
+    required: false
+    description: Column 'charge_id' of the 'refunds' fact.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' of the 'refunds' fact.
+  - name: rider_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_rider_profiles
+      column: rider_profiles_sk
+    description: Surrogate key of gold_dim_rider_profiles, looked up as of created_at;
+      '-1' when the dimension does not know the row.
+  - name: currency_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_dim_currency_seed
+      column: dim_currency_seed_sk
+    description: Surrogate key of gold_dim_dim_currency_seed, looked up on its business
+      key; '-1' when the dimension does not know the row.
+  - name: created_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `created_at`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_refunds
+
+primary_key:
+- refund_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - refund_id
+      name: refund_id_unique
+      category: uniqueness
+      description: No two rows share the same refund_id.
+  - name: rider_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE rider_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose rider_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: currency_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE currency_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose currency_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.refund_id,
+      r.charge_id,
+      r.created_at,
+      r.amount AS refund_amount,
+      CASE WHEN r.refund_id IS NOT NULL THEN 1 ELSE 0 END AS refund_count,
+      COALESCE(d1.rider_profiles_sk, '-1') AS rider_sk,
+      COALESCE(d2.dim_currency_seed_sk, '-1') AS currency_sk,
+      CAST(r.created_at AS DATE) AS created_date
+    FROM source r
+    LEFT JOIN gold_dim_rider_profiles d1
+      ON  r.rider_id = d1.rider_id
+      AND r.created_at >= d1.effective_from
+      AND r.created_at < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_dim_currency_seed d2
+      ON  r.currency = d2.currency_code
+- phase: pre
+  derive:
+    field: system
+    sql: '''stripe'''
+
+links:
+- name: gold_dim_rider_profiles
+  type: table
+  path: table:{domain_catalog__marketplace}.{gold_layer}_dim_rider_profiles
+- name: gold_dim_dim_currency_seed
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_dim_currency_seed
+
+upstream:
+- gold_dim_dim_currency_seed
+- gold_dim_rider_profiles
+
+materialization:
+  strategy: append
+  fact:
+    type: transaction
+  partition_by:
+  - created_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_stripe_refunds
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

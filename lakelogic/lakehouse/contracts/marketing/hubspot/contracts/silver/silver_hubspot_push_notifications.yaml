@@ -1,0 +1,79 @@
+version: 1.0.0
+
+info:
+  title: Silver — Hubspot Push Notifications
+  target_layer: silver
+  table_name: '{silver_layer}_hubspot_push_notifications'
+  system: hubspot
+  domain: marketing
+
+model:
+  fields:
+  - name: notification_id
+    type: string
+    required: true
+    description: Business key 'notification_id' (from source table 'hubspot_push_notifications'),
+      typed as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'hubspot_push_notifications',
+      typed as string.
+  - name: device_token
+    type: string
+    required: false
+    description: Column 'device_token' projected from source table 'hubspot_push_notifications',
+      typed as string.
+  - name: campaign_name
+    type: string
+    required: false
+    description: Column 'campaign_name' projected from source table 'hubspot_push_notifications',
+      typed as string.
+  - name: sent_at
+    type: timestamp
+    required: false
+    description: Column 'sent_at' projected from source table 'hubspot_push_notifications',
+      typed as timestamp.
+  - name: delivered_at
+    type: timestamp
+    required: false
+    description: Column 'delivered_at' projected from source table 'hubspot_push_notifications',
+      typed as timestamp.
+  - name: opened_at
+    type: timestamp
+    required: false
+    description: Column 'opened_at' projected from source table 'hubspot_push_notifications',
+      typed as timestamp.
+  - name: platform
+    type: float
+    required: false
+    description: Column 'platform' projected from source table 'hubspot_push_notifications',
+      typed as float.
+
+primary_key:
+- notification_id
+
+quality:
+  row_rules:
+  - name: notification_id_not_null
+    sql: notification_id IS NOT NULL
+    category: completeness
+    description: notification_id is always present (never null).
+  dataset_rules:
+  - unique:
+      columns:
+      - notification_id
+      name: notification_id_unique
+      category: uniqueness
+      description: No two rows share the same notification_id.
+
+dataset: silver_hubspot_push_notifications
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_hubspot_push_notifications
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

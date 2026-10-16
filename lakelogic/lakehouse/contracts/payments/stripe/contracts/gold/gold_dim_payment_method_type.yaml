@@ -1,0 +1,68 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Payment Method Type
+  target_layer: gold
+  description: 'grain: one row per payment_method_type'
+  table_name: '{gold_layer}_dim_payment_method_type'
+  system: stripe
+  domain: payments
+
+model:
+  fields:
+  - name: payment_method_type_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: payment_method_type
+    type: string
+    required: true
+    description: Dimension attribute 'payment_method_type', projected from the 'payment_method_type'
+      entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_payment_method_type
+
+primary_key:
+- payment_method_type
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - payment_method_type
+      name: payment_method_type_unique
+      category: uniqueness
+      description: No two rows share the same payment_method_type.
+
+materialization:
+  scd1:
+    surrogate_key: payment_method_type_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT DISTINCT payment_method_type
+    FROM source
+    WHERE payment_method_type IS NOT NULL
+- phase: pre
+  derive:
+    field: system
+    sql: '''stripe'''
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_stripe_charges
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

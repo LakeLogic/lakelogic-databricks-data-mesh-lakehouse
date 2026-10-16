@@ -1,0 +1,505 @@
+{
+  "fidelity_profile": "contract-derived",
+  "generator": "lakelogic",
+  "generator_version": "1.79.2",
+  "invalid_ratio": 0.0,
+  "is_synthetic": true,
+  "no_production_rows_read": true,
+  "provenance": {
+    "generated_at": "revision:chv1:e7b0c49f07bce8fda7e01b76564ac41c80ddcbb956e46bec30c967061acb4e1a seal:sha256:5dec3512859b80333097a50f1f3bd620ff4ec644a86a89f7ebd2a821ba9cc108",
+    "revision_hash": "chv1:e7b0c49f07bce8fda7e01b76564ac41c80ddcbb956e46bec30c967061acb4e1a",
+    "seal_hash": "sha256:5dec3512859b80333097a50f1f3bd620ff4ec644a86a89f7ebd2a821ba9cc108"
+  },
+  "relationships": [
+    {
+      "child": "bronze_checkr_background_checks",
+      "child_column": "driver_id",
+      "parent": "bronze_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "bronze_hubspot_push_notifications",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_rideflow_driver_telemetry",
+      "child_column": "driver_id",
+      "parent": "bronze_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "bronze_rideflow_driver_telemetry",
+      "child_column": "trip_id",
+      "parent": "bronze_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "bronze_rideflow_rider_app_events",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_rideflow_trip_cancellations",
+      "child_column": "driver_id",
+      "parent": "bronze_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "bronze_rideflow_trip_cancellations",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_rideflow_trip_cancellations",
+      "child_column": "trip_id",
+      "parent": "bronze_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "bronze_rideflow_trip_completed",
+      "child_column": "driver_id",
+      "parent": "bronze_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "bronze_rideflow_trip_completed",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_rideflow_trip_requests",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_stripe_charges",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_stripe_charges",
+      "child_column": "trip_id",
+      "parent": "bronze_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "bronze_stripe_payouts",
+      "child_column": "driver_id",
+      "parent": "bronze_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "bronze_stripe_refunds",
+      "child_column": "charge_id",
+      "parent": "bronze_stripe_charges",
+      "parent_column": "charge_id"
+    },
+    {
+      "child": "bronze_stripe_refunds",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_zendesk_support_tickets",
+      "child_column": "charge_id",
+      "parent": "bronze_stripe_charges",
+      "parent_column": "charge_id"
+    },
+    {
+      "child": "bronze_zendesk_support_tickets",
+      "child_column": "driver_id",
+      "parent": "bronze_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "bronze_zendesk_support_tickets",
+      "child_column": "rider_id",
+      "parent": "bronze_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "bronze_zendesk_support_tickets",
+      "child_column": "trip_id",
+      "parent": "bronze_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "gold_fact_app_events",
+      "child_column": "device_category",
+      "parent": "gold_dim_device_category",
+      "parent_column": "device_category"
+    },
+    {
+      "child": "gold_fact_app_events",
+      "child_column": "device_os",
+      "parent": "gold_dim_device_os",
+      "parent_column": "device_os"
+    },
+    {
+      "child": "gold_fact_background_checks",
+      "child_column": "driver_id",
+      "parent": "gold_dim_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "gold_fact_background_checks",
+      "child_column": "driver_sk",
+      "parent": "gold_dim_driver_profiles",
+      "parent_column": "driver_profiles_sk"
+    },
+    {
+      "child": "gold_fact_charges",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_charges",
+      "child_column": "trip_id",
+      "parent": "gold_fact_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "gold_fact_driver_telemetry",
+      "child_column": "city_sk",
+      "parent": "gold_dim_city_master",
+      "parent_column": "city_master_sk"
+    },
+    {
+      "child": "gold_fact_driver_telemetry",
+      "child_column": "driver_sk",
+      "parent": "gold_dim_driver_profiles",
+      "parent_column": "driver_profiles_sk"
+    },
+    {
+      "child": "gold_fact_driver_telemetry",
+      "child_column": "trip_id",
+      "parent": "gold_fact_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "gold_fact_payouts",
+      "child_column": "currency_sk",
+      "parent": "gold_dim_dim_currency_seed",
+      "parent_column": "dim_currency_seed_sk"
+    },
+    {
+      "child": "gold_fact_payouts",
+      "child_column": "driver_sk",
+      "parent": "gold_dim_driver_profiles",
+      "parent_column": "driver_profiles_sk"
+    },
+    {
+      "child": "gold_fact_push_notifications",
+      "child_column": "platform",
+      "parent": "gold_rideflow_dim_platform",
+      "parent_column": "platform"
+    },
+    {
+      "child": "gold_fact_push_notifications",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_refunds",
+      "child_column": "charge_id",
+      "parent": "gold_fact_charges",
+      "parent_column": "charge_id"
+    },
+    {
+      "child": "gold_fact_refunds",
+      "child_column": "currency_sk",
+      "parent": "gold_dim_dim_currency_seed",
+      "parent_column": "dim_currency_seed_sk"
+    },
+    {
+      "child": "gold_fact_refunds",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_rider_app_events",
+      "child_column": "city_sk",
+      "parent": "gold_dim_city_master",
+      "parent_column": "city_master_sk"
+    },
+    {
+      "child": "gold_fact_rider_app_events",
+      "child_column": "platform",
+      "parent": "gold_rideflow_dim_platform",
+      "parent_column": "platform"
+    },
+    {
+      "child": "gold_fact_rider_app_events",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_rider_app_events",
+      "child_column": "screen_name",
+      "parent": "gold_dim_screen_name",
+      "parent_column": "screen_name"
+    },
+    {
+      "child": "gold_fact_sessions",
+      "child_column": "country_sk",
+      "parent": "gold_dim_dim_country_seed",
+      "parent_column": "dim_country_seed_sk"
+    },
+    {
+      "child": "gold_fact_sessions",
+      "child_column": "device_category",
+      "parent": "gold_dim_device_category",
+      "parent_column": "device_category"
+    },
+    {
+      "child": "gold_fact_support_tickets",
+      "child_column": "charge_id",
+      "parent": "gold_fact_charges",
+      "parent_column": "charge_id"
+    },
+    {
+      "child": "gold_fact_support_tickets",
+      "child_column": "driver_sk",
+      "parent": "gold_dim_driver_profiles",
+      "parent_column": "driver_profiles_sk"
+    },
+    {
+      "child": "gold_fact_support_tickets",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_support_tickets",
+      "child_column": "trip_id",
+      "parent": "gold_fact_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "gold_fact_trip_cancellations",
+      "child_column": "cancel_reason_sk",
+      "parent": "gold_dim_dim_cancellation_reason_seed",
+      "parent_column": "dim_cancellation_reason_seed_sk"
+    },
+    {
+      "child": "gold_fact_trip_cancellations",
+      "child_column": "city_sk",
+      "parent": "gold_dim_city_master",
+      "parent_column": "city_master_sk"
+    },
+    {
+      "child": "gold_fact_trip_cancellations",
+      "child_column": "driver_sk",
+      "parent": "gold_dim_driver_profiles",
+      "parent_column": "driver_profiles_sk"
+    },
+    {
+      "child": "gold_fact_trip_cancellations",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_trip_cancellations",
+      "child_column": "trip_id",
+      "parent": "gold_fact_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "gold_fact_trip_completed",
+      "child_column": "city_sk",
+      "parent": "gold_dim_city_master",
+      "parent_column": "city_master_sk"
+    },
+    {
+      "child": "gold_fact_trip_completed",
+      "child_column": "driver_sk",
+      "parent": "gold_dim_driver_profiles",
+      "parent_column": "driver_profiles_sk"
+    },
+    {
+      "child": "gold_fact_trip_completed",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_trip_requests",
+      "child_column": "city_sk",
+      "parent": "gold_dim_city_master",
+      "parent_column": "city_master_sk"
+    },
+    {
+      "child": "gold_fact_trip_requests",
+      "child_column": "date_key",
+      "parent": "gold_dim_date",
+      "parent_column": "date_key"
+    },
+    {
+      "child": "gold_fact_trip_requests",
+      "child_column": "rider_sk",
+      "parent": "gold_dim_rider_profiles",
+      "parent_column": "rider_profiles_sk"
+    },
+    {
+      "child": "gold_fact_trip_requests",
+      "child_column": "trip_type",
+      "parent": "gold_dim_trip_type",
+      "parent_column": "trip_type"
+    },
+    {
+      "child": "gold_google_ads_fact_campaigns",
+      "child_column": "currency_sk",
+      "parent": "gold_dim_dim_currency_seed",
+      "parent_column": "dim_currency_seed_sk"
+    },
+    {
+      "child": "gold_meta_ads_fact_campaigns",
+      "child_column": "currency_sk",
+      "parent": "gold_dim_dim_currency_seed",
+      "parent_column": "dim_currency_seed_sk"
+    },
+    {
+      "child": "gold_meta_ads_fact_campaigns",
+      "child_column": "date_key",
+      "parent": "gold_dim_date",
+      "parent_column": "date_key"
+    },
+    {
+      "child": "silver_checkr_background_checks",
+      "child_column": "driver_id",
+      "parent": "silver_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "silver_hubspot_push_notifications",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_rideflow_driver_telemetry",
+      "child_column": "driver_id",
+      "parent": "silver_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "silver_rideflow_driver_telemetry",
+      "child_column": "trip_id",
+      "parent": "silver_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "silver_rideflow_rider_app_events",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_rideflow_trip_cancellations",
+      "child_column": "driver_id",
+      "parent": "silver_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "silver_rideflow_trip_cancellations",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_rideflow_trip_cancellations",
+      "child_column": "trip_id",
+      "parent": "silver_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "silver_rideflow_trip_completed",
+      "child_column": "driver_id",
+      "parent": "silver_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "silver_rideflow_trip_completed",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_rideflow_trip_requests",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_stripe_charges",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_stripe_charges",
+      "child_column": "trip_id",
+      "parent": "silver_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    },
+    {
+      "child": "silver_stripe_payouts",
+      "child_column": "driver_id",
+      "parent": "silver_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "silver_stripe_refunds",
+      "child_column": "charge_id",
+      "parent": "silver_stripe_charges",
+      "parent_column": "charge_id"
+    },
+    {
+      "child": "silver_stripe_refunds",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_zendesk_support_tickets",
+      "child_column": "charge_id",
+      "parent": "silver_stripe_charges",
+      "parent_column": "charge_id"
+    },
+    {
+      "child": "silver_zendesk_support_tickets",
+      "child_column": "driver_id",
+      "parent": "silver_rideflow_driver_profiles",
+      "parent_column": "driver_id"
+    },
+    {
+      "child": "silver_zendesk_support_tickets",
+      "child_column": "rider_id",
+      "parent": "silver_rideflow_rider_profiles",
+      "parent_column": "rider_id"
+    },
+    {
+      "child": "silver_zendesk_support_tickets",
+      "child_column": "trip_id",
+      "parent": "silver_rideflow_trip_completed",
+      "parent_column": "trip_id"
+    }
+  ],
+  "rows_per_table": 100,
+  "seed": 7,
+  "window_end": "2025-01-01T00:00:00",
+  "window_start": "2020-01-01T00:00:00"
+}

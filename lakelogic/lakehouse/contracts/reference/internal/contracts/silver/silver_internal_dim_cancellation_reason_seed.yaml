@@ -1,0 +1,55 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal Dim Cancellation Reason Seed
+  target_layer: silver
+  table_name: '{silver_layer}_internal_dim_cancellation_reason_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: reason_code
+    type: string
+    required: false
+    description: Column 'reason_code' projected from source table 'internal_dim_cancellation_reason_seed',
+      typed as string.
+  - name: reason_label
+    type: string
+    required: false
+    description: Column 'reason_label' projected from source table 'internal_dim_cancellation_reason_seed',
+      typed as string.
+  - name: actor
+    type: string
+    required: false
+    description: Column 'actor' projected from source table 'internal_dim_cancellation_reason_seed',
+      typed as string.
+  - name: charge_cancellation_fee
+    type: float
+    required: false
+    description: Column 'charge_cancellation_fee' projected from source table 'internal_dim_cancellation_reason_seed',
+      typed as float.
+  - name: counts_against_driver_rating
+    type: float
+    required: false
+    description: Column 'counts_against_driver_rating' projected from source table
+      'internal_dim_cancellation_reason_seed', typed as float.
+  - name: severity
+    type: string
+    required: false
+    description: Column 'severity' projected from source table 'internal_dim_cancellation_reason_seed',
+      typed as string.
+
+materialization:
+  strategy: overwrite
+
+dataset: silver_internal_dim_cancellation_reason_seed
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_dim_cancellation_reason_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

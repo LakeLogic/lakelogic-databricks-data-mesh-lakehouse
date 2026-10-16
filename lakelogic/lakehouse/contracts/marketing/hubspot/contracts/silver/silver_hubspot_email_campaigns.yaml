@@ -1,0 +1,91 @@
+version: 1.0.0
+
+info:
+  title: Silver — Hubspot Email Campaigns
+  target_layer: silver
+  table_name: '{silver_layer}_hubspot_email_campaigns'
+  system: hubspot
+  domain: marketing
+
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    required: true
+    description: Business key 'campaign_id' (from source table 'hubspot_email_campaigns'),
+      typed as string.
+  - name: recipient_email
+    type: string
+    required: false
+    pii: true
+    classification: email
+    description: Column 'recipient_email' projected from source table 'hubspot_email_campaigns',
+      typed as string. Personal data (email), not masked.
+  - name: recipient_name
+    type: string
+    required: false
+    description: Column 'recipient_name' projected from source table 'hubspot_email_campaigns',
+      typed as string.
+  - name: campaign_name
+    type: string
+    required: false
+    description: Column 'campaign_name' projected from source table 'hubspot_email_campaigns',
+      typed as string.
+  - name: subject_line
+    type: string
+    required: false
+    description: Column 'subject_line' projected from source table 'hubspot_email_campaigns',
+      typed as string.
+  - name: sent_at
+    type: timestamp
+    required: false
+    description: Column 'sent_at' projected from source table 'hubspot_email_campaigns',
+      typed as timestamp.
+  - name: opened_at
+    type: timestamp
+    required: false
+    description: Column 'opened_at' projected from source table 'hubspot_email_campaigns',
+      typed as timestamp.
+  - name: clicked_at
+    type: timestamp
+    required: false
+    description: Column 'clicked_at' projected from source table 'hubspot_email_campaigns',
+      typed as timestamp.
+  - name: bounced
+    type: boolean
+    required: false
+    description: Column 'bounced' projected from source table 'hubspot_email_campaigns',
+      typed as boolean.
+  - name: unsubscribed
+    type: boolean
+    required: false
+    description: Column 'unsubscribed' projected from source table 'hubspot_email_campaigns',
+      typed as boolean.
+
+primary_key:
+- campaign_id
+
+quality:
+  row_rules:
+  - name: campaign_id_not_null
+    sql: campaign_id IS NOT NULL
+    category: completeness
+    description: campaign_id is always present (never null).
+  dataset_rules:
+  - unique:
+      columns:
+      - campaign_id
+      name: campaign_id_unique
+      category: uniqueness
+      description: No two rows share the same campaign_id.
+
+dataset: silver_hubspot_email_campaigns
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_hubspot_email_campaigns
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,94 @@
+version: 1.0.0
+
+info:
+  title: Silver — Meta Ads Campaigns
+  target_layer: silver
+  table_name: '{silver_layer}_meta_ads_campaigns'
+  system: meta_ads
+  domain: marketing
+
+model:
+  fields:
+  - name: campaign_id
+    type: string
+    required: true
+    description: Business key 'campaign_id' (from source table 'meta_ads_campaigns'),
+      typed as string.
+  - name: campaign_name
+    type: string
+    required: false
+    description: Column 'campaign_name' projected from source table 'meta_ads_campaigns',
+      typed as string.
+  - name: adset_id
+    type: string
+    required: false
+    description: Column 'adset_id' projected from source table 'meta_ads_campaigns',
+      typed as string.
+  - name: adset_name
+    type: string
+    required: false
+    description: Column 'adset_name' projected from source table 'meta_ads_campaigns',
+      typed as string.
+  - name: date
+    type: date
+    required: false
+    description: Column 'date' projected from source table 'meta_ads_campaigns', typed
+      as date.
+  - name: impressions
+    type: integer
+    required: false
+    description: Column 'impressions' projected from source table 'meta_ads_campaigns',
+      typed as integer.
+  - name: clicks
+    type: integer
+    required: false
+    description: Column 'clicks' projected from source table 'meta_ads_campaigns',
+      typed as integer.
+  - name: spend
+    type: decimal(18,2)
+    required: false
+    description: Column 'spend' projected from source table 'meta_ads_campaigns',
+      typed as decimal(18,2).
+  - name: actions_json
+    type: string
+    required: false
+    description: Column 'actions_json' projected from source table 'meta_ads_campaigns',
+      typed as string.
+  - name: conversions
+    type: integer
+    required: false
+    description: Column 'conversions' projected from source table 'meta_ads_campaigns',
+      typed as integer.
+  - name: currency
+    type: string
+    required: false
+    description: Column 'currency' projected from source table 'meta_ads_campaigns',
+      typed as string.
+
+primary_key:
+- campaign_id
+
+quality:
+  row_rules:
+  - name: campaign_id_not_null
+    sql: campaign_id IS NOT NULL
+    category: completeness
+    description: campaign_id is always present (never null).
+  dataset_rules:
+  - unique:
+      columns:
+      - campaign_id
+      name: campaign_id_unique
+      category: uniqueness
+      description: No two rows share the same campaign_id.
+
+dataset: silver_meta_ads_campaigns
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_meta_ads_campaigns
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

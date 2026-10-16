@@ -1,0 +1,68 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Trip Cancellations
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_trip_cancellations'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: cancellation_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: trip_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: rider_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: driver_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: cancelled_by
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: cancel_reason_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: city_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: requested_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: cancelled_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+  - name: cancellation_fee
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_cancellations.
+
+source:
+  type: landing
+  path: '{landing_root}/trip_cancellations'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- cancellation_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_rideflow_trip_cancellations

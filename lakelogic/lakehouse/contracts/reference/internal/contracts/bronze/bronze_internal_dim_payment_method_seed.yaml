@@ -1,0 +1,38 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Dim Payment Method Seed
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_dim_payment_method_seed'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: payment_method_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_payment_method_seed.
+  - name: payment_method_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_payment_method_seed.
+  - name: rail
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_payment_method_seed.
+  - name: requires_strong_auth
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_payment_method_seed.
+  - name: settles_instantly
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_payment_method_seed.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_payment_method_seed'
+  format: csv
+
+dataset: bronze_internal_dim_payment_method_seed

@@ -1,0 +1,117 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim City Master (SCD2)
+  target_layer: gold
+  description: 'grain: one row per city'
+  table_name: '{gold_layer}_dim_city_master'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: city_master_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key and the version start,
+      written by the materializer; ''-1'' is the unknown member.'
+  - name: city_code
+    type: string
+    required: true
+    description: Dimension attribute 'city_code', projected from the 'city_master'
+      entity.
+  - name: city_name
+    type: string
+    required: false
+    description: Dimension attribute 'city_name', projected from the 'city_master'
+      entity.
+  - name: timezone
+    type: string
+    required: false
+    description: Dimension attribute 'timezone', projected from the 'city_master'
+      entity.
+  - name: geofence_wkt
+    type: string
+    required: false
+    description: Dimension attribute 'geofence_wkt', projected from the 'city_master'
+      entity.
+  - name: launched_at
+    type: timestamp
+    required: false
+    description: Dimension attribute 'launched_at', projected from the 'city_master'
+      entity.
+  - name: sunset_at
+    type: timestamp
+    required: false
+    description: Dimension attribute 'sunset_at', projected from the 'city_master'
+      entity.
+  - name: effective_from
+    type: timestamp
+    required: false
+    description: SCD2 effective from, written by the materializer.
+  - name: effective_to
+    type: timestamp
+    required: false
+    description: SCD2 effective to, written by the materializer.
+  - name: is_current
+    type: boolean
+    required: false
+    description: SCD2 current flag, written by the materializer.
+  - name: version_number
+    type: long
+    required: false
+    description: SCD2 version column, written by the materializer.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_city_master
+
+primary_key:
+- city_code
+
+materialization:
+  strategy: scd2
+  scd2:
+    surrogate_key: city_master_sk
+    surrogate_key_strategy: hash
+    effective_from_field: effective_from
+    effective_to_field: effective_to
+    current_flag_field: is_current
+    version_column: version_number
+    track_columns:
+    - city_name
+    - country_code
+    - timezone
+    - default_currency
+    - geofence_wkt
+    - sunset_at
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - city_code
+      - effective_from
+      name: city_code_effective_from_unique
+      category: uniqueness
+      description: No two rows share the same city_code, effective_from.
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_city_master
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+transformations:
+- phase: pre
+  derive:
+    field: system
+    sql: '''internal'''

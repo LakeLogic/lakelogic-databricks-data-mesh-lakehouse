@@ -1,0 +1,89 @@
+version: 1.0.0
+
+info:
+  title: Silver — Stripe Payouts
+  target_layer: silver
+  table_name: '{silver_layer}_stripe_payouts'
+  system: stripe
+  domain: payments
+
+model:
+  fields:
+  - name: payout_id
+    type: string
+    required: true
+    description: Business key 'payout_id' (from source table 'stripe_payouts'), typed
+      as string.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' projected from source table 'stripe_payouts',
+      typed as string.
+  - name: amount
+    type: float
+    required: false
+    description: Column 'amount' projected from source table 'stripe_payouts', typed
+      as float.
+  - name: currency
+    type: string
+    required: false
+    description: Column 'currency' projected from source table 'stripe_payouts', typed
+      as string.
+  - name: status
+    type: string
+    required: false
+    description: Column 'status' projected from source table 'stripe_payouts', typed
+      as string.
+  - name: payout_email
+    type: string
+    required: false
+    pii: true
+    classification: email
+    description: Column 'payout_email' projected from source table 'stripe_payouts',
+      typed as string. Personal data (email), not masked.
+  - name: bank_account_last_four
+    type: string
+    required: false
+    sensitive: true
+    classification: financial_account
+    description: Column 'bank_account_last_four' projected from source table 'stripe_payouts',
+      typed as string. Confidential (financial_account), not masked.
+  - name: arrival_date
+    type: date
+    required: false
+    description: Column 'arrival_date' projected from source table 'stripe_payouts',
+      typed as date.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' projected from source table 'stripe_payouts',
+      typed as timestamp.
+
+primary_key:
+- payout_id
+
+quality:
+  row_rules:
+  - name: payout_id_not_null
+    sql: payout_id IS NOT NULL
+    category: completeness
+    description: payout_id is always present (never null).
+
+transformations:
+- deduplicate:
+    by:
+    - payout_id
+    sort_by:
+    - created_at
+    order: desc
+
+dataset: silver_stripe_payouts
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_stripe_payouts
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

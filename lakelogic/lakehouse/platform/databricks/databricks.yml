@@ -1,0 +1,54 @@
+bundle:
+  name: decide-later
+
+include:
+- resources/*.yml
+- resources/*/*.yml
+
+sync:
+  paths:
+  - .
+  - ../../contracts
+  exclude:
+  - tests
+
+variables:
+  catalog:
+    description: The Unity Catalog this target reads and writes (from the deployment
+      target).
+    default: decide_later_dev
+  catalog_storage_root:
+    description: Storage location for a catalog setup creates (MANAGED LOCATION <root>/<catalog>).
+      Blank = the metastore's own storage.
+    default: ''
+  lakelogic_version:
+    description: The LakeLogic version installed (from the deployment target).
+    default: 1.78.0
+  lakelogic_wheel:
+    description: Path to a LakeLogic wheel in a Volume. Blank installs from PyPI.
+    default: ''
+  telemetry_endpoint:
+    description: LakeLogic run-log ingest URL. Blank = run logs stay in the lakehouse.
+    default: https://reimburse-stable-same.ngrok-free.dev/api/v1/operations/run-logs/ingest
+  telemetry_key_scope:
+    description: Databricks secret scope holding the LakeLogic API key. The key is
+      never stored here.
+    default: ''
+  telemetry_key_secret:
+    description: Secret NAME within that scope. Not a secret itself.
+    default: ''
+
+workspace:
+  root_path: /Workspace/Shared/decide_later/dev
+
+targets:
+  dev:
+    default: true
+    variables:
+      catalog: decide_later_dev
+      lakelogic_version: 1.78.0
+      lakelogic_wheel: ''
+      telemetry_key_scope: ''
+      telemetry_key_secret: ''
+    workspace:
+      root_path: /Workspace/Shared/decide_later/dev

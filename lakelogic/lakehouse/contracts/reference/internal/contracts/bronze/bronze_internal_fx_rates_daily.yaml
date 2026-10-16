@@ -1,0 +1,42 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Fx Rates Daily
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_fx_rates_daily'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: rate_date
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_fx_rates_daily.
+  - name: base_currency
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_fx_rates_daily.
+  - name: quote_currency
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_fx_rates_daily.
+  - name: rate
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_fx_rates_daily.
+  - name: source_feed
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_fx_rates_daily.
+  - name: _lakelogic_processed_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_fx_rates_daily.
+
+source:
+  type: landing
+  path: '{landing_root}/fx_rates_daily'
+  format: csv
+
+dataset: bronze_internal_fx_rates_daily

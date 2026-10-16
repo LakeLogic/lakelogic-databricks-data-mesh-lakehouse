@@ -1,0 +1,84 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Stripe Charges
+  target_layer: bronze
+  table_name: '{bronze_layer}_stripe_charges'
+  domain: payments
+  system: stripe
+
+model:
+  fields:
+  - name: charge_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: rider_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: trip_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: amount
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: currency
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: status
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: payment_method_type
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: card_last_four
+    type: string
+    sensitive: true
+    classification: financial_account
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges. Confidential (financial_account),
+      not masked.
+  - name: billing_email
+    type: string
+    pii: true
+    classification: email
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges. Personal data (email), not masked.
+  - name: billing_address
+    type: string
+    pii: true
+    classification: postal_address
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges. Personal data (postal_address), not
+      masked.
+  - name: created_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+  - name: metadata_json
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_charges.
+
+source:
+  type: landing
+  path: '{landing_root}/charges'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- charge_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_stripe_charges

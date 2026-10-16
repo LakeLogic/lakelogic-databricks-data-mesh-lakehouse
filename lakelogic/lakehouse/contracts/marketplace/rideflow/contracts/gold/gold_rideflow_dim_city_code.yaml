@@ -1,0 +1,67 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim City Code
+  target_layer: gold
+  description: 'grain: one row per city_code'
+  table_name: '{gold_layer}_rideflow_dim_city_code'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: city_code_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: city_code
+    type: string
+    required: true
+    description: Dimension attribute 'city_code', projected from the 'city_code' entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_rideflow_dim_city_code
+
+primary_key:
+- city_code
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - city_code
+      name: city_code_unique
+      category: uniqueness
+      description: No two rows share the same city_code.
+
+materialization:
+  scd1:
+    surrogate_key: city_code_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT DISTINCT city_code
+    FROM source
+    WHERE city_code IS NOT NULL
+- phase: pre
+  derive:
+    field: system
+    sql: '''rideflow'''
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_profiles
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

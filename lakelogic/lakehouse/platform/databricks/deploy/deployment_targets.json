@@ -1,0 +1,21 @@
+{
+  "_note": "Generated from the project's deployment target in LakeLogic Deliver. Secrets are referenced by name only.",
+  "environments": {
+    "dev": {
+      "compute": "serverless",
+      "container": "decide_later_dev",
+      "engine_version": "1.78.0",
+      "engine_wheel": null,
+      "landing_root": "abfss://landing@salakelogicdemolanding.dfs.core.windows.net/{system}",
+      "log_root": "/Volumes/decide_later_dev/nondelta/lakelogic_logs",
+      "project_root": "/Workspace/Shared/decide_later/dev",
+      "secret_name": null,
+      "secret_scope": null
+    }
+  },
+  "platform": "databricks",
+  "unset_environments": [
+    "staging",
+    "prod"
+  ]
+}

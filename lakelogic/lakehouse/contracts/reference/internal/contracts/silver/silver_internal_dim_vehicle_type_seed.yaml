@@ -1,0 +1,50 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal Dim Vehicle Type Seed
+  target_layer: silver
+  table_name: '{silver_layer}_internal_dim_vehicle_type_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: vehicle_type_code
+    type: string
+    required: false
+    description: Column 'vehicle_type_code' projected from source table 'internal_dim_vehicle_type_seed',
+      typed as string.
+  - name: vehicle_type_name
+    type: string
+    required: false
+    description: Column 'vehicle_type_name' projected from source table 'internal_dim_vehicle_type_seed',
+      typed as string.
+  - name: passenger_capacity
+    type: Int64
+    required: false
+    description: Column 'passenger_capacity' projected from source table 'internal_dim_vehicle_type_seed',
+      typed as Int64.
+  - name: product_tier
+    type: string
+    required: false
+    description: Column 'product_tier' projected from source table 'internal_dim_vehicle_type_seed',
+      typed as string.
+  - name: requires_inspection
+    type: boolean
+    required: false
+    description: Column 'requires_inspection' projected from source table 'internal_dim_vehicle_type_seed',
+      typed as boolean.
+
+materialization:
+  strategy: overwrite
+
+dataset: silver_internal_dim_vehicle_type_seed
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_dim_vehicle_type_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

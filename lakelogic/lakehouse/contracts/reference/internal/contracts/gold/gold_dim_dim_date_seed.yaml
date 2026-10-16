@@ -1,0 +1,111 @@
+version: 1.0.0
+
+info:
+  title: Gold — Dim Dim Date Seed
+  target_layer: gold
+  description: 'grain: one row per calendar date'
+  table_name: '{gold_layer}_dim_dim_date_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: dim_date_seed_sk
+    type: string
+    required: false
+    description: 'Surrogate key: sha256 of the business key, written by the materializer;
+      ''-1'' is the unknown member.'
+  - name: date_key
+    type: Int64
+    required: true
+    description: Dimension attribute 'date_key', projected from the 'dim_date_seed'
+      entity.
+  - name: full_date
+    type: date
+    required: false
+    description: Dimension attribute 'full_date', projected from the 'dim_date_seed'
+      entity.
+  - name: year
+    type: Int64
+    required: false
+    description: Dimension attribute 'year', projected from the 'dim_date_seed' entity.
+  - name: quarter
+    type: Int64
+    required: false
+    description: Dimension attribute 'quarter', projected from the 'dim_date_seed'
+      entity.
+  - name: month
+    type: Int64
+    required: false
+    description: Dimension attribute 'month', projected from the 'dim_date_seed' entity.
+  - name: month_name
+    type: string
+    required: false
+    description: Dimension attribute 'month_name', projected from the 'dim_date_seed'
+      entity.
+  - name: day
+    type: Int64
+    required: false
+    description: Dimension attribute 'day', projected from the 'dim_date_seed' entity.
+  - name: day_of_week
+    type: Int64
+    required: false
+    description: Dimension attribute 'day_of_week', projected from the 'dim_date_seed'
+      entity.
+  - name: day_name
+    type: string
+    required: false
+    description: Dimension attribute 'day_name', projected from the 'dim_date_seed'
+      entity.
+  - name: is_weekend
+    type: boolean
+    required: false
+    description: Dimension attribute 'is_weekend', projected from the 'dim_date_seed'
+      entity.
+  - name: iso_week
+    type: Int64
+    required: false
+    description: Dimension attribute 'iso_week', projected from the 'dim_date_seed'
+      entity.
+  - name: is_holiday_us
+    type: boolean
+    required: false
+    description: Dimension attribute 'is_holiday_us', projected from the 'dim_date_seed'
+      entity.
+  - name: is_holiday_uk
+    type: boolean
+    required: false
+    description: Dimension attribute 'is_holiday_uk', projected from the 'dim_date_seed'
+      entity.
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_dim_dim_date_seed
+
+primary_key:
+- date_key
+
+materialization:
+  scd1:
+    surrogate_key: dim_date_seed_sk
+    surrogate_key_strategy: hash
+    unknown_member:
+      enabled: true
+      surrogate_key_value: '-1'
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_internal_dim_date_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+transformations:
+- phase: pre
+  derive:
+    field: system
+    sql: '''internal'''

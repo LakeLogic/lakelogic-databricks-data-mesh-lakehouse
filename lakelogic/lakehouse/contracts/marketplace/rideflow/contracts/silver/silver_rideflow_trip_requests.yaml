@@ -1,0 +1,147 @@
+version: 1.0.0
+
+info:
+  title: Silver — Rideflow Trip Requests
+  target_layer: silver
+  table_name: '{silver_layer}_rideflow_trip_requests'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: request_id
+    type: string
+    required: true
+    description: Business key 'request_id' (from source table 'rideflow_trip_requests'),
+      typed as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'rideflow_trip_requests',
+      typed as string.
+  - name: trip_type
+    type: string
+    required: false
+    description: Column 'trip_type' projected from source table 'rideflow_trip_requests',
+      typed as string.
+  - name: pickup_lat
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'pickup_lat' projected from source table 'rideflow_trip_requests',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -90.0
+    max: 90.0
+  - name: pickup_lng
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'pickup_lng' projected from source table 'rideflow_trip_requests',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -180.0
+    max: 180.0
+  - name: dropoff_lat
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'dropoff_lat' projected from source table 'rideflow_trip_requests',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -90.0
+    max: 90.0
+  - name: dropoff_lng
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'dropoff_lng' projected from source table 'rideflow_trip_requests',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -180.0
+    max: 180.0
+  - name: city_code
+    type: string
+    required: false
+    description: Column 'city_code' projected from source table 'rideflow_trip_requests',
+      typed as string.
+  - name: requested_at
+    type: timestamp
+    required: false
+    description: Column 'requested_at' projected from source table 'rideflow_trip_requests',
+      typed as timestamp.
+  - name: estimated_fare
+    type: float
+    required: false
+    description: Column 'estimated_fare' projected from source table 'rideflow_trip_requests',
+      typed as float.
+  - name: estimated_eta_minutes
+    type: integer
+    required: false
+    description: Column 'estimated_eta_minutes' projected from source table 'rideflow_trip_requests',
+      typed as integer.
+  - name: surge_multiplier
+    type: float
+    required: false
+    description: Column 'surge_multiplier' projected from source table 'rideflow_trip_requests',
+      typed as float.
+
+primary_key:
+- request_id
+
+quality:
+  row_rules:
+  - name: request_id_not_null
+    sql: request_id IS NOT NULL
+    category: completeness
+    description: request_id is always present (never null).
+  - name: pickup_lat_range_min
+    sql: pickup_lat IS NULL OR pickup_lat >= -90.0
+    category: validity
+    description: pickup_lat is at least -90.0 when present.
+  - name: pickup_lat_range_max
+    sql: pickup_lat IS NULL OR pickup_lat <= 90.0
+    category: validity
+    description: pickup_lat is at most 90.0 when present.
+  - name: pickup_lng_range_min
+    sql: pickup_lng IS NULL OR pickup_lng >= -180.0
+    category: validity
+    description: pickup_lng is at least -180.0 when present.
+  - name: pickup_lng_range_max
+    sql: pickup_lng IS NULL OR pickup_lng <= 180.0
+    category: validity
+    description: pickup_lng is at most 180.0 when present.
+  - name: dropoff_lat_range_min
+    sql: dropoff_lat IS NULL OR dropoff_lat >= -90.0
+    category: validity
+    description: dropoff_lat is at least -90.0 when present.
+  - name: dropoff_lat_range_max
+    sql: dropoff_lat IS NULL OR dropoff_lat <= 90.0
+    category: validity
+    description: dropoff_lat is at most 90.0 when present.
+  - name: dropoff_lng_range_min
+    sql: dropoff_lng IS NULL OR dropoff_lng >= -180.0
+    category: validity
+    description: dropoff_lng is at least -180.0 when present.
+  - name: dropoff_lng_range_max
+    sql: dropoff_lng IS NULL OR dropoff_lng <= 180.0
+    category: validity
+    description: dropoff_lng is at most 180.0 when present.
+  dataset_rules:
+  - unique:
+      columns:
+      - request_id
+      name: request_id_unique
+      category: uniqueness
+      description: No two rows share the same request_id.
+
+dataset: silver_rideflow_trip_requests
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_rideflow_trip_requests
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

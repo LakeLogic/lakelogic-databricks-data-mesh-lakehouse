@@ -1,0 +1,78 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Driver Telemetry
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_driver_telemetry'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: telemetry_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: driver_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: gps_lat
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry. Personal data (gps_coordinate),
+      not masked.
+  - name: gps_lng
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry. Personal data (gps_coordinate),
+      not masked.
+  - name: speed_kmh
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: heading
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: accuracy_meters
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: trip_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: status
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: city_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+  - name: timestamp
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_telemetry.
+
+source:
+  type: landing
+  path: '{landing_root}/driver_telemetry'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- telemetry_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_rideflow_driver_telemetry

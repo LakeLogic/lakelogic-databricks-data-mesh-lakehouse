@@ -1,0 +1,89 @@
+version: 1.0.0
+
+info:
+  title: Silver — Rideflow Trip Cancellations
+  target_layer: silver
+  table_name: '{silver_layer}_rideflow_trip_cancellations'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: cancellation_id
+    type: string
+    required: true
+    description: Business key 'cancellation_id' (from source table 'rideflow_trip_cancellations'),
+      typed as string.
+  - name: trip_id
+    type: string
+    required: false
+    description: Column 'trip_id' projected from source table 'rideflow_trip_cancellations',
+      typed as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'rideflow_trip_cancellations',
+      typed as string.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' projected from source table 'rideflow_trip_cancellations',
+      typed as string.
+  - name: cancelled_by
+    type: string
+    required: false
+    description: Column 'cancelled_by' projected from source table 'rideflow_trip_cancellations',
+      typed as string.
+  - name: cancel_reason_code
+    type: string
+    required: false
+    description: Column 'cancel_reason_code' projected from source table 'rideflow_trip_cancellations',
+      typed as string.
+  - name: city_code
+    type: string
+    required: false
+    description: Column 'city_code' projected from source table 'rideflow_trip_cancellations',
+      typed as string.
+  - name: requested_at
+    type: timestamp
+    required: false
+    description: Column 'requested_at' projected from source table 'rideflow_trip_cancellations',
+      typed as timestamp.
+  - name: cancelled_at
+    type: timestamp
+    required: false
+    description: Column 'cancelled_at' projected from source table 'rideflow_trip_cancellations',
+      typed as timestamp.
+  - name: cancellation_fee
+    type: float
+    required: false
+    description: Column 'cancellation_fee' projected from source table 'rideflow_trip_cancellations',
+      typed as float.
+
+primary_key:
+- cancellation_id
+
+quality:
+  row_rules:
+  - name: cancellation_id_not_null
+    sql: cancellation_id IS NOT NULL
+    category: completeness
+    description: cancellation_id is always present (never null).
+  dataset_rules:
+  - unique:
+      columns:
+      - cancellation_id
+      name: cancellation_id_unique
+      category: uniqueness
+      description: No two rows share the same cancellation_id.
+
+dataset: silver_rideflow_trip_cancellations
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_rideflow_trip_cancellations
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

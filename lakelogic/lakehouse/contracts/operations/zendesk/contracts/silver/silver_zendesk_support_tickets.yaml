@@ -1,0 +1,144 @@
+version: 1.0.0
+
+info:
+  title: Silver — Zendesk Support Tickets
+  target_layer: silver
+  table_name: '{silver_layer}_zendesk_support_tickets'
+  system: zendesk
+  domain: operations
+
+model:
+  fields:
+  - name: ticket_id
+    type: string
+    required: true
+    description: Business key 'ticket_id' (from source table 'zendesk_support_tickets'),
+      typed as string.
+  - name: entry_point
+    type: string
+    required: false
+    description: Column 'entry_point' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: trip_id
+    type: string
+    required: false
+    description: Column 'trip_id' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: charge_id
+    type: string
+    required: false
+    description: Column 'charge_id' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: requester_email
+    type: string
+    required: false
+    pii: true
+    classification: email
+    description: Column 'requester_email' projected from source table 'zendesk_support_tickets',
+      typed as string. Personal data (email), not masked.
+  - name: requester_name
+    type: string
+    required: false
+    description: Column 'requester_name' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: requester_phone
+    type: string
+    required: false
+    pii: true
+    classification: phone
+    description: Column 'requester_phone' projected from source table 'zendesk_support_tickets',
+      typed as string. Personal data (phone), not masked.
+  - name: subject
+    type: string
+    required: false
+    description: Column 'subject' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: ticket_description
+    type: string
+    required: false
+    description: Column 'ticket_description' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: status
+    type: string
+    required: false
+    description: Column 'status' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: priority
+    type: string
+    required: false
+    description: Column 'priority' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: channel
+    type: string
+    required: false
+    description: Column 'channel' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: assignee
+    type: string
+    required: false
+    description: Column 'assignee' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: tags_json
+    type: string
+    required: false
+    description: Column 'tags_json' projected from source table 'zendesk_support_tickets',
+      typed as string.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' projected from source table 'zendesk_support_tickets',
+      typed as timestamp.
+  - name: updated_at
+    type: timestamp
+    required: false
+    description: Column 'updated_at' projected from source table 'zendesk_support_tickets',
+      typed as timestamp.
+  - name: solved_at
+    type: timestamp
+    required: false
+    description: Column 'solved_at' projected from source table 'zendesk_support_tickets',
+      typed as timestamp.
+  - name: satisfaction_rating
+    type: float
+    required: false
+    description: Column 'satisfaction_rating' projected from source table 'zendesk_support_tickets',
+      typed as float.
+
+primary_key:
+- ticket_id
+
+quality:
+  row_rules:
+  - name: ticket_id_not_null
+    sql: ticket_id IS NOT NULL
+    category: completeness
+    description: ticket_id is always present (never null).
+
+transformations:
+- deduplicate:
+    by:
+    - ticket_id
+    sort_by:
+    - updated_at
+    order: desc
+
+dataset: silver_zendesk_support_tickets
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_zendesk_support_tickets
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

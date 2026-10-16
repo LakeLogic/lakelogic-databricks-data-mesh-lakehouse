@@ -1,0 +1,118 @@
+version: 1.0.0
+
+info:
+  title: Silver — Rideflow Driver Telemetry
+  target_layer: silver
+  table_name: '{silver_layer}_rideflow_driver_telemetry'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: telemetry_id
+    type: string
+    required: true
+    description: Business key 'telemetry_id' (from source table 'rideflow_driver_telemetry'),
+      typed as string.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' projected from source table 'rideflow_driver_telemetry',
+      typed as string.
+  - name: gps_lat
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'gps_lat' projected from source table 'rideflow_driver_telemetry',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -90.0
+    max: 90.0
+  - name: gps_lng
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'gps_lng' projected from source table 'rideflow_driver_telemetry',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -180.0
+    max: 180.0
+  - name: speed_kmh
+    type: float
+    required: false
+    description: Column 'speed_kmh' projected from source table 'rideflow_driver_telemetry',
+      typed as float.
+  - name: heading
+    type: string
+    required: false
+    description: Column 'heading' projected from source table 'rideflow_driver_telemetry',
+      typed as string.
+  - name: accuracy_meters
+    type: string
+    required: false
+    description: Column 'accuracy_meters' projected from source table 'rideflow_driver_telemetry',
+      typed as string.
+  - name: trip_id
+    type: string
+    required: false
+    description: Column 'trip_id' projected from source table 'rideflow_driver_telemetry',
+      typed as string.
+  - name: status
+    type: string
+    required: false
+    description: Column 'status' projected from source table 'rideflow_driver_telemetry',
+      typed as string.
+  - name: city_code
+    type: string
+    required: false
+    description: Column 'city_code' projected from source table 'rideflow_driver_telemetry',
+      typed as string.
+  - name: timestamp
+    type: timestamp
+    required: false
+    description: Column 'timestamp' projected from source table 'rideflow_driver_telemetry',
+      typed as timestamp.
+
+primary_key:
+- telemetry_id
+
+quality:
+  row_rules:
+  - name: telemetry_id_not_null
+    sql: telemetry_id IS NOT NULL
+    category: completeness
+    description: telemetry_id is always present (never null).
+  - name: gps_lat_range_min
+    sql: gps_lat IS NULL OR gps_lat >= -90.0
+    category: validity
+    description: gps_lat is at least -90.0 when present.
+  - name: gps_lat_range_max
+    sql: gps_lat IS NULL OR gps_lat <= 90.0
+    category: validity
+    description: gps_lat is at most 90.0 when present.
+  - name: gps_lng_range_min
+    sql: gps_lng IS NULL OR gps_lng >= -180.0
+    category: validity
+    description: gps_lng is at least -180.0 when present.
+  - name: gps_lng_range_max
+    sql: gps_lng IS NULL OR gps_lng <= 180.0
+    category: validity
+    description: gps_lng is at most 180.0 when present.
+  dataset_rules:
+  - unique:
+      columns:
+      - telemetry_id
+      name: telemetry_id_unique
+      category: uniqueness
+      description: No two rows share the same telemetry_id.
+
+dataset: silver_rideflow_driver_telemetry
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_rideflow_driver_telemetry
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

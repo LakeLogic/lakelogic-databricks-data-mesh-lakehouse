@@ -1,0 +1,88 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Trip Requests
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_trip_requests'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: request_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+  - name: rider_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+  - name: trip_type
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+  - name: pickup_lat
+    type: string
+    pii: true
+    classification: gps_coordinate
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests. Personal data (gps_coordinate),
+      not masked.
+  - name: pickup_lng
+    type: string
+    pii: true
+    classification: gps_coordinate
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests. Personal data (gps_coordinate),
+      not masked.
+  - name: dropoff_lat
+    type: string
+    pii: true
+    classification: gps_coordinate
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests. Personal data (gps_coordinate),
+      not masked.
+  - name: dropoff_lng
+    type: string
+    pii: true
+    classification: gps_coordinate
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests. Personal data (gps_coordinate),
+      not masked.
+  - name: city_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+  - name: requested_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+  - name: estimated_fare
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+  - name: estimated_eta_minutes
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+  - name: surge_multiplier
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_trip_requests.
+
+source:
+  type: landing
+  path: '{landing_root}/trip_requests'
+  format: json
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- request_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_rideflow_trip_requests

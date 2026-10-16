@@ -1,0 +1,147 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Sessions
+  target_layer: gold
+  description: 'grain: one row per web session'
+  table_name: '{gold_layer}_fact_sessions'
+  system: google_analytics
+  domain: marketing
+
+model:
+  fields:
+  - name: session_id
+    type: string
+    required: true
+    description: Grain key of the 'sessions' fact.
+  - name: total_session_seconds
+    type: integer
+    required: false
+    description: Column 'total_session_seconds' of the 'sessions' fact.
+  - name: total_page_views
+    type: integer
+    required: false
+    description: Column 'total_page_views' of the 'sessions' fact.
+  - name: session_count
+    type: integer
+    required: false
+    description: Column 'session_count' of the 'sessions' fact.
+  - name: session_start
+    type: timestamp
+    required: false
+    description: Column 'session_start' of the 'sessions' fact.
+  - name: user_pseudo_id
+    type: string
+    required: false
+    description: Column 'user_pseudo_id' of the 'sessions' fact.
+  - name: user_id
+    type: string
+    required: false
+    description: Column 'user_id' of the 'sessions' fact.
+  - name: traffic_source
+    type: string
+    required: false
+    description: Column 'traffic_source' of the 'sessions' fact.
+  - name: traffic_medium
+    type: string
+    required: false
+    description: Column 'traffic_medium' of the 'sessions' fact.
+  - name: traffic_campaign
+    type: string
+    required: false
+    description: Column 'traffic_campaign' of the 'sessions' fact.
+  - name: device_category
+    type: string
+    required: false
+    description: Column 'device_category' of the 'sessions' fact.
+  - name: landing_page
+    type: string
+    required: false
+    description: Column 'landing_page' of the 'sessions' fact.
+  - name: country_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_dim_country_seed
+      column: dim_country_seed_sk
+    description: Surrogate key of gold_dim_dim_country_seed, looked up on its business
+      key; '-1' when the dimension does not know the row.
+  - name: session_start_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `session_start`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_sessions
+
+primary_key:
+- session_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - session_id
+      name: session_id_unique
+      category: uniqueness
+      description: No two rows share the same session_id.
+  - name: country_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE country_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose country_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.session_id,
+      r.session_start,
+      r.user_pseudo_id,
+      r.user_id,
+      r.traffic_source,
+      r.traffic_medium,
+      r.traffic_campaign,
+      r.device_category,
+      r.landing_page,
+      r.session_duration_seconds AS total_session_seconds,
+      r.page_views AS total_page_views,
+      CASE WHEN r.session_id IS NOT NULL THEN 1 ELSE 0 END AS session_count,
+      COALESCE(d1.dim_country_seed_sk, '-1') AS country_sk,
+      CAST(r.session_start AS DATE) AS session_start_date
+    FROM source r
+    LEFT JOIN gold_dim_dim_country_seed d1
+      ON  r.geo_country = d1.country_alpha3
+- phase: pre
+  derive:
+    field: system
+    sql: '''google_analytics'''
+
+links:
+- name: gold_dim_dim_country_seed
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_dim_country_seed
+
+upstream:
+- gold_dim_dim_country_seed
+
+materialization:
+  strategy: append
+  fact:
+    type: transaction
+  partition_by:
+  - session_start_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_google_analytics_sessions
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

@@ -1,0 +1,192 @@
+version: 1.0.0
+
+info:
+  title: Silver — Rideflow Trip Completed
+  target_layer: silver
+  table_name: '{silver_layer}_rideflow_trip_completed'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: trip_id
+    type: string
+    required: true
+    description: Business key 'trip_id' (from source table 'rideflow_trip_completed'),
+      typed as string.
+  - name: rider_id
+    type: string
+    required: false
+    description: Column 'rider_id' projected from source table 'rideflow_trip_completed',
+      typed as string.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' projected from source table 'rideflow_trip_completed',
+      typed as string.
+  - name: trip_type
+    type: string
+    required: false
+    description: Column 'trip_type' projected from source table 'rideflow_trip_completed',
+      typed as string.
+  - name: pickup_lat
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'pickup_lat' projected from source table 'rideflow_trip_completed',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -90.0
+    max: 90.0
+  - name: pickup_lng
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'pickup_lng' projected from source table 'rideflow_trip_completed',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -180.0
+    max: 180.0
+  - name: dropoff_lat
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'dropoff_lat' projected from source table 'rideflow_trip_completed',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -90.0
+    max: 90.0
+  - name: dropoff_lng
+    type: float
+    required: false
+    pii: true
+    classification: gps_coordinate
+    description: Column 'dropoff_lng' projected from source table 'rideflow_trip_completed',
+      typed as float. Personal data (gps_coordinate), not masked.
+    min: -180.0
+    max: 180.0
+  - name: city_code
+    type: string
+    required: false
+    description: Column 'city_code' projected from source table 'rideflow_trip_completed',
+      typed as string.
+  - name: requested_at
+    type: timestamp
+    required: false
+    description: Column 'requested_at' projected from source table 'rideflow_trip_completed',
+      typed as timestamp.
+  - name: pickup_at
+    type: timestamp
+    required: false
+    description: Column 'pickup_at' projected from source table 'rideflow_trip_completed',
+      typed as timestamp.
+  - name: dropoff_at
+    type: timestamp
+    required: false
+    description: Column 'dropoff_at' projected from source table 'rideflow_trip_completed',
+      typed as timestamp.
+  - name: distance_km
+    type: float
+    required: false
+    description: Column 'distance_km' projected from source table 'rideflow_trip_completed',
+      typed as float.
+  - name: duration_minutes
+    type: integer
+    required: false
+    description: Column 'duration_minutes' projected from source table 'rideflow_trip_completed',
+      typed as integer.
+  - name: fare_amount
+    type: float
+    required: false
+    description: Column 'fare_amount' projected from source table 'rideflow_trip_completed',
+      typed as float.
+  - name: surge_multiplier
+    type: float
+    required: false
+    description: Column 'surge_multiplier' projected from source table 'rideflow_trip_completed',
+      typed as float.
+  - name: tip_amount
+    type: float
+    required: false
+    description: Column 'tip_amount' projected from source table 'rideflow_trip_completed',
+      typed as float.
+  - name: payment_method
+    type: string
+    required: false
+    description: Column 'payment_method' projected from source table 'rideflow_trip_completed',
+      typed as string.
+  - name: rider_rating
+    type: float
+    required: false
+    description: Column 'rider_rating' projected from source table 'rideflow_trip_completed',
+      typed as float.
+  - name: driver_rating
+    type: float
+    required: false
+    description: Column 'driver_rating' projected from source table 'rideflow_trip_completed',
+      typed as float.
+  - name: notes
+    type: string
+    required: false
+    description: Column 'notes' projected from source table 'rideflow_trip_completed',
+      typed as string.
+
+primary_key:
+- trip_id
+
+quality:
+  row_rules:
+  - name: trip_id_not_null
+    sql: trip_id IS NOT NULL
+    category: completeness
+    description: trip_id is always present (never null).
+  - name: pickup_lat_range_min
+    sql: pickup_lat IS NULL OR pickup_lat >= -90.0
+    category: validity
+    description: pickup_lat is at least -90.0 when present.
+  - name: pickup_lat_range_max
+    sql: pickup_lat IS NULL OR pickup_lat <= 90.0
+    category: validity
+    description: pickup_lat is at most 90.0 when present.
+  - name: pickup_lng_range_min
+    sql: pickup_lng IS NULL OR pickup_lng >= -180.0
+    category: validity
+    description: pickup_lng is at least -180.0 when present.
+  - name: pickup_lng_range_max
+    sql: pickup_lng IS NULL OR pickup_lng <= 180.0
+    category: validity
+    description: pickup_lng is at most 180.0 when present.
+  - name: dropoff_lat_range_min
+    sql: dropoff_lat IS NULL OR dropoff_lat >= -90.0
+    category: validity
+    description: dropoff_lat is at least -90.0 when present.
+  - name: dropoff_lat_range_max
+    sql: dropoff_lat IS NULL OR dropoff_lat <= 90.0
+    category: validity
+    description: dropoff_lat is at most 90.0 when present.
+  - name: dropoff_lng_range_min
+    sql: dropoff_lng IS NULL OR dropoff_lng >= -180.0
+    category: validity
+    description: dropoff_lng is at least -180.0 when present.
+  - name: dropoff_lng_range_max
+    sql: dropoff_lng IS NULL OR dropoff_lng <= 180.0
+    category: validity
+    description: dropoff_lng is at most 180.0 when present.
+  dataset_rules:
+  - unique:
+      columns:
+      - trip_id
+      name: trip_id_unique
+      category: uniqueness
+      description: No two rows share the same trip_id.
+
+dataset: silver_rideflow_trip_completed
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_rideflow_trip_completed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

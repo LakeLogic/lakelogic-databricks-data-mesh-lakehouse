@@ -1,0 +1,57 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal Dim Country Seed
+  target_layer: silver
+  table_name: '{silver_layer}_internal_dim_country_seed'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: country_alpha3
+    type: string
+    required: false
+    description: Column 'country_alpha3' projected from source table 'internal_dim_country_seed',
+      typed as string.
+  - name: country_alpha2
+    type: string
+    required: false
+    description: Column 'country_alpha2' projected from source table 'internal_dim_country_seed',
+      typed as string.
+  - name: country_name
+    type: string
+    required: false
+    description: Column 'country_name' projected from source table 'internal_dim_country_seed',
+      typed as string.
+  - name: country_numeric
+    type: Int64
+    required: false
+    description: Column 'country_numeric' projected from source table 'internal_dim_country_seed',
+      typed as Int64.
+  - name: region
+    type: string
+    required: false
+    description: Column 'region' projected from source table 'internal_dim_country_seed',
+      typed as string.
+  - name: sub_region
+    type: string
+    required: false
+    description: Column 'sub_region' projected from source table 'internal_dim_country_seed',
+      typed as string.
+
+materialization:
+  strategy: overwrite
+  partition_by:
+  - country_alpha3
+
+dataset: silver_internal_dim_country_seed
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_dim_country_seed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

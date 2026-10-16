@@ -1,0 +1,69 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Stripe Payouts
+  target_layer: bronze
+  table_name: '{bronze_layer}_stripe_payouts'
+  domain: payments
+  system: stripe
+
+model:
+  fields:
+  - name: payout_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts.
+  - name: driver_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts.
+  - name: amount
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts.
+  - name: currency
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts.
+  - name: status
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts.
+  - name: payout_email
+    type: string
+    pii: true
+    classification: email
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts. Personal data (email), not masked.
+  - name: bank_account_last_four
+    type: string
+    sensitive: true
+    classification: financial_account
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts. Confidential (financial_account),
+      not masked.
+  - name: arrival_date
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts.
+  - name: created_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_payments.stripe_payouts.
+
+source:
+  type: landing
+  path: '{landing_root}/payouts'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- payout_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_stripe_payouts

@@ -1,0 +1,42 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Internal Dim Cancellation Reason Seed
+  target_layer: bronze
+  table_name: '{bronze_layer}_internal_dim_cancellation_reason_seed'
+  domain: reference
+  system: internal
+
+model:
+  fields:
+  - name: reason_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_cancellation_reason_seed.
+  - name: reason_label
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_cancellation_reason_seed.
+  - name: actor
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_cancellation_reason_seed.
+  - name: charge_cancellation_fee
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_cancellation_reason_seed.
+  - name: counts_against_driver_rating
+    type: boolean
+    description: Observed boolean column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_cancellation_reason_seed.
+  - name: severity
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_reference.internal_dim_cancellation_reason_seed.
+
+source:
+  type: landing
+  path: '{landing_root}/dim_cancellation_reason_seed'
+  format: csv
+
+dataset: bronze_internal_dim_cancellation_reason_seed

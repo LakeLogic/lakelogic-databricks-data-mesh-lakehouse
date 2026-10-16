@@ -1,0 +1,112 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Background Checks
+  target_layer: gold
+  description: 'grain: one row per background check report, updated as it moves from
+    creation to completion'
+  table_name: '{gold_layer}_fact_background_checks'
+  system: checkr
+  domain: operations
+
+model:
+  fields:
+  - name: report_id
+    type: string
+    required: true
+    description: Grain key of the 'background_checks' fact.
+  - name: created_at
+    type: timestamp
+    required: false
+    description: Column 'created_at' of the 'background_checks' fact.
+  - name: completed_at
+    type: timestamp
+    required: false
+    description: Column 'completed_at' of the 'background_checks' fact.
+  - name: driver_id
+    type: string
+    required: false
+    description: Column 'driver_id' of the 'background_checks' fact.
+  - name: driver_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_driver_profiles
+      column: driver_profiles_sk
+    description: Surrogate key of gold_dim_driver_profiles, looked up as of created_at;
+      '-1' when the dimension does not know the row.
+  - name: completed_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `completed_at`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_background_checks
+
+primary_key:
+- report_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - report_id
+      name: report_id_unique
+      category: uniqueness
+      description: No two rows share the same report_id.
+  - name: driver_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE driver_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose driver_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.report_id,
+      r.created_at,
+      r.completed_at,
+      r.driver_id,
+      COALESCE(d1.driver_profiles_sk, '-1') AS driver_sk,
+      CAST(r.completed_at AS DATE) AS completed_date
+    FROM source r
+    LEFT JOIN gold_dim_driver_profiles d1
+      ON  r.driver_id = d1.driver_id
+      AND r.created_at >= d1.effective_from
+      AND r.created_at < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+- phase: pre
+  derive:
+    field: system
+    sql: '''checkr'''
+
+links:
+- name: gold_dim_driver_profiles
+  type: table
+  path: table:{domain_catalog__marketplace}.{gold_layer}_dim_driver_profiles
+
+upstream:
+- gold_dim_driver_profiles
+
+materialization:
+  fact:
+    type: accumulating_snapshot
+    milestone_dates:
+    - created_at
+    - completed_at
+  partition_by:
+  - completed_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_checkr_background_checks
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

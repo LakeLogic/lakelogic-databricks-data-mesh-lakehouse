@@ -1,0 +1,192 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Trip Completed
+  target_layer: gold
+  description: 'grain: one row per completed trip'
+  table_name: '{gold_layer}_fact_trip_completed'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: trip_id
+    type: string
+    required: true
+    description: Grain key of the 'trip_completed' fact.
+  - name: trip_fare_amount
+    type: float
+    required: false
+    description: Column 'trip_fare_amount' of the 'trip_completed' fact.
+  - name: trip_tip_amount
+    type: float
+    required: false
+    description: Column 'trip_tip_amount' of the 'trip_completed' fact.
+  - name: trip_distance_km
+    type: float
+    required: false
+    description: Column 'trip_distance_km' of the 'trip_completed' fact.
+  - name: trip_duration_minutes
+    type: integer
+    required: false
+    description: Column 'trip_duration_minutes' of the 'trip_completed' fact.
+  - name: trip_surge_multiplier
+    type: float
+    required: false
+    description: Column 'trip_surge_multiplier' of the 'trip_completed' fact.
+  - name: trip_rider_rating
+    type: float
+    required: false
+    description: Column 'trip_rider_rating' of the 'trip_completed' fact.
+  - name: trip_driver_rating
+    type: float
+    required: false
+    description: Column 'trip_driver_rating' of the 'trip_completed' fact.
+  - name: requested_at
+    type: timestamp
+    required: false
+    description: Column 'requested_at' of the 'trip_completed' fact.
+  - name: pickup_at
+    type: timestamp
+    required: false
+    description: Column 'pickup_at' of the 'trip_completed' fact.
+  - name: dropoff_at
+    type: timestamp
+    required: false
+    description: Column 'dropoff_at' of the 'trip_completed' fact.
+  - name: driver_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_driver_profiles
+      column: driver_profiles_sk
+    description: Surrogate key of gold_dim_driver_profiles, looked up as of dropoff_at;
+      '-1' when the dimension does not know the row.
+  - name: rider_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_rider_profiles
+      column: rider_profiles_sk
+    description: Surrogate key of gold_dim_rider_profiles, looked up as of dropoff_at;
+      '-1' when the dimension does not know the row.
+  - name: city_sk
+    type: string
+    required: true
+    foreign_key:
+      contract: gold_dim_city_master
+      column: city_master_sk
+    description: Surrogate key of gold_dim_city_master, looked up as of dropoff_at;
+      '-1' when the dimension does not know the row.
+  - name: dropoff_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `dropoff_at`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_trip_completed
+
+primary_key:
+- trip_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - trip_id
+      name: trip_id_unique
+      category: uniqueness
+      description: No two rows share the same trip_id.
+  - name: driver_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE driver_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose driver_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: rider_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE rider_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose rider_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+  - name: city_sk_unknown_member_rows
+    sql: SELECT COUNT(*) FROM {dataset} WHERE city_sk = '-1'
+    must_be_less_than: 1
+    severity: warning
+    category: consistency
+    description: Rows whose city_sk fell back to the unknown member — the dimension
+      did not know them when this fact ran.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.trip_id,
+      r.requested_at,
+      r.pickup_at,
+      r.dropoff_at,
+      r.fare_amount AS trip_fare_amount,
+      r.tip_amount AS trip_tip_amount,
+      r.distance_km AS trip_distance_km,
+      r.duration_minutes AS trip_duration_minutes,
+      r.surge_multiplier AS trip_surge_multiplier,
+      r.rider_rating AS trip_rider_rating,
+      r.driver_rating AS trip_driver_rating,
+      COALESCE(d1.driver_profiles_sk, '-1') AS driver_sk,
+      COALESCE(d2.rider_profiles_sk, '-1') AS rider_sk,
+      COALESCE(d3.city_master_sk, '-1') AS city_sk,
+      CAST(r.dropoff_at AS DATE) AS dropoff_date
+    FROM source r
+    LEFT JOIN gold_dim_driver_profiles d1
+      ON  r.driver_id = d1.driver_id
+      AND r.dropoff_at >= d1.effective_from
+      AND r.dropoff_at < COALESCE(d1.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_rider_profiles d2
+      ON  r.rider_id = d2.rider_id
+      AND r.dropoff_at >= d2.effective_from
+      AND r.dropoff_at < COALESCE(d2.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+    LEFT JOIN gold_dim_city_master d3
+      ON  r.city_code = d3.city_code
+      AND r.dropoff_at >= d3.effective_from
+      AND r.dropoff_at < COALESCE(d3.effective_to, CAST('9999-12-31 00:00:00' AS TIMESTAMP))
+- phase: pre
+  derive:
+    field: system
+    sql: '''rideflow'''
+
+links:
+- name: gold_dim_driver_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_dim_driver_profiles
+- name: gold_dim_rider_profiles
+  type: table
+  path: table:{domain_catalog}.{gold_layer}_dim_rider_profiles
+- name: gold_dim_city_master
+  type: table
+  path: table:{domain_catalog__reference}.{gold_layer}_dim_city_master
+
+upstream:
+- gold_dim_city_master
+- gold_dim_driver_profiles
+- gold_dim_rider_profiles
+
+materialization:
+  strategy: append
+  fact:
+    type: transaction
+  partition_by:
+  - dropoff_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_trip_completed
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

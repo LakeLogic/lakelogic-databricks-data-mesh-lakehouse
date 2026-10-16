@@ -1,0 +1,112 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Driver Profiles
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_driver_profiles'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: driver_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles.
+  - name: name
+    type: string
+    pii: true
+    classification: person_name
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Personal data (person_name),
+      not masked.
+  - name: email
+    type: string
+    pii: true
+    classification: email
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Personal data (email),
+      not masked.
+  - name: phone
+    type: string
+    pii: true
+    classification: phone
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Personal data (phone),
+      not masked.
+  - name: date_of_birth
+    type: string
+    pii: true
+    classification: date_of_birth
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Personal data (date_of_birth),
+      not masked.
+  - name: home_address
+    type: string
+    pii: true
+    classification: postal_address
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Personal data (postal_address),
+      not masked.
+  - name: licence_number
+    type: string
+    pii: true
+    classification: licence_id
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Personal data (licence_id),
+      not masked.
+  - name: licence_plate
+    type: string
+    pii: true
+    classification: licence_plate
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Personal data (licence_plate),
+      not masked.
+  - name: vehicle_type
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles.
+  - name: bank_account_last_four
+    type: string
+    sensitive: true
+    classification: financial_account
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles. Confidential (financial_account),
+      not masked.
+  - name: city_code
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles.
+  - name: signup_date
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles.
+  - name: status
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles.
+  - name: rating
+    type: Float64
+    description: Observed Float64 column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles.
+  - name: updated_at
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketplace.rideflow_driver_profiles.
+
+source:
+  type: landing
+  path: '{landing_root}/driver_profiles'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- driver_id
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+dataset: bronze_rideflow_driver_profiles

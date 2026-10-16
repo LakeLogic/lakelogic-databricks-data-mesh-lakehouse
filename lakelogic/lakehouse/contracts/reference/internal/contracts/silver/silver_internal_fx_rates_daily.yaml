@@ -1,0 +1,55 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal Fx Rates Daily
+  target_layer: silver
+  table_name: '{silver_layer}_internal_fx_rates_daily'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: rate_date
+    type: date
+    required: false
+    description: Column 'rate_date' projected from source table 'internal_fx_rates_daily',
+      typed as date.
+  - name: base_currency
+    type: string
+    required: false
+    description: Column 'base_currency' projected from source table 'internal_fx_rates_daily',
+      typed as string.
+  - name: quote_currency
+    type: string
+    required: false
+    description: Column 'quote_currency' projected from source table 'internal_fx_rates_daily',
+      typed as string.
+  - name: rate
+    type: float
+    required: false
+    description: Column 'rate' projected from source table 'internal_fx_rates_daily',
+      typed as float.
+  - name: source_feed
+    type: string
+    required: false
+    description: Column 'source_feed' projected from source table 'internal_fx_rates_daily',
+      typed as string.
+  - name: _lakelogic_processed_at
+    type: timestamp
+    required: false
+    description: Column '_lakelogic_processed_at' projected from source table 'internal_fx_rates_daily',
+      typed as timestamp.
+
+materialization:
+  strategy: overwrite
+
+dataset: silver_internal_fx_rates_daily
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_fx_rates_daily
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'

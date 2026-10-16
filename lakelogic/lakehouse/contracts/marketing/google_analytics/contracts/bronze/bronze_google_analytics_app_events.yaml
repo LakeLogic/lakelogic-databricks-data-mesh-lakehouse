@@ -1,0 +1,94 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Google Analytics App Events
+  target_layer: bronze
+  table_name: '{bronze_layer}_google_analytics_app_events'
+  domain: marketing
+  system: google_analytics
+
+model:
+  fields:
+  - name: event_name
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: event_timestamp
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: event_date
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: user_pseudo_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: user_id
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: device_id
+    type: string
+    pii: true
+    classification: device_id
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events. Personal data (device_id),
+      not masked.
+  - name: ip_address
+    type: string
+    pii: true
+    classification: ip_address
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events. Personal data (ip_address),
+      not masked.
+  - name: device_category
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: device_os
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: geo_country
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: geo_city
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: app_version
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+  - name: event_params_json
+    type: string
+    description: Observed string column ingested from the scanned source salakelogicdemolanding
+      - landing.landing_marketing.google_analytics_app_events.
+
+source:
+  type: landing
+  path: '{landing_root}/app_events'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
+
+quality:
+  row_rules:
+  - name: geo_country_partition_not_null
+    sql: geo_country IS NOT NULL
+    category: completeness
+    description: geo_country is always present (never null).
+
+materialization:
+  partition_by:
+  - geo_country
+
+dataset: bronze_google_analytics_app_events

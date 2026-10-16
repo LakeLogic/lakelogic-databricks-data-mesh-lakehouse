@@ -1,0 +1,72 @@
+version: 1.0.0
+
+info:
+  title: Silver — Internal City Master
+  target_layer: silver
+  table_name: '{silver_layer}_internal_city_master'
+  system: internal
+  domain: reference
+
+model:
+  fields:
+  - name: city_code
+    type: string
+    required: false
+    description: Column 'city_code' projected from source table 'internal_city_master',
+      typed as string.
+  - name: city_name
+    type: string
+    required: false
+    description: Column 'city_name' projected from source table 'internal_city_master',
+      typed as string.
+  - name: country_code
+    type: string
+    required: false
+    description: Column 'country_code' projected from source table 'internal_city_master',
+      typed as string.
+  - name: timezone
+    type: string
+    required: false
+    description: Column 'timezone' projected from source table 'internal_city_master',
+      typed as string.
+  - name: default_currency
+    type: string
+    required: false
+    description: Column 'default_currency' projected from source table 'internal_city_master',
+      typed as string.
+  - name: geofence_wkt
+    type: string
+    required: false
+    description: Column 'geofence_wkt' projected from source table 'internal_city_master',
+      typed as string.
+  - name: launched_at
+    type: timestamp
+    required: false
+    description: Column 'launched_at' projected from source table 'internal_city_master',
+      typed as timestamp.
+  - name: sunset_at
+    type: timestamp
+    required: false
+    description: Column 'sunset_at' projected from source table 'internal_city_master',
+      typed as timestamp.
+  - name: _lakelogic_processed_at
+    type: timestamp
+    required: false
+    description: Column '_lakelogic_processed_at' projected from source table 'internal_city_master',
+      typed as timestamp.
+
+materialization:
+  strategy: overwrite
+  partition_by:
+  - country_code
+
+dataset: silver_internal_city_master
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_internal_city_master
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}._lakelogic_run_log'
